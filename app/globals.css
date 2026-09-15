@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@import 'material-symbols/outlined.css';
+@import 'material-symbols/rounded.css';
 
 :root {
   --background: #ffffff;
