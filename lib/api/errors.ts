@@ -27,7 +27,7 @@ const ErrorBody = z.object({ message: z.string(), code: z.string() });
 export function toApiError(error: unknown): ApiError {
   if (error instanceof ApiError) return error;
   if (!axios.isAxiosError(error))
-    return new ApiError('unknown', 'Unkown error', { cause: error });
+    return new ApiError('unknown', 'Unknown error', { cause: error });
   if (axios.isCancel(error))
     return new ApiError('canceled', error.message, { cause: error });
   if (error.response) {
