@@ -1,24 +1,39 @@
 'use client';
 
 import { cva, type VariantProps } from 'class-variance-authority';
-import type { MouseEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import {
   IconCheckboxActive,
+  IconCheckboxActiveWhite,
   IconCheckboxInactive,
+  IconCheckboxInactiveWhite,
   IconKebab,
+  IconKebabWhite,
   IconLink,
+  IconLinkWhite,
   IconNoteView,
+  IconNoteViewWhite,
   IconNoteWrite,
   IconStarFilled,
+  IconStarFilledWhite,
   IconStarOutline,
+  IconStarOutlineWhite,
 } from '@/components/icons';
+import { stopPropagation } from '@/lib/utils';
 import type { Todo } from '@/types/todo';
 
+/** 아이템 렌더링에 실제로 쓰는 필드만 좁힙니다. 응답 스펙이 바뀌면 여기서 타입 에러로 드러납니다. */
+export type TodoItemData = Pick<
+  Todo,
+  'id' | 'title' | 'done' | 'noteIds' | 'linkUrl' | 'isFavorite'
+>;
+
 /**
- * 피그마 todo_list 컴포넌트(node 4:9638)의 size 변형을 따릅니다.
- * large: 1920 / 744 (높이 44px), small: 375 (높이 36px)
+ * 피그마 todo_list 컴포넌트(node 4:9638)의 변형을 따릅니다.
+ * size  - large: 1920 / 744 (높이 44px), small: 375 (높이 36px)
+ * style - todo: 밝은 배경용, white: 어두운 배경용(대시보드 상단 카드)
  * 색상 hex는 globals.css의 @theme 토큰이 정의되면 토큰 클래스로 교체합니다.
  */
 const itemVariants = cva('flex w-full items-center', {
@@ -36,15 +51,24 @@ const titleVariants = cva(
   {
     variants: {
       size: {
-        large: 'text-[16px] leading-[24px]',
-        small: 'text-[14px] leading-[20px]',
+        large: 'text-base',
+        small: 'text-sm',
       },
       done: {
         true: 'text-[#737373]',
         false: 'text-[#262626]',
       },
+      style: {
+        todo: '',
+        white: 'font-semibold',
+      },
     },
-    defaultVariants: { size: 'large', done: false },
+    compoundVariants: [
+      // white는 완료 여부와 무관하게 흰 글씨입니다.
+      { style: 'white', done: true, class: 'text-white' },
+      { style: 'white', done: false, class: 'text-white' },
+    ],
+    defaultVariants: { size: 'large', done: false, style: 'todo' },
   },
 );
 
@@ -58,11 +82,15 @@ const iconGroupVariants = cva('flex h-6 shrink-0 items-center', {
   defaultVariants: { size: 'large' },
 });
 
+export type TodoItemStyle = 'todo' | 'white';
+
 export type TodoItemProps = VariantProps<typeof itemVariants> & {
-  todo: Todo;
-  /** 완료 토글 (FN-TD-06). API 호출과 롤백은 페이지가 담당합니다. */
+  todo: TodoItemData;
+  /** 배경 색 계열. white는 어두운 배경(대시보드 상단 카드)용입니다. */
+  style?: TodoItemStyle;
+  /** 완료 토글 (FN-TD-06). next는 토글 후의 값입니다. API 호출과 롤백은 페이지가 담당합니다. */
   onToggleDone: (id: number, next: boolean) => void;
-  /** 찜 토글 (FN-TD-07) */
+  /** 찜 토글 (FN-TD-07). next는 토글 후의 값입니다. */
   onToggleFavorite: (id: number, next: boolean) => void;
   /** 아이템 클릭 시 상세 열기 (FN-TD-13) */
   onOpenDetail: (id: number) => void;
@@ -80,6 +108,7 @@ export type TodoItemProps = VariantProps<typeof itemVariants> & {
 export default function TodoItem({
   todo,
   size = 'large',
+  style = 'todo',
   onToggleDone,
   onToggleFavorite,
   onOpenDetail,
@@ -91,12 +120,25 @@ export default function TodoItem({
 }: TodoItemProps) {
   const hasNote = todo.noteIds.length > 0;
   const { linkUrl } = todo;
+  const isWhite = style === 'white';
 
-  /** 아이콘 클릭이 상세 열기로 전파되지 않도록 막습니다 (FN-TD-13). */
-  const stop = (fn: () => void) => (event: MouseEvent) => {
-    event.stopPropagation();
-    fn();
-  };
+  const CheckboxIcon = todo.done
+    ? isWhite
+      ? IconCheckboxActiveWhite
+      : IconCheckboxActive
+    : isWhite
+      ? IconCheckboxInactiveWhite
+      : IconCheckboxInactive;
+  const NoteViewIcon = isWhite ? IconNoteViewWhite : IconNoteView;
+  const LinkIcon = isWhite ? IconLinkWhite : IconLink;
+  const KebabIcon = isWhite ? IconKebabWhite : IconKebab;
+  const StarIcon = todo.isFavorite
+    ? isWhite
+      ? IconStarFilledWhite
+      : IconStarFilled
+    : isWhite
+      ? IconStarOutlineWhite
+      : IconStarOutline;
 
   return (
     <li
@@ -108,32 +150,30 @@ export default function TodoItem({
         role="checkbox"
         aria-checked={todo.done}
         aria-label={todo.done ? '완료 취소' : '완료로 표시'}
-        onClick={stop(() => onToggleDone(todo.id, !todo.done))}
+        onClick={stopPropagation(() => onToggleDone(todo.id, !todo.done))}
         className="shrink-0"
       >
-        {todo.done ? (
-          <IconCheckboxActive className="size-[18px]" />
-        ) : (
-          <IconCheckboxInactive className="size-[18px]" />
-        )}
+        <CheckboxIcon className="size-[18px]" />
       </button>
 
-      <p className={titleVariants({ size, done: todo.done })}>{todo.title}</p>
+      <p className={twMerge(titleVariants({ size, done: todo.done, style }))}>
+        {todo.title}
+      </p>
 
       <div className={iconGroupVariants({ size })}>
         {hasNote ? (
           <button
             type="button"
             aria-label="노트 보기"
-            onClick={stop(() => onViewNote(todo.noteIds[0]))}
+            onClick={stopPropagation(() => onViewNote(todo.noteIds[0]))}
           >
-            <IconNoteView className="size-6" />
+            <NoteViewIcon className="size-6" />
           </button>
         ) : (
           <button
             type="button"
             aria-label="노트 작성"
-            onClick={stop(() => onCreateNote(todo.id))}
+            onClick={stopPropagation(() => onCreateNote(todo.id))}
           >
             <IconNoteWrite className="size-6" />
           </button>
@@ -143,16 +183,16 @@ export default function TodoItem({
           <button
             type="button"
             aria-label="링크 복사"
-            onClick={stop(() => onCopyLink(linkUrl))}
+            onClick={stopPropagation(() => onCopyLink(linkUrl))}
           >
-            <IconLink className="size-6" />
+            <LinkIcon className="size-6" />
           </button>
         ) : null}
 
         <div className="flex" onClick={(event) => event.stopPropagation()}>
           {kebabSlot ?? (
             <button type="button" aria-label="더보기">
-              <IconKebab className="size-6" />
+              <KebabIcon className="size-6" />
             </button>
           )}
         </div>
@@ -161,13 +201,11 @@ export default function TodoItem({
           type="button"
           aria-label={todo.isFavorite ? '찜 해제' : '찜하기'}
           aria-pressed={todo.isFavorite}
-          onClick={stop(() => onToggleFavorite(todo.id, !todo.isFavorite))}
-        >
-          {todo.isFavorite ? (
-            <IconStarFilled className="size-6" />
-          ) : (
-            <IconStarOutline className="size-6" />
+          onClick={stopPropagation(() =>
+            onToggleFavorite(todo.id, !todo.isFavorite),
           )}
+        >
+          <StarIcon className="size-6" />
         </button>
       </div>
     </li>
