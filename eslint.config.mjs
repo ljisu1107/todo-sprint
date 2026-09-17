@@ -23,6 +23,12 @@ const eslintConfig = defineConfig([
       ...betterTailwind.configs.recommended.rules,
       // 줄바꿈은 prettier가 담당
       'better-tailwindcss/enforce-consistent-line-wrapping': 'off',
+      'better-tailwindcss/no-unknown-classes': [
+        'error',
+        {
+          ignore: ['material-symbols-outlined', 'material-symbols-*'],
+        },
+      ],
     },
   },
   prettier,
