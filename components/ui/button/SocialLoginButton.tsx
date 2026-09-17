@@ -20,7 +20,7 @@ export default function SocialLoginButton({
       type={type}
       aria-label={provider === 'google' ? '구글로 로그인' : '카카오로 로그인'}
       className={cn(
-        'inline-flex size-14 shrink-0 items-center justify-center rounded-[999px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF6C00] disabled:cursor-not-allowed',
+        'inline-flex size-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF6C00] disabled:cursor-not-allowed',
         provider === 'google'
           ? 'border border-[#ddd] bg-white'
           : 'bg-[#ffee01]',
@@ -28,7 +28,13 @@ export default function SocialLoginButton({
       )}
       {...props}
     >
-      <Image src={`/icons/${provider}.svg`} alt="" width={24} height={24} />
+      <Image
+        src={`/icons/${provider}.svg`}
+        alt=""
+        width={24}
+        height={24}
+        className="size-6"
+      />
     </button>
   );
 }

@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import ButtonIcon from './ButtonIcon';
 
 const styles = cva(
-  'relative inline-flex shrink-0 items-center justify-center rounded-[999px] border border-solid bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF6C00] disabled:cursor-not-allowed',
+  'relative inline-flex shrink-0 items-center justify-center rounded-full border border-solid bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF6C00] disabled:cursor-not-allowed',
   {
     variants: {
       icon: {
@@ -44,7 +44,7 @@ export default function IconButton({
       aria-label={hasNotification ? `${label} (새 알림 있음)` : label}
       className={cn(
         styles({ icon }),
-        icon === 'close' && size === 'sm' && 'size-[13px]',
+        icon === 'close' && size === 'sm' && 'size-3.25',
         className,
       )}
       {...props}
@@ -53,12 +53,12 @@ export default function IconButton({
         name={icon}
         className={
           icon === 'bell'
-            ? 'h-[22px] w-5'
+            ? 'h-5.5 w-5'
             : icon === 'close'
               ? size === 'sm'
-                ? 'size-[11px]'
-                : 'size-[18px]'
-              : 'h-2 w-[14px]'
+                ? 'size-2.75'
+                : 'size-4.5'
+              : 'h-2 w-3.5'
         }
       />
       {hasNotification && (

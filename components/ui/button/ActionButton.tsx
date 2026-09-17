@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import ButtonIcon from './ButtonIcon';
 
 const styles = cva(
-  'inline-flex size-[140px] shrink-0 flex-col items-center justify-center gap-3 rounded-[32px] border border-solid text-[18px] font-semibold tracking-[-0.03em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF6C00] disabled:cursor-not-allowed motion-reduce:transition-none',
+  'inline-flex size-35 shrink-0 flex-col items-center justify-center gap-3 rounded-4xl border border-solid text-lg/normal font-semibold tracking-[-0.03em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF6C00] disabled:cursor-not-allowed motion-reduce:transition-none',
   {
     variants: {
       variant: {
