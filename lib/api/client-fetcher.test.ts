@@ -1,7 +1,7 @@
 import { AxiosError, type AxiosAdapter } from 'axios';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { api, request } from './client';
+import { api, request } from './client-fetcher';
 import { ApiError } from './errors';
 
 const reply =
