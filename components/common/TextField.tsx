@@ -7,7 +7,7 @@ import {
 } from 'react-hook-form';
 import clsx from 'clsx';
 
-interface TextFieldProps<T extends FieldValues> extends Omit<
+export interface TextFieldProps<T extends FieldValues> extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
   'name'
 > {
@@ -16,11 +16,13 @@ interface TextFieldProps<T extends FieldValues> extends Omit<
   /** zod 스키마의 필드 이름 (예: "name", "email", "age") */
   name: Path<T>;
   /** 필드 라벨 */
-  label: string;
+  label?: string;
   /** zod resolver가 만들어주는 에러 객체 (formState.errors[name]) */
   error?: FieldError;
   /** 숫자 입력일 때 true로 주면 값이 숫자로 변환됩니다 */
   valueAsNumber?: boolean;
+  /** required 아이콘을 제목 옆에 추가 여부 */
+  isRequiredIcon?: boolean;
 }
 
 /**
@@ -38,6 +40,7 @@ export function TextField<T extends FieldValues>({
   register,
   error,
   valueAsNumber,
+  isRequiredIcon = false,
   type = 'text',
   className,
   ...rest
@@ -49,9 +52,17 @@ export function TextField<T extends FieldValues>({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
-        {label}
-      </label>
+      {label && (
+        <label
+          htmlFor={inputId}
+          className="text-[1rem] font-semibold text-gray-700"
+        >
+          {label}
+          {isRequiredIcon && (
+            <span className="ml-0.5 align-middle text-lg text-red-500">*</span>
+          )}
+        </label>
+      )}
 
       <div className="relative">
         <input
@@ -65,7 +76,7 @@ export function TextField<T extends FieldValues>({
           )}
           {...rest}
           className={clsx(
-            'w-full rounded-lg border px-3 py-2 text-sm text-gray-900 transition-colors outline-none placeholder:text-gray-400',
+            'w-full rounded-2xl border border-[#CCCCCC] p-4 text-[1rem] text-gray-900 transition-colors outline-none placeholder:text-gray-400 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400',
             isPassword && 'pr-10',
             error
               ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
@@ -80,7 +91,7 @@ export function TextField<T extends FieldValues>({
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
             tabIndex={-1}
-            className="absolute top-1/2 right-2.5 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute top-1/2 right-4 flex -translate-y-1/2 cursor-pointer items-center text-gray-400 hover:text-gray-600"
           >
             <span className="material-symbols-outlined text-[18px]">
               {showPassword ? 'visibility_off' : 'visibility'}
@@ -90,7 +101,7 @@ export function TextField<T extends FieldValues>({
       </div>
 
       {error && (
-        <p id={`${inputId}-error`} className="text-xs text-red-500">
+        <p id={`${inputId}-error`} className="text-sm text-red-500">
           {error.message}
         </p>
       )}
