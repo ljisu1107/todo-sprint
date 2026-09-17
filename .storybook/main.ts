@@ -6,6 +6,8 @@ const config: StorybookConfig = {
     '../app/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
 
+  staticDirs: ['../public'],
+
   framework: {
     name: '@storybook/nextjs',
     options: {},
