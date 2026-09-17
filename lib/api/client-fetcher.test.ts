@@ -1,5 +1,9 @@
-import { AxiosError, type AxiosAdapter } from 'axios';
-import { describe, expect, it } from 'vitest';
+import {
+  AxiosError,
+  type AxiosAdapter,
+  type InternalAxiosRequestConfig,
+} from 'axios';
+import { afterEach, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { api, request } from './client-fetcher';
 import { ApiError } from './errors';
@@ -130,5 +134,102 @@ describe('request 함수', () => {
       status: 404,
       code: 'NOT_FOUND',
     });
+  });
+});
+
+describe('401 refresh', () => {
+  const page = { todos: [], nextCursor: null, totalCount: 0 };
+
+  const realAdapter = api.defaults.adapter;
+  afterEach(() => {
+    api.defaults.adapter = realAdapter;
+  });
+
+  function replyWith(
+    config: InternalAxiosRequestConfig,
+    data: unknown,
+    status = 200,
+  ) {
+    return { data, status, statusText: '', headers: {}, config, request: {} };
+  }
+
+  function failWith(config: InternalAxiosRequestConfig, status: number) {
+    return new AxiosError(
+      'nope',
+      AxiosError.ERR_BAD_REQUEST,
+      config,
+      {},
+      {
+        data: {
+          message: 'nope',
+          code: status === 401 ? 'TOKEN_INVALID' : 'OOPS',
+        },
+        status,
+        statusText: '',
+        headers: {},
+        config,
+        request: {},
+      },
+    );
+  }
+
+  const getTodos = () => api.get('/todos').then((res) => res.data);
+
+  // refresh가 일어나기 전까지 모든 데이터 요청은 401을 반환한다. 호출 기록을 반환한다.
+  function expiredSession() {
+    const calls: string[] = [];
+    let refreshed = false;
+
+    const adapter: AxiosAdapter = async (config) => {
+      const url = config.url ?? '';
+      calls.push(url);
+      if (url === '/auth/refresh') {
+        refreshed = true;
+        return replyWith(config, null, 204);
+      }
+      if (!refreshed) throw failWith(config, 401);
+      return replyWith(config, page);
+    };
+
+    api.defaults.adapter = adapter;
+    return calls;
+  }
+
+  it('동시에 실패한 요청들은 refresh 하나를 공유한다', async () => {
+    const calls = expiredSession();
+
+    const results = await Promise.all([getTodos(), getTodos(), getTodos()]);
+
+    expect(results).toEqual([page, page, page]);
+    expect(calls.filter((url) => url === '/auth/refresh')).toHaveLength(1);
+    expect(calls.filter((url) => url === '/todos')).toHaveLength(6);
+  });
+
+  it('refresh 후에도 401이면 한 번만 재시도하고 멈춘다', async () => {
+    const calls: string[] = [];
+    api.defaults.adapter = async (config) => {
+      const url = config.url ?? '';
+      calls.push(url);
+      if (url === '/auth/refresh') return replyWith(config, null, 204);
+      throw failWith(config, 401);
+    };
+
+    await expect(getTodos()).rejects.toMatchObject({ status: 401 });
+    expect(calls).toEqual(['/todos', '/auth/refresh', '/todos']);
+  });
+
+  it('/auth/* 의 401은 refresh하지 않는다 (잘못된 비밀번호 등)', async () => {
+    const calls: string[] = [];
+    api.defaults.adapter = async (config) => {
+      calls.push(config.url ?? '');
+      throw failWith(config, 401);
+    };
+
+    await expect(api.post('/auth/login', {})).rejects.toMatchObject({
+      kind: 'http',
+      status: 401,
+    });
+    await expect(api.post('/auth/refresh')).rejects.toBeTruthy();
+    expect(calls).toEqual(['/auth/login', '/auth/refresh']);
   });
 });
