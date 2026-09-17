@@ -1,3 +1,6 @@
+import SocialLoginButton from '@/components/ui/button/SocialLoginButton';
+import IconButton from '@/components/ui/button/IconButton';
+import ActionButton from '@/components/ui/button/ActionButton';
 import Button from '@/components/ui/button/Button';
 export default function ComponentSamplesPage() {
   return (
@@ -13,7 +16,7 @@ export default function ComponentSamplesPage() {
             hover 색상이 표시되고, Tab 키로 포커스를 확인할 수 있습니다.
           </p>
           <pre className="overflow-x-auto rounded-lg bg-white p-4 text-sm">
-            <code>{"import Button from '@/components/ui/Button';"}</code>
+            <code>{"import Button from '@/components/ui/button/Button';"}</code>
           </pre>
         </header>
         <section
@@ -318,6 +321,142 @@ export default function ComponentSamplesPage() {
             <code>{'<Button type="submit">저장</Button>'}</code>
           </pre>
         </article>
+        <section aria-labelledby="icon-buttons-title" className="space-y-6">
+          <h2 id="icon-buttons-title" className="text-2xl font-bold">
+            아이콘 버튼
+          </h2>
+          <p className="text-sm text-[#535353]">
+            아래 코드를 복사해 사용하세요. 실제 동작은 사용하는 페이지에서
+            onClick으로 연결합니다.
+          </p>
+          <div className="grid gap-6 md:grid-cols-2">
+            <article className="min-w-0 space-y-4 rounded-2xl border border-[#ddd] bg-white p-6">
+              <h3 className="text-lg font-semibold">구글 로그인</h3>
+              <SocialLoginButton provider="google" />
+              <p className="text-sm text-[#535353]">56 × 56px · 흰 배경</p>
+              <pre className="overflow-x-auto rounded-lg bg-[#f2f2f2] p-3 text-xs/6">
+                <code>
+                  {
+                    'import SocialLoginButton from \'@/components/ui/button/SocialLoginButton\';\n\n<SocialLoginButton provider="google" />'
+                  }
+                </code>
+              </pre>
+            </article>
+            <article className="min-w-0 space-y-4 rounded-2xl border border-[#ddd] bg-white p-6">
+              <h3 className="text-lg font-semibold">카카오 로그인</h3>
+              <SocialLoginButton provider="kakao" />
+              <p className="text-sm text-[#535353]">56 × 56px · 노란 배경</p>
+              <pre className="overflow-x-auto rounded-lg bg-[#f2f2f2] p-3 text-xs/6">
+                <code>
+                  {
+                    'import SocialLoginButton from \'@/components/ui/button/SocialLoginButton\';\n\n<SocialLoginButton provider="kakao" />'
+                  }
+                </code>
+              </pre>
+            </article>
+            <article className="min-w-0 space-y-4 rounded-2xl border border-[#ddd] bg-white p-6">
+              <h3 className="text-lg font-semibold">아래 화살표</h3>
+              <IconButton icon="chevron-down" aria-label="메뉴 펼치기" />
+              <p className="text-sm text-[#535353]">24 × 24px</p>
+              <pre className="overflow-x-auto rounded-lg bg-[#f2f2f2] p-3 text-xs/6">
+                <code>
+                  {
+                    'import IconButton from \'@/components/ui/button/IconButton\';\n\n<IconButton icon="chevron-down" aria-label="메뉴 펼치기" />'
+                  }
+                </code>
+              </pre>
+            </article>
+            <article className="min-w-0 space-y-4 rounded-2xl border border-[#ddd] bg-white p-6">
+              <h3 className="text-lg font-semibold">위 화살표</h3>
+              <IconButton icon="chevron-up" aria-label="메뉴 접기" />
+              <p className="text-sm text-[#535353]">24 × 24px</p>
+              <pre className="overflow-x-auto rounded-lg bg-[#f2f2f2] p-3 text-xs/6">
+                <code>
+                  {
+                    'import IconButton from \'@/components/ui/button/IconButton\';\n\n<IconButton icon="chevron-up" aria-label="메뉴 접기" />'
+                  }
+                </code>
+              </pre>
+            </article>
+            <article className="min-w-0 space-y-4 rounded-2xl border border-[#ddd] bg-white p-6">
+              <h3 className="text-lg font-semibold">알림</h3>
+              <IconButton icon="bell" aria-label="알림 열기" />
+              <p className="text-sm text-[#535353]">64 × 64px</p>
+              <pre className="overflow-x-auto rounded-lg bg-[#f2f2f2] p-3 text-xs/6">
+                <code>
+                  {
+                    'import IconButton from \'@/components/ui/button/IconButton\';\n\n<IconButton icon="bell" aria-label="알림 열기" />'
+                  }
+                </code>
+              </pre>
+            </article>
+            <article className="min-w-0 space-y-4 rounded-2xl border border-[#ddd] bg-white p-6">
+              <h3 className="text-lg font-semibold">새 알림 있음</h3>
+              <IconButton icon="bell" hasNotification aria-label="알림 열기" />
+              <p className="text-sm text-[#535353]">64 × 64px · 새 알림 표시</p>
+              <pre className="overflow-x-auto rounded-lg bg-[#f2f2f2] p-3 text-xs/6">
+                <code>
+                  {
+                    'import IconButton from \'@/components/ui/button/IconButton\';\n\n<IconButton icon="bell" hasNotification aria-label="알림 열기" />'
+                  }
+                </code>
+              </pre>
+            </article>
+            <article className="min-w-0 space-y-4 rounded-2xl border border-[#ddd] bg-white p-6">
+              <h3 className="text-lg font-semibold">작은 닫기</h3>
+              <IconButton icon="close" size="sm" aria-label="닫기" />
+              <p className="text-sm text-[#535353]">13 × 13px</p>
+              <pre className="overflow-x-auto rounded-lg bg-[#f2f2f2] p-3 text-xs/6">
+                <code>
+                  {
+                    'import IconButton from \'@/components/ui/button/IconButton\';\n\n<IconButton icon="close" size="sm" aria-label="닫기" />'
+                  }
+                </code>
+              </pre>
+            </article>
+            <article className="min-w-0 space-y-4 rounded-2xl border border-[#ddd] bg-white p-6">
+              <h3 className="text-lg font-semibold">기본 닫기</h3>
+              <IconButton icon="close" aria-label="닫기" />
+              <p className="text-sm text-[#535353]">24 × 24px</p>
+              <pre className="overflow-x-auto rounded-lg bg-[#f2f2f2] p-3 text-xs/6">
+                <code>
+                  {
+                    'import IconButton from \'@/components/ui/button/IconButton\';\n\n<IconButton icon="close" aria-label="닫기" />'
+                  }
+                </code>
+              </pre>
+            </article>
+            <article className="min-w-0 space-y-4 rounded-2xl border border-[#ddd] bg-white p-6">
+              <h3 className="text-lg font-semibold">새 목표</h3>
+              <ActionButton variant="goal" />
+              <p className="text-sm text-[#535353]">
+                140 × 140px · 마우스를 올리면 배경색이 변경됩니다.
+              </p>
+              <pre className="overflow-x-auto rounded-lg bg-[#f2f2f2] p-3 text-xs/6">
+                <code>
+                  {
+                    'import ActionButton from \'@/components/ui/button/ActionButton\';\n\n<ActionButton variant="goal" />'
+                  }
+                </code>
+              </pre>
+            </article>
+            <article className="min-w-0 space-y-4 rounded-2xl border border-[#ddd] bg-white p-6">
+              <h3 className="text-lg font-semibold">새 할일</h3>
+              <ActionButton variant="task" />
+              <p className="text-sm text-[#535353]">
+                140 × 140px · 마우스를 올리면 테두리와 글자·아이콘 색상이
+                변경됩니다.
+              </p>
+              <pre className="overflow-x-auto rounded-lg bg-[#f2f2f2] p-3 text-xs/6">
+                <code>
+                  {
+                    'import ActionButton from \'@/components/ui/button/ActionButton\';\n\n<ActionButton variant="task" />'
+                  }
+                </code>
+              </pre>
+            </article>
+          </div>
+        </section>
         <p className="text-xs text-[#737373]">
           폰트는 프로젝트의 전역 설정을 상속합니다.
         </p>
