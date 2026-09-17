@@ -30,7 +30,8 @@ export default function ComponentSamplesPage() {
                 버튼
               </Button>
               <p className="text-sm text-[#535353]">
-                높이 40px · 글자 14px · 너비 100%
+                높이 40px · 글자 14px · 너비 100% <br />
+                모바일: 변동 없음
               </p>
               <pre className="overflow-x-auto rounded-lg bg-[#f2f2f2] p-3 text-xs/6">
                 <code>
@@ -84,7 +85,7 @@ export default function ComponentSamplesPage() {
               </Button>
               <p className="text-sm text-[#535353]">
                 높이 56px · 글자 18px · 너비 100% <br />
-                모바일: 높이 40px · 글자 14px
+                모바일: 높이 48px · 글자 16px
               </p>
               <pre className="overflow-x-auto rounded-lg bg-[#f2f2f2] p-3 text-xs/6">
                 <code>
