@@ -23,6 +23,11 @@ const eslintConfig = defineConfig([
       ...betterTailwind.configs.recommended.rules,
       // 줄바꿈은 prettier가 담당
       'better-tailwindcss/enforce-consistent-line-wrapping': 'off',
+      //Google Fonts에서 제공하는 아이콘 폰트 자체의 클래스명은 예외
+      'better-tailwindcss/no-unknown-classes': [
+        'error',
+        { ignore: ['material-symbols-outlined'] },
+      ],
     },
   },
   prettier,
