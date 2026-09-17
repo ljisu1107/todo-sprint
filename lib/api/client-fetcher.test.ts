@@ -46,18 +46,18 @@ describe('api 클라이언트: 모든 요청 실패를 ApiError로 통일한다'
   it('에러 body가 스펙 형태이면 code와 message를 가져온다', async () => {
     const error = await caught(
       api.get('/todos', {
-        adapter: reply(401, {
-          code: 'TOKEN_INVALID',
-          message: 'Invalid or expired token',
+        adapter: reply(403, {
+          code: 'FORBIDDEN',
+          message: 'Not allowed',
         }),
       }),
     );
     expect(error).toBeInstanceOf(ApiError);
     expect(error).toMatchObject({
       kind: 'http',
-      status: 401,
-      code: 'TOKEN_INVALID',
-      message: 'Invalid or expired token',
+      status: 403,
+      code: 'FORBIDDEN',
+      message: 'Not allowed',
     });
   });
 
