@@ -1,8 +1,13 @@
 import type { Preview } from '@storybook/nextjs';
-import '../app/globals.css';
+import '../styles/globals.css';
 
 const preview: Preview = {
   parameters: {
+    options: {
+      storySort: {
+        order: ['UI', ['Button', ['Button', '*']]],
+      },
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,
