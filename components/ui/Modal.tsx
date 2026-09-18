@@ -77,7 +77,7 @@ const modalVariants = cva(
 );
 
 interface ModalProps extends VariantProps<typeof modalVariants> {
-  open: boolean;
+  isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
   className?: string;
@@ -90,7 +90,7 @@ interface ModalProps extends VariantProps<typeof modalVariants> {
 }
 
 const Modal = ({
-  open,
+  isOpen,
   onOpenChange,
   size,
   hasHeader = true,
@@ -99,7 +99,7 @@ const Modal = ({
   children,
 }: ModalProps) => {
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
         <Dialog.Content
