@@ -10,27 +10,11 @@ import type { AnchorHTMLAttributes } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Gnb from './Gnb';
 
-const route = vi.hoisted(() => ({ pathname: '/dashboard' }));
-vi.mock('next/navigation', () => ({ usePathname: () => route.pathname }));
 vi.mock('next/link', () => ({
-  default: ({
-    onNavigate,
-    ...props
-  }: AnchorHTMLAttributes<HTMLAnchorElement> & { onNavigate?: () => void }) => (
-    <a
-      {...props}
-      onClick={(event) => {
-        props.onClick?.(event);
-        if (!event.defaultPrevented) onNavigate?.();
-        // jsdom에서는 실제 페이지 이동을 실행하지 않습니다.
-        event.preventDefault();
-      }}
-    />
-  ),
+  default: (props: AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props} />,
 }));
 
 beforeEach(() => {
-  route.pathname = '/dashboard';
   vi.stubGlobal('matchMedia', () => ({
     matches: true,
     addEventListener: vi.fn(),
@@ -45,84 +29,89 @@ afterEach(() => {
 const menu = () => within(screen.getByRole('navigation', { name: '주 메뉴' }));
 
 describe('주 메뉴 활성 상태', () => {
-  it('목표를 기본으로 펼치고 링크 이동 후 경로에 맞는 메뉴를 활성화한다', () => {
-    route.pathname = '/dashboard/detail';
+  it('목표를 기본 선택하고 목록을 펼친다', () => {
     render(<Gnb />);
-    const goal = menu().getByRole('button', { name: '목표' });
-    expect(goal).toHaveAttribute('data-active', 'true');
-    expect(goal).toHaveAttribute('aria-expanded', 'true');
-    const dashboard = menu().getByRole('link', { name: '대시보드' });
-    expect(dashboard).not.toHaveAttribute('aria-current');
-    fireEvent.click(dashboard);
-    expect(dashboard).toHaveAttribute('aria-current', 'page');
-    expect(dashboard.querySelector('[aria-hidden]')).toHaveAttribute(
-      'data-active',
-      'true',
-    );
-    expect(menu().getByRole('link', { name: '캘린더' })).toHaveAttribute(
-      'data-active',
-      'false',
-    );
-  });
-
-  it('목표 제목을 선택해도 아코디언의 열기와 닫기가 유지된다', () => {
-    render(<Gnb />);
-    const goal = menu().getByRole('button', { name: '목표' });
-    fireEvent.click(goal);
-    expect(goal).toHaveAttribute('data-active', 'true');
-    expect(goal).toHaveAttribute('aria-expanded', 'false');
-    expect(menu().getByRole('link', { name: '대시보드' })).not.toHaveAttribute(
-      'aria-current',
-    );
-    fireEvent.click(goal);
-    expect(goal).toHaveAttribute('aria-expanded', 'true');
-    expect(goal).toHaveAttribute('data-active', 'true');
-  });
-
-  it('링크 이동과 경로 변경 시 목표 선택을 초기화한다', () => {
-    const view = render(<Gnb />);
-    fireEvent.click(menu().getByRole('button', { name: '목표' }));
-    fireEvent.click(menu().getByRole('link', { name: '대시보드' }));
-    expect(menu().getByRole('link', { name: '대시보드' })).toHaveAttribute(
+    expect(menu().getByRole('link', { name: '목표' })).toHaveAttribute(
       'aria-current',
       'page',
     );
-    fireEvent.click(menu().getByRole('button', { name: '목표' }));
-    route.pathname = '/dashboard/another';
-    view.rerender(<Gnb />);
-    expect(menu().getByRole('button', { name: '목표' })).toHaveAttribute(
-      'data-active',
-      'false',
+    expect(
+      menu().getByRole('button', { name: '목표 목록 접기' }),
+    ).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('이동을 차단하고 클릭한 주 메뉴 하나와 아이콘만 활성화한다', () => {
+    render(<Gnb />);
+    const titles = ['대시보드', '캘린더', '소통 게시판', '찜한 할 일', '목표'];
+    for (const title of titles) {
+      const link = menu().getByRole('link', { name: title });
+      expect(fireEvent.click(link)).toBe(false);
+      for (const candidate of titles) {
+        const item = menu().getByRole('link', { name: candidate });
+        expect(item).toHaveAttribute(
+          'data-active',
+          String(candidate === title),
+        );
+        expect(item.querySelector('[data-active]')).toHaveAttribute(
+          'data-active',
+          String(candidate === title),
+        );
+        if (candidate === title)
+          expect(item).toHaveAttribute('aria-current', 'page');
+        else expect(item).not.toHaveAttribute('aria-current');
+      }
+    }
+  });
+
+  it('제목 링크 선택과 화살표 펼침 동작이 서로 영향을 주지 않는다', () => {
+    render(<Gnb />);
+    const calendar = menu().getByRole('link', { name: '캘린더' });
+    fireEvent.click(calendar);
+    fireEvent.click(menu().getByRole('button', { name: '목표 목록 접기' }));
+    expect(calendar).toHaveAttribute('data-active', 'true');
+    const toggle = menu().getByRole('button', { name: '목표 목록 펼치기' });
+    const panel = document.getElementById(
+      toggle.getAttribute('aria-controls')!,
     );
-    expect(menu().getByRole('link', { name: '대시보드' })).toHaveAttribute(
+    expect(panel).toHaveAttribute('inert');
+    expect(panel).toHaveAttribute('aria-hidden', 'true');
+    fireEvent.click(menu().getByRole('link', { name: '목표' }));
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(panel).not.toHaveAttribute('inert');
+    expect(menu().getByRole('link', { name: '목표' })).toHaveAttribute(
       'data-active',
       'true',
     );
-  });
-
-  it('비슷한 경로와 임시 링크를 활성화하지 않고 설정·로그아웃을 제외한다', () => {
-    route.pathname = '/dashboard-other';
-    const view = render(<Gnb />);
-    expect(menu().getByRole('link', { name: '대시보드' })).toHaveAttribute(
-      'data-active',
-      'false',
+    expect(menu().getByRole('link', { name: '목표' }).contains(toggle)).toBe(
+      false,
     );
-    route.pathname = '/';
-    view.rerender(<Gnb />);
-    for (const title of ['캘린더', '소통 게시판', '찜한 할 일']) {
-      expect(menu().getByRole('link', { name: title })).toHaveAttribute(
-        'href',
-        '#',
-      );
-      expect(menu().getByRole('link', { name: title })).toHaveAttribute(
-        'data-active',
-        'false',
-      );
-    }
-    for (const title of ['설정', '로그아웃']) {
-      expect(screen.getByRole('link', { name: title })).not.toHaveAttribute(
-        'aria-current',
-      );
-    }
   });
+});
+
+it('배치 위치가 달라도 같은 알림 상태와 열기 함수를 사용한다', () => {
+  const onOpenNotifications = vi.fn();
+  const view = render(
+    <Gnb
+      pageTitle="내 정보 관리"
+      hasNotification
+      onOpenNotifications={onOpenNotifications}
+    />,
+  );
+  expect(screen.getByText('내 정보 관리')).toBeInTheDocument();
+  // jsdom은 반응형 CSS를 계산하지 않으므로 세 배치의 공통 연결을 검증합니다.
+  const buttons = screen.getAllByRole('button', {
+    name: '알림 열기 (새 알림 있음)',
+  });
+  expect(buttons).toHaveLength(3);
+  buttons.forEach((button) => fireEvent.click(button));
+  expect(onOpenNotifications).toHaveBeenCalledTimes(3);
+  view.rerender(
+    <Gnb hasNotification={false} onOpenNotifications={onOpenNotifications} />,
+  );
+  expect(
+    screen.queryByRole('button', { name: '알림 열기 (새 알림 있음)' }),
+  ).not.toBeInTheDocument();
+  expect(screen.getAllByRole('button', { name: '알림 열기' })).toHaveLength(3);
 });

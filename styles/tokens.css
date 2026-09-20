@@ -31,6 +31,11 @@
   --color-blue-200: #00d4be;
   --color-blue-300: #009d97;
 
+  /* 공통 그림자: Tailwind 기본 shadow-md/lg를 시안 값으로 대체합니다.
+     라이트·다크에서 동일하게 사용하며, 색상은 검정 약 5%입니다. */
+  --shadow-md: 0 0 1.875rem 0 #0000000d; /* blur 30px */
+  --shadow-lg: 0 0 3.75rem 0 #0000000d; /* blur 60px */
+
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;

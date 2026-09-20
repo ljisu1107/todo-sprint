@@ -4,12 +4,12 @@ import { cn } from '@/lib/utils';
 import ButtonIcon from './ButtonIcon';
 
 const styles = cva(
-  'inline-flex size-35 shrink-0 flex-col items-center justify-center gap-3 rounded-4xl border border-solid text-lg/normal font-semibold tracking-[-0.03em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF6C00] disabled:cursor-not-allowed motion-reduce:transition-none',
+  'inline-flex h-12 w-full shrink-0 flex-row items-center justify-center gap-1 rounded-[999px] border border-solid text-base/normal font-semibold tracking-[-0.03em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 disabled:cursor-not-allowed motion-reduce:transition-none md:size-35 md:flex-col md:gap-3 md:rounded-4xl md:text-lg/normal',
   {
     variants: {
       variant: {
-        goal: 'border-transparent bg-[#ff8442] text-white enabled:hover:bg-[#ef6c00]',
-        task: 'border-[#ffd19b] bg-white text-[#ff8442] enabled:hover:border-[#ff8442] enabled:hover:text-[#ef6c00]',
+        goal: 'border-transparent bg-orange-500 text-white enabled:hover:bg-orange-600',
+        task: 'border-orange-500 text-orange-500 enabled:hover:border-orange-500 enabled:hover:text-orange-600 lg:border-orange-300',
       },
     },
   },
@@ -33,12 +33,14 @@ export default function ActionButton({
       {...props}
     >
       <span
-        className="flex size-10 items-center justify-center"
+        className="flex size-5 shrink-0 items-center justify-center md:size-10"
         aria-hidden="true"
       >
         <ButtonIcon
           name={variant === 'goal' ? 'flag' : 'task'}
-          className={variant === 'goal' ? 'size-10' : 'size-8'}
+          className={
+            variant === 'goal' ? 'size-5 md:size-10' : 'size-5 md:size-8'
+          }
         />
       </span>
       <span>{children ?? (variant === 'goal' ? '새 목표' : '새 할일')}</span>
