@@ -3,16 +3,16 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-[999px] border border-solid leading-none font-semibold tracking-[-0.03em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF6C00] disabled:cursor-not-allowed motion-reduce:transition-none',
+  'inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-full border border-solid leading-none font-semibold tracking-[-0.03em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 disabled:cursor-not-allowed motion-reduce:transition-none',
   {
     variants: {
       variant: {
         primary:
-          'border-transparent bg-[#ff8442] text-white enabled:hover:bg-[#EF6C00] disabled:bg-[#bbb]',
+          'border-transparent bg-orange-500 text-white enabled:hover:bg-orange-600 disabled:bg-[#bbb]',
         outline:
-          'border-[#ff8442] bg-transparent text-[#EF6C00] enabled:hover:border-[#EF6C00] disabled:border-[#bbb] disabled:text-[#bbb]',
+          'border-orange-500 bg-transparent text-orange-600 enabled:hover:border-orange-600 disabled:border-[#bbb] disabled:text-[#bbb]',
         neutral:
-          'border-[#ccc] bg-transparent text-[#737373] enabled:hover:border-[#bbb] enabled:hover:text-[#535353] disabled:border-[#ccc] disabled:text-[#bbb]',
+          'border-[#ccc] bg-transparent text-grayscale-500 enabled:hover:border-[#bbb] enabled:hover:text-grayscale-600 disabled:border-[#ccc] disabled:text-[#bbb]',
       },
       size: {
         // 아래 px 수치는 루트 글자 크기 16px 기준입니다.
