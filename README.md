@@ -11,8 +11,10 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 If you are using nvm, run the following command in the project root to use the project's Node.js version:
 
 ```bash
-nvm install
-nvm use
+ nvm install
+ nvm use
+ corepack enable
+ pnpm install
 ```
 
 Then, install the dependencies:
