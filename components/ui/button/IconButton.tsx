@@ -4,14 +4,14 @@ import { cn } from '@/lib/utils';
 import ButtonIcon from './ButtonIcon';
 
 const styles = cva(
-  'relative inline-flex shrink-0 items-center justify-center rounded-full border border-solid bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF6C00] disabled:cursor-not-allowed',
+  'relative inline-flex shrink-0 items-center justify-center rounded-full border border-solid bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 disabled:cursor-not-allowed',
   {
     variants: {
       icon: {
-        'chevron-up': 'size-6 border-[#dadada] text-[#a4a4a4]',
-        'chevron-down': 'size-6 border-[#dadada] text-[#a4a4a4]',
-        bell: 'size-16 border-[#ccc] text-[#737373]',
-        close: 'size-6 border-[#ccc] text-[#a4a4a4]',
+        'chevron-up': 'size-6 border-[#dadada] text-grayscale-400',
+        'chevron-down': 'size-6 border-[#dadada] text-grayscale-400',
+        bell: 'size-16 border-[#ccc] text-grayscale-500',
+        close: 'size-6 border-[#ccc] text-grayscale-400',
       },
     },
   },
@@ -63,8 +63,9 @@ export default function IconButton({
       />
       {hasNotification && (
         <span
+          data-notification-dot=""
           aria-hidden="true"
-          className="absolute top-0 right-0 size-3 rounded-full bg-[#ff8442]"
+          className="absolute top-0.5 right-1 size-3 rounded-full bg-orange-500"
         />
       )}
     </button>
