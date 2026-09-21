@@ -17,7 +17,10 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
  * 이름, 이메일, 숫자 등 대부분의 텍스트성 입력에 재사용할 수 있습니다.
  *
  * 사용 예시:
-
+ * 비제어 (react-hook-form register)
+ <TextField label="이메일" {...register('email')} error={errors.email?.message} />
+ * 제어
+ <TextField label="이메일" value={email} onChange={(e) => setEmail(e.target.value)} />
  */
 
 const textfieldVariants = cva(
