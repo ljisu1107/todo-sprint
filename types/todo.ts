@@ -3,15 +3,15 @@ export type Todo = {
   id: number;
   teamId: string;
   userId: number;
-  goalId: number;
+  goalId: number | null;
   title: string;
   done: boolean;
   fileUrl: string | null;
   linkUrl: string | null;
-  dueDate: string;
+  dueDate: string | null;
   createdAt: string;
   updatedAt: string;
-  goal: TodoGoal;
+  goal: TodoGoal | null;
   noteIds: number[];
   tags: TodoTag[];
   isFavorite: boolean;
