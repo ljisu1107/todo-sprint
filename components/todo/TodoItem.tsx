@@ -141,10 +141,7 @@ export default function TodoItem({
       : IconStarOutline;
 
   return (
-    <li
-      onClick={() => onOpenDetail(todo.id)}
-      className={twMerge(itemVariants({ size }), 'cursor-pointer', className)}
-    >
+    <li className={twMerge(itemVariants({ size }), className)}>
       <button
         type="button"
         role="checkbox"
@@ -156,9 +153,16 @@ export default function TodoItem({
         <CheckboxIcon className="size-[18px]" />
       </button>
 
-      <p className={twMerge(titleVariants({ size, done: todo.done, style }))}>
+      <button
+        type="button"
+        onClick={() => onOpenDetail(todo.id)}
+        className={twMerge(
+          titleVariants({ size, done: todo.done, style }),
+          'cursor-pointer',
+        )}
+      >
         {todo.title}
-      </p>
+      </button>
 
       <div className={iconGroupVariants({ size })}>
         {hasNote ? (
