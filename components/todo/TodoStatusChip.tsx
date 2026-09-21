@@ -22,8 +22,8 @@ export type TODOChipProps = ComponentPropsWithRef<'span'> &
 
 export default function TodoStatusChip({ isTodo, className }: TODOChipProps) {
   return (
-    <div className={cn(chipVariants({ isTodo }), className)}>
+    <span className={cn(chipVariants({ isTodo }), className)}>
       <span className={'text-xs/4'}>{isTodo ? 'DONE' : 'TO DO'}</span>
-    </div>
+    </span>
   );
 }
