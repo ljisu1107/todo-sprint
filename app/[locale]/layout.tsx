@@ -47,7 +47,6 @@ export default async function LocaleLayout({
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
           crossOrigin="anonymous"
         />
-        <title></title>
       </head>
       <body>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
