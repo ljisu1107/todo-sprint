@@ -34,6 +34,7 @@ const forward = withRouteErrorHandler(
         ...bearer(await readAccessToken()),
       },
       data: hasBody ? await request.text() : undefined,
+      signal: request.signal,
     });
     // 클라이언트 interceptor에서 refresh + API 재요청을 위해 401 에러는 그대로 전달
     return passthrough(res);
