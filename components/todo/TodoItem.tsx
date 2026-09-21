@@ -2,7 +2,6 @@
 
 import { cva, type VariantProps } from 'class-variance-authority';
 import type { ReactNode } from 'react';
-import { twMerge } from 'tailwind-merge';
 
 import {
   IconCheckboxActive,
@@ -21,7 +20,7 @@ import {
   IconStarOutline,
   IconStarOutlineWhite,
 } from '@/components/icons';
-import { stopPropagation } from '@/lib/utils';
+import { cn, stopPropagation } from '@/lib/utils';
 import type { Todo } from '@/types/todo';
 
 /** 아이템 렌더링에 실제로 쓰는 필드만 좁힙니다. 응답 스펙이 바뀌면 여기서 타입 에러로 드러납니다. */
@@ -141,7 +140,7 @@ export default function TodoItem({
       : IconStarOutline;
 
   return (
-    <li className={twMerge(itemVariants({ size }), className)}>
+    <li className={cn(itemVariants({ size }), className)}>
       <button
         type="button"
         role="checkbox"
@@ -156,7 +155,7 @@ export default function TodoItem({
       <button
         type="button"
         onClick={() => onOpenDetail(todo.id)}
-        className={twMerge(
+        className={cn(
           titleVariants({ size, done: todo.done, style }),
           'cursor-pointer',
         )}
