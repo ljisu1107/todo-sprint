@@ -332,14 +332,14 @@ export default function Gnb({
                   <Link
                     href="#"
                     aria-label="내 정보 관리"
-                    className="flex h-16 w-full items-center gap-2 rounded-[999px] border border-solid border-subtle p-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500"
+                    className="flex h-16 w-full items-center gap-2 rounded-full border border-solid border-subtle p-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500"
                   >
                     <Image
                       src="/images/gnb/img_profile.jpg"
                       alt=""
                       width={38}
                       height={38}
-                      className="size-9.5 shrink-0 rounded-[999px] object-cover"
+                      className="size-9.5 shrink-0 rounded-full object-cover"
                     />
                     <span className="min-w-0">
                       <span className="flex items-center font-medium tracking-[-0.03em] text-foreground">
