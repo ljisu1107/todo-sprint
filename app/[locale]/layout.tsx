@@ -1,4 +1,7 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { hasLocale, NextIntlClientProvider } from 'next-intl';
+import { routing } from '@/i18n/routing';
 import { Geist_Mono } from 'next/font/google';
 import Toaster from '@/components/ui/toast/Toaster';
 import '@/styles/globals.css';
@@ -13,9 +16,25 @@ export const metadata: Metadata = {
   description: '할 일을 관리하는 Todo Sprint',
 };
 
-export default function RootLayout({ children }: LayoutProps<'/'>) {
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export default async function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+
   return (
-    <html lang="ko" className={`${geistMono.variable} h-full antialiased`}>
+    <html lang={locale} className={`${geistMono.variable} h-full antialiased`}>
       <head>
         <link
           rel="preconnect"
@@ -28,9 +47,10 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
           crossOrigin="anonymous"
         />
+        <title></title>
       </head>
       <body>
-        {children}
+        <NextIntlClientProvider>{children}</NextIntlClientProvider>
         <Toaster />
       </body>
     </html>
