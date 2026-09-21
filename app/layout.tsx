@@ -29,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           crossOrigin="anonymous"
         />
       </head>
-      <body className="flex min-h-full flex-col">
+      <body>
         {children}
         <Toaster />
       </body>
