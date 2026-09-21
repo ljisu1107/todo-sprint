@@ -1,3 +1,4 @@
+// TODO: [2026.09.21] Storybook 문서 전환 검토 (yjc2021 제안, 팀 합의 후 결정)
 'use client';
 
 import { useState, type CSSProperties } from 'react';
