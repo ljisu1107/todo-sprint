@@ -4,15 +4,19 @@ import Image from 'next/image';
 import ErrorRetry from '@/components/common/ErrorRetry';
 import usePostList from '@/hooks/posts/usePostList';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
+import type { PostListParams } from '@/queries/posts';
 import PostListItem from './PostListItem';
 import PostListSkeleton from './PostListSkeleton';
 
-const POST_LIST_PARAMS = { type: 'all', limit: 10 } as const;
 const NEXT_PAGE_SKELETON_COUNT = 2;
 
-const PostList = () => {
+interface PostListProps {
+  params: PostListParams;
+}
+
+const PostList = ({ params }: PostListProps) => {
   const { posts, isEmpty, hasMore, isLoadingMore, isLoadMoreError, loadMore } =
-    usePostList(POST_LIST_PARAMS);
+    usePostList(params);
   const sentinelRef = useInfiniteScroll<HTMLDivElement>({
     enabled: hasMore && !isLoadingMore && !isLoadMoreError,
     onIntersect: loadMore,
