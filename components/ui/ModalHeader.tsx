@@ -22,12 +22,12 @@ interface ModalHeaderProps {
 const ModalHeader = ({ children, className }: ModalHeaderProps) => {
   return (
     <div className={cn('flex w-full items-center justify-between', className)}>
-      <Dialog.Title className="flex items-center gap-2 text-xl/7.5 font-semibold tracking-[-0.03em] text-[#262626]">
+      <Dialog.Title className="flex items-center gap-2 text-xl/7.5 font-semibold tracking-[-0.03em] text-grayscale-800">
         {children}
       </Dialog.Title>
       <Dialog.Close
         aria-label="닫기"
-        className="shrink-0 text-[#A4A4A4] focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="shrink-0 text-grayscale-400 focus-visible:outline-2 focus-visible:outline-offset-2"
       >
         <IcDelete className="size-6" />
       </Dialog.Close>
