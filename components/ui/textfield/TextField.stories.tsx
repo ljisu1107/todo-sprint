@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 
-import { TextField } from './TextField';
+import TextField from './TextField';
 
 const meta = {
   title: 'Components/TextField',
