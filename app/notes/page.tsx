@@ -37,11 +37,10 @@ export default function Page() {
     nextCursor: 6,
     totalCount: 15,
   };
-
   return (
-    <div className={'bg-[#F2F2F2]'}>
-      <div className={'flex flex-row justify-between'}>
-        <h2 className={'text-2xl'}>노트 모아보기</h2>
+    <div className={'bg-grayscale-100'}>
+      <div className={'mb-10 flex flex-row justify-between'}>
+        <h2 className={'text-2xl font-semibold'}>노트 모아보기</h2>
         <div className={'flex flex-row justify-between'}>
           <label htmlFor="noteSearch">
             <input
@@ -58,9 +57,10 @@ export default function Page() {
           </div>
         </div>
       </div>
+
       <div
         className={
-          'mb-2.5 flex w-full flex-row flex-nowrap items-center rounded-[1.75rem] bg-[#FFF8E4] p-10'
+          'mb-2.5 flex w-full flex-row flex-nowrap items-center rounded-[1.75rem] bg-orange-100 p-10'
         }
       >
         <Image
@@ -74,16 +74,30 @@ export default function Page() {
           자바스크립트로 웹 서비스 만들기
         </h3>
       </div>
-      <div
-        className={
-          'grid grid-cols-1 gap-2.5 gap-x-5 overflow-x-hidden lg:grid-cols-2'
-        }
-      >
-        {!!notesData?.notes &&
-          notesData?.notes.map((note, index) => (
-            <NoteItem key={`note-${index}`} noteProps={note} />
+
+      {!!notesData?.notes && notesData?.notes.length > 0 ? (
+        <ul
+          className={
+            'grid grid-cols-1 gap-2.5 gap-x-5 overflow-x-hidden lg:grid-cols-2'
+          }
+        >
+          {notesData?.notes.map((note, index) => (
+            <li key={`note-${note.id}`}>
+              <NoteItem noteProps={note} />
+            </li>
           ))}
-      </div>
+        </ul>
+      ) : (
+        <div className={'flex size-full flex-col items-center justify-center'}>
+          <Image
+            src="/images/no_note.svg"
+            width={130}
+            height={140}
+            alt="노트 아이콘"
+          />
+          <p>아직 등록된 노트가 없어요</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist_Mono } from 'next/font/google';
 import Toaster from '@/components/ui/toast/Toaster';
+import QueryProvider from '@/components/common/queryProvider';
 import '@/styles/globals.css';
 
 const geistMono = Geist_Mono({
@@ -30,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         />
       </head>
       <body>
-        {children}
+        <QueryProvider>{children}</QueryProvider>
         <Toaster />
       </body>
     </html>

@@ -1,6 +1,7 @@
 import { Note } from '@/types/note';
 import Image from 'next/image';
 import TodoStatusChip from '@/components/todo/TodoStatusChip';
+import { formatDate } from '@/lib/formatter';
 
 interface NoteItemProps {
   noteProps: Note;
@@ -28,7 +29,7 @@ export default function NoteItem({ noteProps }: NoteItemProps) {
           <p className={'truncate text-xl font-semibold'}>{title}</p>
         </div>
 
-        <span className="material-symbols-outlined cursor-pointer text-2xl text-[#A4A4A4]">
+        <span className="material-symbols-outlined cursor-pointer text-2xl text-grayscale-400">
           more_vert
         </span>
       </div>
@@ -38,7 +39,7 @@ export default function NoteItem({ noteProps }: NoteItemProps) {
           <TodoStatusChip isTodo={isTodo} />
           <p className={'truncate text-sm'}>{todoTitle}</p>
         </div>
-        <span className={'text-xs text-[#A4A4A4]'}>{date}</span>
+        <span className={'text-xs text-grayscale-400'}>{formatDate(date)}</span>
       </div>
     </div>
   );
