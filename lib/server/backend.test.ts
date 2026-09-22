@@ -1,6 +1,6 @@
 // @vitest-environment node
-import { AxiosError, type AxiosAdapter } from 'axios';
-import { describe, expect, it } from 'vitest';
+import { AxiosError, CanceledError, type AxiosAdapter } from 'axios';
+import { describe, expect, it, vi } from 'vitest';
 import { backend, passthrough } from './backend';
 import { withRouteErrorHandler } from './route-handler';
 
@@ -61,5 +61,47 @@ describe('withRouteErrorHandler', () => {
       message: 'Server is unreachable',
       code: 'UPSTREAM_UNREACHABLE',
     });
+  });
+
+  it('backend 응답이 timeout되면 504 에러 body를 반환한다', async () => {
+    const handler = withRouteErrorHandler(() =>
+      backend
+        .get('/todos', {
+          adapter: async (config) => {
+            throw new AxiosError(
+              'timeout of 15000ms exceeded',
+              AxiosError.ECONNABORTED,
+              config,
+              {},
+            );
+          },
+        })
+        .then(passthrough),
+    );
+
+    const res = await handler();
+    expect(res.status).toBe(504);
+    expect(await res.json()).toEqual({
+      message: 'Server took too long to respond',
+      code: 'UPSTREAM_TIMEOUT',
+    });
+  });
+
+  it('클라이언트가 취소하면 로그 없이 499를 반환한다', async () => {
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const handler = withRouteErrorHandler(() =>
+      backend
+        .get('/todos', {
+          adapter: async () => {
+            throw new CanceledError();
+          },
+        })
+        .then(passthrough),
+    );
+
+    const res = await handler();
+    expect(res.status).toBe(499);
+    expect(logged).not.toHaveBeenCalled();
+    logged.mockRestore();
   });
 });
