@@ -1,0 +1,28 @@
+/* 필요한 스크롤 영역에 scrollbar-thin 클래스를 붙여 사용합니다. */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d4 transparent;
+}
+
+/* 표준 속성을 지원하지 않는 Safari 등 WebKit 계열 브라우저용 */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 0.375rem;
+  height: 0.375rem;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background-color: #d4d4d4;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #bdbdbd;
+}
+
+.scrollbar-thin::-webkit-scrollbar-corner {
+  background: transparent;
+}

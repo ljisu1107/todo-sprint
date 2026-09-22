@@ -20,7 +20,7 @@ const modalVariants = cva(
     'fixed z-50 flex flex-col bg-white',
     'focus:outline-none',
     // 시안에 없는 부분: 내용이 화면보다 길어질 때를 위한 스크롤 처리
-    'max-h-dvh overflow-y-auto tablet:max-h-[calc(100dvh-4rem)]',
+    'max-h-dvh overflow-y-auto md:max-h-[calc(100dvh-4rem)]',
   ],
   {
     variants: {
@@ -29,31 +29,31 @@ const modalVariants = cva(
         sm: [
           'top-1/2 left-1/2 -translate-1/2',
           'w-85.75 rounded-4xl p-4',
-          'tablet:w-114 tablet:rounded-[2.5rem] tablet:p-8',
+          'md:w-114 md:rounded-[2.5rem] md:p-8',
           'shadow-[0_0_1.875rem_0_rgba(0,0,0,0.05)]',
         ],
         // plugin_modal, setting modal
         md: [
           'inset-x-0 bottom-0 w-full rounded-t-4xl p-6',
-          'tablet:top-1/2 tablet:right-auto tablet:bottom-auto tablet:left-1/2',
-          'tablet:-translate-1/2',
-          'tablet:w-114 tablet:rounded-[2.5rem] tablet:p-8',
+          'md:top-1/2 md:right-auto md:bottom-auto md:left-1/2',
+          'md:-translate-1/2',
+          'md:w-114 md:rounded-[2.5rem] md:p-8',
           'shadow-[0_0_3.75rem_0_rgba(0,0,0,0.05)]',
         ],
         // TaskForm modal
         lg: [
           'inset-x-0 bottom-0 w-full rounded-t-4xl p-6',
-          'tablet:top-1/2 tablet:right-auto tablet:bottom-auto tablet:left-1/2',
-          'tablet:-translate-1/2',
-          'tablet:w-122 tablet:rounded-[2.5rem] tablet:p-8',
+          'md:top-1/2 md:right-auto md:bottom-auto md:left-1/2',
+          'md:-translate-1/2',
+          'md:w-122 md:rounded-[2.5rem] md:p-8',
           'shadow-[0_0_3.75rem_0_rgba(0,0,0,0.05)]',
         ],
         // Task modal — 혼자 여백이 8px 넓습니다 (시안 그대로)
         detail: [
           'inset-x-0 bottom-0 w-full rounded-t-4xl p-8',
-          'tablet:top-1/2 tablet:right-auto tablet:bottom-auto tablet:left-1/2',
-          'tablet:-translate-1/2',
-          'tablet:w-114 tablet:rounded-[2.5rem] tablet:p-10',
+          'md:top-1/2 md:right-auto md:bottom-auto md:left-1/2',
+          'md:-translate-1/2',
+          'md:w-114 md:rounded-[2.5rem] md:p-10',
           'shadow-[0_0_3.75rem_0_rgba(0,0,0,0.05)]',
         ],
       },
@@ -67,13 +67,13 @@ const modalVariants = cva(
       hasHeader: { true: '', false: '' },
     },
     compoundVariants: [
-      { size: 'sm', hasHeader: false, class: 'pt-12 tablet:pt-16' },
-      { size: 'md', hasHeader: false, class: 'pt-14 tablet:pt-16' },
-      { size: 'lg', hasHeader: false, class: 'pt-14 tablet:pt-16' },
+      { size: 'sm', hasHeader: false, class: 'pt-12 md:pt-16' },
+      { size: 'md', hasHeader: false, class: 'pt-14 md:pt-16' },
+      { size: 'lg', hasHeader: false, class: 'pt-14 md:pt-16' },
       {
         size: 'detail',
         hasHeader: false,
-        class: 'pt-16 tablet:pt-18',
+        class: 'pt-16 md:pt-18',
       },
     ],
     defaultVariants: { size: 'md', hasHeader: true },
