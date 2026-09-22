@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import { Geist_Mono } from 'next/font/google';
+import QueryProvider from '@/components/common/QueryProvider';
 import Toaster from '@/components/ui/toast/Toaster';
 import '@/styles/globals.css';
 
@@ -49,7 +50,9 @@ export default async function LocaleLayout({
         />
       </head>
       <body>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <QueryProvider>{children}</QueryProvider>
+        </NextIntlClientProvider>
         <Toaster />
       </body>
     </html>
