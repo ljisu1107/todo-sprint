@@ -22,7 +22,7 @@ export default function PostsPage() {
         <ClientSuspense
           fallback={<PostListSkeleton count={POST_LIST_SKELETON_COUNT} />}
         >
-          <PostList />
+          <PostList params={{ type: 'all', limit: 10 }} />
         </ClientSuspense>
       </QueryErrorBoundary>
     </div>

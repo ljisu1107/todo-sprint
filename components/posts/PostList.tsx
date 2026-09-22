@@ -4,21 +4,24 @@ import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 import ErrorRetry from '@/components/common/ErrorRetry';
-import { postQueries } from '@/queries/posts';
+import { postQueries, type PostListParams } from '@/queries/posts';
 import PostListItem from './PostListItem';
 import PostListSkeleton from './PostListSkeleton';
 
-const POST_LIST_PARAMS = { type: 'all', limit: 10 } as const;
 const NEXT_PAGE_SKELETON_COUNT = 2;
 
-const PostList = () => {
+interface PostListProps {
+  params: PostListParams;
+}
+
+const PostList = ({ params }: PostListProps) => {
   const {
     data,
     isFetchNextPageError,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-  } = useSuspenseInfiniteQuery(postQueries.list(POST_LIST_PARAMS));
+  } = useSuspenseInfiniteQuery(postQueries.list(params));
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const shouldObserve =
