@@ -54,8 +54,8 @@ const titleVariants = cva(
         small: 'text-sm',
       },
       done: {
-        true: 'text-[#737373]',
-        false: 'text-[#262626]',
+        true: 'text-grayscale-500',
+        false: 'text-grayscale-800',
       },
       style: {
         todo: '',
