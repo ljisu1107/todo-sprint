@@ -18,7 +18,7 @@ const PostListSection = () => {
 
   return (
     <div className="flex flex-col gap-2 md:gap-0">
-      <div className="flex min-h-12 items-center justify-between">
+      <div className="flex min-h-12 items-center justify-between gap-3">
         <PostSearchForm onSearch={setSearch} />
         <PostSortDropdown value={sort} onChange={setSort} />
       </div>
