@@ -39,3 +39,46 @@ describe('게시글 정렬', () => {
     expect(screen.getByRole('button', { name: /인기순/ })).toBeInTheDocument();
   });
 });
+
+describe('게시글 검색', () => {
+  const submitSearch = (keyword: string) => {
+    const input = screen.getByRole('searchbox', { name: '게시글 검색' });
+    fireEvent.change(input, { target: { value: keyword } });
+    fireEvent.click(screen.getByRole('button', { name: '검색' }));
+  };
+
+  const renderSection = () =>
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <PostListSection />
+      </QueryClientProvider>,
+    );
+
+  it('검색어를 넣고 검색하면 search 파라미터로 처음부터 다시 조회한다', async () => {
+    renderSection();
+    await screen.findByText('아직 등록된 게시물이 없어요.');
+
+    submitSearch('  스터디  ');
+
+    await vi.waitFor(() =>
+      expect(getPosts).toHaveBeenLastCalledWith(
+        { type: 'all', limit: 10, search: '스터디', cursor: undefined },
+        expect.anything(),
+      ),
+    );
+  });
+
+  it('빈 검색어로 검색하면 search를 보내지 않는다', async () => {
+    renderSection();
+    await screen.findByText('아직 등록된 게시물이 없어요.');
+
+    submitSearch('   ');
+
+    await vi.waitFor(() =>
+      expect(getPosts).toHaveBeenLastCalledWith(
+        { type: 'all', limit: 10, cursor: undefined },
+        expect.anything(),
+      ),
+    );
+  });
+});
