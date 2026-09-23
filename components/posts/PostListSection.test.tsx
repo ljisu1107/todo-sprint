@@ -42,7 +42,7 @@ describe('게시글 정렬', () => {
 
 describe('게시글 검색', () => {
   const submitSearch = (keyword: string) => {
-    const input = screen.getByRole('searchbox', { name: '게시글 검색' });
+    const input = screen.getByRole('textbox', { name: '게시글 검색' });
     fireEvent.change(input, { target: { value: keyword } });
     fireEvent.click(screen.getByRole('button', { name: '검색' }));
   };
@@ -68,17 +68,30 @@ describe('게시글 검색', () => {
     );
   });
 
-  it('빈 검색어로 검색하면 search를 보내지 않는다', async () => {
+  it('적용된 검색어와 같으면 검색 버튼이 비활성화된다', async () => {
     renderSection();
     await screen.findByText('아직 등록된 게시물이 없어요.');
+    const searchButton = screen.getByRole('button', { name: '검색' });
 
-    submitSearch('   ');
+    expect(searchButton).toBeDisabled();
 
-    await vi.waitFor(() =>
-      expect(getPosts).toHaveBeenLastCalledWith(
-        { type: 'all', limit: 10, cursor: undefined },
-        expect.anything(),
-      ),
-    );
+    fireEvent.change(screen.getByRole('textbox', { name: '게시글 검색' }), {
+      target: { value: '   ' },
+    });
+    expect(searchButton).toBeDisabled();
+
+    fireEvent.change(screen.getByRole('textbox', { name: '게시글 검색' }), {
+      target: { value: '스터디' },
+    });
+    expect(searchButton).toBeEnabled();
+
+    fireEvent.click(searchButton);
+    expect(searchButton).toBeDisabled();
+
+    // 검색어를 지우면 다시 눌러 검색을 해제할 수 있어야 합니다.
+    fireEvent.change(screen.getByRole('textbox', { name: '게시글 검색' }), {
+      target: { value: '' },
+    });
+    expect(searchButton).toBeEnabled();
   });
 });
