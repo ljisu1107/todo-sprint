@@ -8,7 +8,7 @@ const chipVariants = cva(
   {
     variants: {
       isTodo: {
-        false: 'bg-[#FEEFDC] text-[#EF6C00]',
+        false: 'bg-orange-200 text-orange-600',
         true: 'bg-[#BBBBBB] text-white',
       },
     },
@@ -22,8 +22,8 @@ export type TODOChipProps = ComponentPropsWithRef<'span'> &
 
 export default function TodoStatusChip({ isTodo, className }: TODOChipProps) {
   return (
-    <div className={cn(chipVariants({ isTodo }), className)}>
+    <span className={cn(chipVariants({ isTodo }), className)}>
       <span className={'text-xs/4'}>{isTodo ? 'DONE' : 'TO DO'}</span>
-    </div>
+    </span>
   );
 }
