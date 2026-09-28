@@ -10,6 +10,7 @@ import { makeTodo } from '@/test/todoMocks';
 import type { Todo } from '@/types/todo';
 import TodoList from './TodoList';
 import TodosHeader from './TodosHeader';
+import { getTodoListParams } from './todoListParams';
 
 vi.mock('@/lib/api/todos', () => ({ getTodos: vi.fn() }));
 vi.mock('@/components/ui/toast/Toaster', () => ({
@@ -63,11 +64,13 @@ afterEach(() => {
   triggerIntersect = () => {};
 });
 
+const ALL_PARAMS = getTodoListParams('all');
+
 const renderTodos = (noteActions?: TodoNoteActions) => {
   render(
     <QueryTestProvider>
-      <TodosHeader />
-      <TodoList noteActions={noteActions} />
+      <TodosHeader params={ALL_PARAMS} />
+      <TodoList params={ALL_PARAMS} noteActions={noteActions} />
     </QueryTestProvider>,
   );
 };
@@ -115,7 +118,7 @@ describe('TodoList', () => {
     expect(mockedGetTodos).toHaveBeenCalledTimes(1);
   });
 
-  it('할 일이 없으면 빈 상태 문구를 보여준다', async () => {
+  it('할 일이 없으면 빈 상태를 보여준다', async () => {
     mockedGetTodos.mockResolvedValueOnce(page([], null, 0));
     renderTodos();
 

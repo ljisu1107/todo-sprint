@@ -1,32 +1,28 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs';
+import { fn } from 'storybook/test';
 
 import Toaster from '@/components/ui/toast/Toaster';
 import QueryTestProvider from '@/test/QueryTestProvider';
 import { mockTodosApi } from '@/test/todoMocks';
-import TodoList from './TodoList';
-import TodosHeader from './TodosHeader';
+import TodosView from './TodosView';
 
-/** page.tsx와 같은 배치에 테스트용 Provider와 Toaster를 붙입니다. */
+/** 대시보드 레이아웃 배경 위에 테스트용 Provider와 Toaster를 붙입니다. */
 const withTodosPage: Decorator = (Story) => (
   <QueryTestProvider>
     <div className="min-h-dvh bg-grayscale-100 px-4 pt-8 pb-4 md:p-6">
-      <div className="mx-auto flex w-full max-w-180 flex-col gap-6">
-        <TodosHeader />
-        <section className="min-h-160 rounded-3xl bg-white p-4 md:rounded-4xl md:p-8">
-          <Story />
-        </section>
-      </div>
+      <Story />
     </div>
     <Toaster />
   </QueryTestProvider>
 );
 
 const meta = {
-  title: 'Todos/TodoList',
-  component: TodoList,
+  title: 'Todos/TodosView',
+  component: TodosView,
   parameters: { layout: 'fullscreen' },
   decorators: [withTodosPage],
-} satisfies Meta<typeof TodoList>;
+  args: { onAddTodo: fn() },
+} satisfies Meta<typeof TodosView>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -35,6 +31,11 @@ type Story = StoryObj<typeof meta>;
 export const InfiniteScroll: Story = {
   name: '무한 스크롤 (90개, 40개씩)',
   beforeEach: () => mockTodosApi({ totalCount: 90 }),
+};
+
+export const DoneTabEmpty: Story = {
+  name: 'DONE 탭만 비어 있음',
+  beforeEach: () => mockTodosApi({ totalCount: 12, hasDone: false }),
 };
 
 export const Empty: Story = {

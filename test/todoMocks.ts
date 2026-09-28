@@ -32,7 +32,10 @@ export const makeTodo = (id: number, overrides: Partial<Todo> = {}): Todo => ({
 });
 
 interface MockTodosApiOptions {
+  /** ALL 기준 전체 개수. id가 3의 배수인 할 일이 완료 상태입니다. */
   totalCount: number;
+  /** false면 완료된 할 일이 없어 DONE 탭이 비어 있습니다. */
+  hasDone?: boolean;
   /** 몇 번째 요청(0부터)을 실패시킬지 */
   failAt?: number;
   /** 응답을 보내지 않고 로딩 상태로 둡니다. */
@@ -41,24 +44,29 @@ interface MockTodosApiOptions {
 }
 
 /**
- * axios adapter를 바꿔 GET /todos를 흉내 냅니다. cursor는 다음에 줄 할 일의 id입니다.
+ * axios adapter를 바꿔 GET /todos를 흉내 냅니다. done으로 거르고, cursor는 다음에 줄 할 일의 id입니다.
  * 브라우저 Network 탭에는 잡히지 않으므로 요청마다 콘솔에 [mock GET /todos]로 남깁니다.
  * 되돌리는 함수를 반환합니다.
  */
 export const mockTodosApi = ({
   totalCount,
+  hasDone = true,
   failAt,
   isPending = false,
   delay = 400,
 }: MockTodosApiOptions) => {
   const originalAdapter = api.defaults.adapter;
   let requestCount = 0;
+  const allTodos = Array.from({ length: totalCount }, (_, i) =>
+    makeTodo(i + 1, hasDone ? {} : { done: false }),
+  );
 
   const adapter: AxiosAdapter = async (config) => {
     const requestIndex = requestCount;
     requestCount += 1;
     const cursor: number = config.params?.cursor ?? 1;
-    const label = `[mock GET /todos] 요청 #${requestIndex + 1} cursor=${config.params?.cursor ?? '없음'}`;
+    const done: string | undefined = config.params?.done;
+    const label = `[mock GET /todos] 요청 #${requestIndex + 1} done=${done ?? '없음'} cursor=${config.params?.cursor ?? '없음'}`;
 
     if (isPending) {
       console.info(`${label} → 응답 없음(로딩 유지)`);
@@ -72,15 +80,15 @@ export const mockTodosApi = ({
     }
 
     const limit: number = config.params?.limit ?? 40;
-    const lastId = Math.min(cursor + limit - 1, totalCount);
-    const todos = Array.from(
-      { length: Math.max(lastId - cursor + 1, 0) },
-      (_, i) => makeTodo(cursor + i),
-    );
+    const filtered = done
+      ? allTodos.filter((todo) => String(todo.done) === done)
+      : allTodos;
+    const start = filtered.findIndex((todo) => todo.id >= cursor);
+    const todos = start === -1 ? [] : filtered.slice(start, start + limit);
     const data: TodoPage = {
       todos,
-      nextCursor: lastId < totalCount ? lastId + 1 : null,
-      totalCount,
+      nextCursor: start === -1 ? null : (filtered[start + limit]?.id ?? null),
+      totalCount: filtered.length,
     };
     console.info(`${label} → ${todos.length}개, nextCursor=${data.nextCursor}`);
     return { data, status: 200, statusText: '', headers: {}, config };

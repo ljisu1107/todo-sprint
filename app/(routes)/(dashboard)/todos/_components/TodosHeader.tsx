@@ -2,15 +2,18 @@
 
 import { useInfiniteQuery } from '@tanstack/react-query';
 
-import { todoQueries } from '@/queries/todo';
-import { TODO_LIST_PARAMS } from './todoListParams';
+import { todoQueries, type TodoListParams } from '@/queries/todo';
 
 /**
  * 페이지 제목과 전체 개수. 모바일은 시안상 제목이 GNB에 들어가서 화면에서는 숨기고
- * 스크린리더용 제목만 남깁니다.
+ * 스크린리더용 제목만 남깁니다. 개수는 선택한 탭의 totalCount입니다.
  */
-const TodosHeader = () => {
-  const { data } = useInfiniteQuery(todoQueries.list(TODO_LIST_PARAMS));
+interface TodosHeaderProps {
+  params: TodoListParams;
+}
+
+const TodosHeader = ({ params }: TodosHeaderProps) => {
+  const { data } = useInfiniteQuery(todoQueries.list(params));
   const totalCount = data?.pages[0]?.totalCount;
 
   return (

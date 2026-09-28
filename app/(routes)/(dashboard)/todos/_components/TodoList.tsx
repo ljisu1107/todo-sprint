@@ -9,8 +9,8 @@ import Button from '@/components/ui/button/Button';
 import { toast } from '@/components/ui/toast/Toaster';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import useMediaQuery from '@/hooks/useMediaQuery';
-import { todoQueries } from '@/queries/todo';
-import { TODO_LIST_PARAMS } from './todoListParams';
+import { todoQueries, type TodoListParams } from '@/queries/todo';
+import TodoListEmpty from './TodoListEmpty';
 import useTodoItemActions from './useTodoItemActions';
 
 // globals.css의 --breakpoint-md(744px)와 같은 값입니다.
@@ -18,11 +18,12 @@ const TABLET_QUERY = '(min-width: 46.5rem)';
 const ERROR_MESSAGE = '할 일을 불러오지 못했어요';
 
 interface TodoListProps {
+  params: TodoListParams;
   noteActions?: TodoNoteActions;
 }
 
 /** 모든 할 일 목록 (FN-TD-01). 커서 기반 무한 스크롤, nextCursor가 null이면 멈춥니다. */
-const TodoList = ({ noteActions }: TodoListProps) => {
+const TodoList = ({ params, noteActions }: TodoListProps) => {
   const {
     data,
     isPending,
@@ -33,7 +34,7 @@ const TodoList = ({ noteActions }: TodoListProps) => {
     isFetchingNextPage,
     isFetchNextPageError,
     fetchNextPage,
-  } = useInfiniteQuery(todoQueries.list(TODO_LIST_PARAMS));
+  } = useInfiniteQuery(todoQueries.list(params));
   const sentinelRef = useInfiniteScroll<HTMLDivElement>({
     // 다음 페이지 요청이 실패하면 자동 재요청이 반복되지 않도록 감시를 멈춥니다.
     hasNextPage: hasNextPage && !isFetchNextPageError,
@@ -75,12 +76,9 @@ const TodoList = ({ noteActions }: TodoListProps) => {
 
   const todos = data.pages.flatMap((page) => page.todos);
 
+  // 탭마다 조회 결과로 따로 판단합니다 (FN-TD-03).
   if (todos.length === 0) {
-    return (
-      <p className="py-10 text-center text-sm text-grayscale-500">
-        아직 등록한 할 일이 없어요
-      </p>
-    );
+    return <TodoListEmpty />;
   }
 
   return (
