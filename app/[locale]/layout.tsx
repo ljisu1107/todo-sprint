@@ -3,6 +3,10 @@ import { Geist_Mono } from 'next/font/google';
 import Toaster from '@/components/ui/toast/Toaster';
 import QueryProvider from '@/components/common/queryProvider';
 import '@/styles/globals.css';
+import { notFound } from 'next/navigation';
+import { hasLocale, NextIntlClientProvider } from 'next-intl';
+import { locale as rootLocale } from 'next/root-params';
+import { routing } from '@/i18n/routing';
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
@@ -14,9 +18,18 @@ export const metadata: Metadata = {
   description: '할 일을 관리하는 Todo Sprint',
 };
 
-export default function RootLayout({ children }: LayoutProps<'/'>) {
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export default async function RootLayout({
+  children,
+}: LayoutProps<'/[locale]'>) {
+  const locale = await rootLocale();
+  if (!hasLocale(routing.locales, locale)) notFound();
+
   return (
-    <html lang="ko" className={`${geistMono.variable} h-full antialiased`}>
+    <html lang={locale} className={`${geistMono.variable} h-full antialiased`}>
       <head>
         <link
           rel="preconnect"
@@ -31,8 +44,10 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         />
       </head>
       <body>
-        <QueryProvider>{children}</QueryProvider>
-        <Toaster />
+        <NextIntlClientProvider>
+          <QueryProvider>{children}</QueryProvider>
+          <Toaster />
+        </NextIntlClientProvider>
       </body>
     </html>
   );
