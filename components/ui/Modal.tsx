@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
  * 모바일 배치가 variant마다 다릅니다.
  *   sm                 → 가운데 정렬 다이얼로그 (좌우 16 여백, 343px)
  *   md / lg / detail   → 화면 바닥에 붙는 바텀시트 (전체 폭, 위 모서리만 둥금)
- * 데스크톱에서는 넷 다 가운데 정렬입니다.
+ * 태블릿(744px) 이상에서는 넷 다 가운데 정렬입니다.
  */
 const modalVariants = cva(
   [
@@ -70,24 +70,35 @@ const modalVariants = cva(
       { size: 'sm', hasHeader: false, class: 'pt-12 md:pt-16' },
       { size: 'md', hasHeader: false, class: 'pt-14 md:pt-16' },
       { size: 'lg', hasHeader: false, class: 'pt-14 md:pt-16' },
-      { size: 'detail', hasHeader: false, class: 'pt-16 md:pt-18' },
+      {
+        size: 'detail',
+        hasHeader: false,
+        class: 'pt-16 md:pt-18',
+      },
     ],
     defaultVariants: { size: 'md', hasHeader: true },
   },
 );
 
-interface ModalProps extends VariantProps<typeof modalVariants> {
+interface ModalBaseProps extends Omit<
+  VariantProps<typeof modalVariants>,
+  'hasHeader'
+> {
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (isOpen: boolean) => void;
   children: ReactNode;
   className?: string;
-  /**
-   * 스크린리더용 제목. hasHeader가 false일 때만 씁니다.
-   * Radix는 Dialog.Title을 요구하는데 헤더가 없으면 보이는 제목이 없어서
-   * 숨김 제목을 대신 넣습니다. 레이아웃에는 영향이 없습니다.
-   */
-  srTitle?: string;
 }
+
+/**
+ * Radix Dialog에는 접근 가능한 제목이 필요합니다. 헤더가 없을 때만
+ * 숨김 제목을 필수로 받도록 분기해야 하므로 union은 type으로 표현합니다.
+ */
+type ModalProps = ModalBaseProps &
+  (
+    | { hasHeader?: true; srTitle?: never }
+    | { hasHeader: false; srTitle: string }
+  );
 
 const Modal = ({
   isOpen,

@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { TextField } from './TextField';
+import TextField from './TextField';
 
 describe('TextField', () => {
   describe('기본 렌더링', () => {
