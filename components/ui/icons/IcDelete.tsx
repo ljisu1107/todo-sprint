@@ -8,7 +8,7 @@ interface IcDeleteProps extends SVGProps<SVGSVGElement> {
  * 닫기(X) 아이콘. Figma `ic_delete` (4:9408)
  *
  * stroke를 currentColor로 둬서 부모의 text 색을 따라갑니다.
- * 시안 기본값은 slate/400(#A4A4A4)이므로 `className="text-[#A4A4A4]"`로 사용하세요.
+ * 시안 기본값은 grayscale-400(#A4A4A4)이므로 `className="text-grayscale-400"`로 사용하세요.
  *
  * 좌표가 6→18.5라 세로 중심이 12가 아니라 12.5입니다. 시안 그대로입니다.
  */
