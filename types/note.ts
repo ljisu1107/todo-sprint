@@ -1,41 +1,4 @@
+// 노트 타입은 API 응답 스키마(lib/api/notes.ts)에서 만들어 서버 응답과 항상 일치시킵니다.
+export type { Note, NoteTodo, NoteList as NoteProps } from '@/lib/api/notes';
+
 export type TodoStatus = 'TO DO' | 'DONE';
-
-export interface NoteText {
-  type: 'text';
-  text: string;
-}
-
-export interface NoteParagraph {
-  type: 'paragraph';
-  content: NoteText[];
-}
-
-export interface NoteContent {
-  type: 'doc';
-  content: NoteParagraph[];
-}
-
-export interface NoteTodo {
-  id: number;
-  title: string;
-  done: boolean;
-}
-
-export interface Note {
-  id: number;
-  teamId: string;
-  userId: number;
-  todoId: number;
-  title: string;
-  content: NoteContent;
-  linkUrl: string;
-  createdAt: string;
-  updatedAt: string;
-  todo: NoteTodo;
-}
-
-export interface NoteProps {
-  notes: Note[];
-  nextCursor: number | null;
-  totalCount: number;
-}
