@@ -5,10 +5,40 @@ import {
   type KeyboardEvent,
   useRef,
 } from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
 
-export type SearchInputSize = 'sm' | 'default';
+const searchInputVariants = cva(
+  'w-full rounded-full border border-solid border-input-border bg-input placeholder:text-muted focus-visible:border-grayscale-500 focus-visible:outline-none',
+  {
+    variants: {
+      size: {
+        sm: 'h-10 py-2.5 pr-12 pl-4 text-sm font-medium placeholder:text-sm placeholder:font-medium',
+        default:
+          'h-12 py-3 pr-13 pl-5 text-base font-normal placeholder:text-base placeholder:font-normal',
+      },
+    },
+    defaultVariants: { size: 'default' },
+  },
+);
+
+const searchButtonVariants = cva(
+  'absolute top-1/2 flex size-8 -translate-y-1/2 items-center justify-end text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 disabled:cursor-default',
+  {
+    variants: {
+      size: {
+        sm: 'right-4',
+        default: 'right-5',
+      },
+    },
+    defaultVariants: { size: 'default' },
+  },
+);
+
+export type SearchInputSize = NonNullable<
+  VariantProps<typeof searchInputVariants>['size']
+>;
 
 export type SearchInputProps = Omit<
   ComponentPropsWithoutRef<'input'>,
@@ -53,23 +83,14 @@ export default function SearchInput({
         type="search"
         onKeyDown={handleKeyDown}
         {...inputProps}
-        className={cn(
-          'w-full rounded-full border border-solid border-input-border bg-input placeholder:text-muted focus-visible:border-grayscale-500 focus-visible:outline-none',
-          size === 'sm'
-            ? 'h-10 py-2.5 pr-12 pl-4 text-sm font-medium placeholder:text-sm placeholder:font-medium'
-            : 'h-12 py-3 pr-13 pl-5 text-base font-normal placeholder:text-base placeholder:font-normal',
-          inputClassName,
-        )}
+        className={cn(searchInputVariants({ size }), inputClassName)}
       />
       <button
         type="button"
         aria-label="검색"
         disabled={!onSearch}
         onClick={search}
-        className={cn(
-          'absolute top-1/2 flex size-8 -translate-y-1/2 items-center justify-end text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 disabled:cursor-default',
-          size === 'sm' ? 'right-4' : 'right-5',
-        )}
+        className={searchButtonVariants({ size })}
       >
         <svg
           width="20"
