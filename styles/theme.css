@@ -4,6 +4,8 @@
  * - theme.css: 배경·글자·테두리 역할에 따른 라이트/다크 색상
  * - bg-white-section은 라이트에서 흰색인 카드·섹션·사이드바에만 사용합니다.
  *   주황색·청록색 등 고유 배경이 있는 영역에는 사용하지 않습니다.
+ * - bg-input은 검색·텍스트 입력처럼 카드 안에서도 구분되어야 하는 입력 표면에 사용합니다.
+ * - border-input-border는 검색·텍스트 입력의 테두리용입니다(라이트: #CCCCCC).
  * - 글자색은 제목 heading / 기본 foreground / 보조 muted / 약한 안내 subtle로 구분합니다.
  * - border-default는 인풋 테두리를 기준으로 정의합니다(라이트: #333333).
  *   기존 테두리의 색상에만 사용하며 테두리를 새로 추가하지 않습니다.
@@ -16,6 +18,8 @@
 :root {
   --background: #f0f0f0; /* 기존 페이지 배경 유지 */
   --white-section: #ffffff;
+  --input-background: #ffffff;
+  --input-border: var(--color-grayscale-300); /* #CCCCCC */
   --heading: #000000;
   --foreground: #333333;
   --text-muted: #737373;
@@ -30,6 +34,8 @@
     --background: #0a0a0a; /* 기존 페이지 배경 유지 */
     /* 다크 색상은 검토용 초안입니다. 흰색 영역의 #737373 아이콘을 유지하는 기준입니다. */
     --white-section: var(--color-grayscale-900); /* #121212 */
+    --input-background: var(--color-grayscale-800); /* #262626 */
+    --input-border: var(--color-grayscale-600); /* #535353 */
     --heading: #ffffff;
     --foreground: var(--color-grayscale-100); /* #f2f2f2 */
     --text-muted: #bbbbbb;
@@ -44,6 +50,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-white-section: var(--white-section);
+  --color-input: var(--input-background);
+  --color-input-border: var(--input-border);
   --color-heading: var(--heading);
   --color-foreground: var(--foreground);
   --color-muted: var(--text-muted);
