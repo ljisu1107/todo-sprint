@@ -255,6 +255,20 @@ export const themeTokens = [
     usage: '라이트에서 흰색인 사이드바·카드·팝업',
   },
   {
+    className: 'bg-input',
+    variable: '--input-background',
+    light: '#ffffff',
+    dark: '#262626',
+    usage: '검색·텍스트 입력의 배경',
+  },
+  {
+    className: 'border-input-border',
+    variable: '--input-border',
+    light: '#cccccc',
+    dark: '#535353',
+    usage: '검색·텍스트 입력의 테두리 (두께는 border로 별도 지정)',
+  },
+  {
     className: 'text-heading',
     variable: '--heading',
     light: '#000000',

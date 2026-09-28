@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, type CSSProperties } from 'react';
+import SearchInput from '@/components/ui/SearchInput';
 import { colors, typography, weights, themeTokens, shadows } from './tokens';
 
 export default function DesignTokensPage() {
@@ -103,6 +104,23 @@ export default function DesignTokensPage() {
                   </div>
                   <div className="rounded-lg border border-default p-3 text-sm text-foreground">
                     인풋 테두리 · border border-default
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-foreground">
+                      SearchInput default · 48px / 16px / 400
+                    </p>
+                    <SearchInput
+                      aria-label="할 일 검색"
+                      placeholder="할 일을 검색해주세요"
+                    />
+                    <p className="pt-2 text-sm text-foreground">
+                      SearchInput sm · 40px / 14px
+                    </p>
+                    <SearchInput
+                      size="sm"
+                      aria-label="할 일 검색"
+                      placeholder="할 일을 검색해주세요"
+                    />
                   </div>
                 </div>
               </div>

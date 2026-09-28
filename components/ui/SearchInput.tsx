@@ -54,10 +54,10 @@ export default function SearchInput({
         onKeyDown={handleKeyDown}
         {...inputProps}
         className={cn(
-          'w-full rounded-full border border-solid border-input-border bg-input px-4 pr-11 placeholder:text-muted focus-visible:border-grayscale-500 focus-visible:outline-none',
+          'w-full rounded-full border border-solid border-input-border bg-input placeholder:text-muted focus-visible:border-grayscale-500 focus-visible:outline-none',
           size === 'sm'
-            ? 'h-10 py-2.5 text-sm font-medium placeholder:text-sm placeholder:font-medium'
-            : 'h-12 px-5 py-3 text-base font-normal placeholder:text-base placeholder:font-normal',
+            ? 'h-10 py-2.5 pr-12 pl-4 text-sm font-medium placeholder:text-sm placeholder:font-medium'
+            : 'h-12 py-3 pr-13 pl-5 text-base font-normal placeholder:text-base placeholder:font-normal',
           inputClassName,
         )}
       />
@@ -66,7 +66,10 @@ export default function SearchInput({
         aria-label="검색"
         disabled={!onSearch}
         onClick={search}
-        className="absolute top-1/2 right-4 flex size-8 -translate-y-1/2 items-center justify-end text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 disabled:cursor-default"
+        className={cn(
+          'absolute top-1/2 flex size-8 -translate-y-1/2 items-center justify-end text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 disabled:cursor-default',
+          size === 'sm' ? 'right-4' : 'right-5',
+        )}
       >
         <svg
           width="20"
