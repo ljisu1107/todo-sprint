@@ -1,11 +1,11 @@
 import Image from 'next/image';
-import type { Post } from '@/lib/api/posts';
+import type { PostDto } from '@/types/api/posts';
 import { formatRelativeTime } from '@/lib/formatRelativeTime';
 import CommentCount from './CommentCount';
 import WriterAvatar from './WriterAvatar';
 
 export type PostListItemData = Pick<
-  Post,
+  PostDto,
   | 'title'
   | 'content'
   | 'image'

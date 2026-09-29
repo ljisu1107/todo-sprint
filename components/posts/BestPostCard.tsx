@@ -1,10 +1,10 @@
 import Image from 'next/image';
-import type { Post } from '@/lib/api/posts';
+import type { PostDto } from '@/types/api/posts';
 import CommentCount from './CommentCount';
 import WriterAvatar from './WriterAvatar';
 
 export type BestPostCardData = Pick<
-  Post,
+  PostDto,
   'title' | 'image' | 'writer' | 'viewCount' | 'commentCount'
 >;
 
