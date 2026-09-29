@@ -1,10 +1,12 @@
 'use client';
 
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 
 import TodoItem from '@/components/todo/TodoItem';
 import type { TodoNoteActions } from '@/components/todo/todoNoteActions';
+import useTodoItemLabels from '@/components/todo/useTodoItemLabels';
 import Button from '@/components/ui/button/Button';
 import { toast } from '@/components/ui/toast/Toaster';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
@@ -15,7 +17,6 @@ import useTodoItemActions from './useTodoItemActions';
 
 // globals.css의 --breakpoint-md(744px)와 같은 값입니다.
 const TABLET_QUERY = '(min-width: 46.5rem)';
-const ERROR_MESSAGE = '할 일을 불러오지 못했어요';
 
 interface TodoListProps {
   params: TodoListParams;
@@ -43,17 +44,19 @@ const TodoList = ({ params, noteActions }: TodoListProps) => {
   });
   const isTablet = useMediaQuery(TABLET_QUERY);
   const actions = useTodoItemActions(noteActions);
+  const labels = useTodoItemLabels();
+  const t = useTranslations('Todo');
 
   useEffect(() => {
     if (isError) {
-      toast.error(ERROR_MESSAGE);
+      toast.error(t('fetchTodosError'));
     }
-  }, [isError, errorUpdatedAt]);
+  }, [isError, errorUpdatedAt, t]);
 
   if (isPending) {
     return (
       <p role="status" className="py-10 text-center text-sm text-grayscale-400">
-        할 일을 불러오는 중이에요
+        {t('loadingTodos')}
       </p>
     );
   }
@@ -61,14 +64,14 @@ const TodoList = ({ params, noteActions }: TodoListProps) => {
   if (isError && !data) {
     return (
       <div className="flex flex-col items-center gap-4 py-10">
-        <p className="text-sm text-grayscale-500">{ERROR_MESSAGE}</p>
+        <p className="text-sm text-grayscale-500">{t('fetchTodosError')}</p>
         <Button
           variant="neutral"
           size="sm"
           className="w-auto"
           onClick={() => refetch()}
         >
-          다시 시도
+          {t('retry')}
         </Button>
       </div>
     );
@@ -88,6 +91,7 @@ const TodoList = ({ params, noteActions }: TodoListProps) => {
           <TodoItem
             key={todo.id}
             todo={todo}
+            labels={labels}
             size={isTablet ? 'large' : 'small'}
             // FN-TD-01: 새 항목이 부드럽게 올라오는 애니메이션
             className="transition-[opacity,translate] duration-300 ease-out motion-reduce:transition-none starting:translate-y-2 starting:opacity-0"
@@ -101,7 +105,7 @@ const TodoList = ({ params, noteActions }: TodoListProps) => {
           role="status"
           className="pt-4 text-center text-sm text-grayscale-400"
         >
-          더 불러오는 중이에요
+          {t('loadingMoreTodos')}
         </p>
       )}
       {isFetchNextPageError && (
@@ -112,7 +116,7 @@ const TodoList = ({ params, noteActions }: TodoListProps) => {
             className="w-auto"
             onClick={() => fetchNextPage()}
           >
-            다시 시도
+            {t('retry')}
           </Button>
         </div>
       )}

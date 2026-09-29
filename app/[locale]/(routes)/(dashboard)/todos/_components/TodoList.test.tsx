@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TodoNoteActions } from '@/components/todo/todoNoteActions';
 import { toast } from '@/components/ui/toast/Toaster';
 import { getTodos, type TodoPage } from '@/lib/api/todos';
-import QueryTestProvider from '@/test/QueryTestProvider';
+import TestProviders from '@/test/TestProviders';
 import { makeTodo } from '@/test/todoMocks';
 import type { Todo } from '@/types/todo';
 import TodoList from './TodoList';
@@ -68,10 +68,10 @@ const ALL_PARAMS = getTodoListParams('all');
 
 const renderTodos = (noteActions?: TodoNoteActions) => {
   render(
-    <QueryTestProvider>
+    <TestProviders>
       <TodosHeader params={ALL_PARAMS} />
       <TodoList params={ALL_PARAMS} noteActions={noteActions} />
-    </QueryTestProvider>,
+    </TestProviders>,
   );
 };
 
@@ -167,7 +167,7 @@ describe('TodoList', () => {
     await screen.findByText('할 일 1');
 
     await user.click(screen.getByRole('button', { name: '노트 보기' }));
-    await user.click(screen.getByRole('button', { name: '노트 작성' }));
+    await user.click(screen.getByRole('button', { name: '노트 작성하기' }));
 
     expect(noteActions.onViewNote).toHaveBeenCalledWith(7);
     expect(noteActions.onCreateNote).toHaveBeenCalledWith(2);

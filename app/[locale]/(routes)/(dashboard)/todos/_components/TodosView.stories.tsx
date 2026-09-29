@@ -2,18 +2,18 @@ import type { Decorator, Meta, StoryObj } from '@storybook/nextjs';
 import { fn } from 'storybook/test';
 
 import Toaster from '@/components/ui/toast/Toaster';
-import QueryTestProvider from '@/test/QueryTestProvider';
+import TestProviders from '@/test/TestProviders';
 import { mockTodosApi } from '@/test/todoMocks';
 import TodosView from './TodosView';
 
-/** 대시보드 레이아웃 배경 위에 테스트용 Provider와 Toaster를 붙입니다. */
+/** 대시보드 레이아웃 배경 위에 테스트용 Provider(번역·Query)와 Toaster를 붙입니다. */
 const withTodosPage: Decorator = (Story) => (
-  <QueryTestProvider>
+  <TestProviders>
     <div className="min-h-dvh bg-grayscale-100 px-4 pt-8 pb-4 md:p-6">
       <Story />
     </div>
     <Toaster />
-  </QueryTestProvider>
+  </TestProviders>
 );
 
 const meta = {

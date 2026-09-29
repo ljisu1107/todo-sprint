@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getTodos, type GetTodosParams } from '@/lib/api/todos';
-import QueryTestProvider from '@/test/QueryTestProvider';
+import TestProviders from '@/test/TestProviders';
 import { makeTodo } from '@/test/todoMocks';
 import TodosView from './TodosView';
 
@@ -73,9 +73,9 @@ afterEach(() => {
 
 const renderView = (onAddTodo = vi.fn()) => {
   render(
-    <QueryTestProvider>
+    <TestProviders>
       <TodosView onAddTodo={onAddTodo} />
-    </QueryTestProvider>,
+    </TestProviders>,
   );
   return { onAddTodo };
 };

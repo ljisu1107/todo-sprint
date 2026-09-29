@@ -4,12 +4,13 @@ export type TodoStatus = 'all' | 'todo' | 'done';
 
 /** 완료 상태 탭 (FN-TD-02). ALL은 done을 보내지 않습니다. */
 export const TODO_STATUS_TABS = [
-  { value: 'all', label: 'ALL' },
-  { value: 'todo', label: 'TO DO', done: 'false' },
-  { value: 'done', label: 'DONE', done: 'true' },
+  { value: 'all', labelKey: 'all' },
+  { value: 'todo', labelKey: 'toDo', done: 'false' },
+  { value: 'done', labelKey: 'done', done: 'true' },
 ] as const satisfies readonly {
   value: TodoStatus;
-  label: string;
+  /** messages의 Todo 키 */
+  labelKey: 'all' | 'toDo' | 'done';
   done?: TodoListParams['done'];
 }[];
 

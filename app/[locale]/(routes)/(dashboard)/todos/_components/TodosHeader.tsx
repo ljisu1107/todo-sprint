@@ -1,6 +1,7 @@
 'use client';
 
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 
 import { todoQueries, type TodoListParams } from '@/queries/todo';
 
@@ -13,12 +14,13 @@ interface TodosHeaderProps {
 }
 
 const TodosHeader = ({ params }: TodosHeaderProps) => {
+  const t = useTranslations('Todo');
   const { data } = useInfiniteQuery(todoQueries.list(params));
   const totalCount = data?.pages[0]?.totalCount;
 
   return (
     <h1 className="sr-only text-xl/7.5 font-semibold tracking-[-0.03em] md:not-sr-only md:flex md:gap-2 md:px-2 lg:text-2xl/8">
-      <span className="text-black">모든 할 일</span>{' '}
+      <span className="text-black">{t('allTodos')}</span>{' '}
       {totalCount !== undefined && (
         <span className="text-orange-600">{totalCount}</span>
       )}
