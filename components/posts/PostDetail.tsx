@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import usePostDetail from '@/hooks/posts/usePostDetail';
 import { formatUtcDateToYmd } from '@/lib/formatter';
+import PostActions from './PostActions';
 import WriterAvatar from './WriterAvatar';
 
 interface PostDetailProps {
@@ -10,7 +11,7 @@ interface PostDetailProps {
 }
 
 const PostDetail = ({ postId }: PostDetailProps) => {
-  const { title, content, image, writer, createdAt, viewCount } =
+  const { id, title, content, image, writer, createdAt, viewCount } =
     usePostDetail(postId);
 
   return (
@@ -22,6 +23,7 @@ const PostDetail = ({ postId }: PostDetailProps) => {
               <h2 className="min-w-0 flex-1 text-base font-semibold wrap-break-word text-heading md:text-2xl">
                 {title}
               </h2>
+              <PostActions postId={id} writerId={writer.id} />
             </div>
             <div className="flex items-center gap-1 text-xs text-muted md:gap-2 md:text-base md:font-medium">
               <WriterAvatar image={writer.image} />
