@@ -57,7 +57,9 @@ export default function NoteList(params: NoteListProps) {
           height={140}
           alt="노트 아이콘"
         />
-        <p className={'mt-5'}>{t('noNotes')}</p>
+        <p className={'mt-5'}>
+          {params.search ? t('noSearchResults') : t('noNotes')}
+        </p>
       </div>
     );
   }

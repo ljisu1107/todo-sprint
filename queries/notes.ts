@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import { getNotes, type GetNotesParams } from '@/lib/api/notes';
 
 // 캐시 키를 한곳에서 관리합니다. 노트 생성·수정·삭제 후
@@ -20,5 +20,6 @@ export function useNotesInfiniteQuery(
       getNotes({ ...params, cursor: pageParam }, signal),
     initialPageParam: undefined as number | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    placeholderData: keepPreviousData,
   });
 }
