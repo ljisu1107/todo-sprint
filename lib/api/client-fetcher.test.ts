@@ -4,7 +4,6 @@ import {
   type InternalAxiosRequestConfig,
 } from 'axios';
 import { afterEach, describe, expect, it } from 'vitest';
-import { z } from 'zod';
 import { api, request } from './client-fetcher';
 import { ApiError } from './errors';
 
@@ -97,34 +96,17 @@ describe('api 클라이언트: 모든 요청 실패를 ApiError로 통일한다'
 });
 
 describe('request 함수', () => {
-  const Todo = z.object({
-    id: z.number(),
-    title: z.string(),
-    done: z.boolean(),
-  });
-
-  it('스펙과 일치하면 파싱된 데이터를 반환한다', async () => {
-    const data = await request(Todo, {
+  it('응답 데이터를 반환한다', async () => {
+    const data = await request({
       url: '/todos/1',
       adapter: reply(200, { id: 1, title: 'ship api layer', done: false }),
     });
     expect(data).toEqual({ id: 1, title: 'ship api layer', done: false });
   });
 
-  it('형식이 잘못된 2xx 응답을 parse ApiError로 바꾼다', async () => {
-    const error = await caught(
-      request(Todo, {
-        url: '/todos/1',
-        adapter: reply(200, { id: '1', title: null }),
-      }),
-    );
-    expect(error).toBeInstanceOf(ApiError);
-    expect(error.kind).toBe('parse');
-  });
-
   it('전송 계층 에러는 그대로 전달한다', async () => {
     const error = await caught(
-      request(Todo, {
+      request({
         url: '/todos/1',
         adapter: reply(404, { code: 'NOT_FOUND', message: 'nope' }),
       }),
