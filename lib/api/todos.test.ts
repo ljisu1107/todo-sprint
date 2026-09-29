@@ -3,11 +3,15 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import { api } from './client-fetcher';
 import {
+  addTodoFavorite,
   createTodo,
+  deleteTodo,
   getTodos,
   getGoalTodos,
   getRecentTodos,
   getTodoProgress,
+  removeTodoFavorite,
+  updateTodo,
 } from './todos';
 
 const originalAdapter = api.defaults.adapter;
@@ -122,5 +126,35 @@ describe('createTodo', () => {
     expect(sent[0].method).toBe('post');
     expect(JSON.parse(sent[0].data)).toEqual(body);
     expect(created.id).toBe(7);
+  });
+});
+
+describe('할 일 변경 요청', () => {
+  it('updateTodo는 보낸 필드만 PATCH /todos/{id}로 보낸다', async () => {
+    const sent = replyWith(todo);
+
+    await updateTodo(7, { done: true });
+
+    expect(sent[0].method).toBe('patch');
+    expect(sent[0].url).toBe('/todos/7');
+    expect(JSON.parse(sent[0].data)).toEqual({ done: true });
+  });
+
+  it.each([
+    ['deleteTodo', () => deleteTodo(7), 'delete', '/todos/7'],
+    ['addTodoFavorite', () => addTodoFavorite(7), 'post', '/todos/7/favorites'],
+    [
+      'removeTodoFavorite',
+      () => removeTodoFavorite(7),
+      'delete',
+      '/todos/7/favorites',
+    ],
+  ])('%s는 %s %s로 보낸다', async (_name, call, method, url) => {
+    const sent = replyWith('');
+
+    await call();
+
+    expect(sent[0].method).toBe(method);
+    expect(sent[0].url).toBe(url);
   });
 });
