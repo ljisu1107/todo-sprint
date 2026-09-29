@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs';
 import PostsPage from '@/app/[locale]/(routes)/(dashboard)/posts/page';
 import type { Post, PostPage } from '@/lib/api/posts';
 import { postKeys } from '@/queries/posts';
-import { createMockPosts } from './mockPosts';
+import { createMockPosts } from '@/lib/test/fixtures/posts';
 
 // PostList가 쓰는 파라미터와 같아야 캐시가 적중합니다.
 const POST_LIST_PARAMS = { type: 'all', limit: 10 } as const;
