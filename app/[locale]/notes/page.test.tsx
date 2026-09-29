@@ -3,8 +3,9 @@ import { render, screen, within } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import messages from '@/messages/ko.json';
-import { getNotes, type NoteList } from '@/lib/api/notes';
+import { getNotes } from '@/lib/api/notes';
 import Page from './page';
+import type { NoteList } from '@/types/note';
 
 vi.mock('@/lib/api/notes', () => ({ getNotes: vi.fn() }));
 

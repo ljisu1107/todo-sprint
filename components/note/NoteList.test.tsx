@@ -4,12 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import messages from '@/messages/ko.json';
-import {
-  getNotes,
-  type Note,
-  type NoteList as NoteListResponse,
-} from '@/lib/api/notes';
-import NoteList from './NoteList';
+import { getNotes } from '@/lib/api/notes';
+import type { Note, NoteList as NoteListResponse } from '@/types/note';
+import NoteList from '@/components/note/NoteList';
 
 vi.mock('@/lib/api/notes', () => ({ getNotes: vi.fn() }));
 

@@ -1,10 +1,12 @@
 import z from 'zod';
 import { request } from './client-fetcher';
+import type { Note, NoteList, NoteTodo } from '@/types/note';
 
 // ── 응답 스키마 (Swagger: GET /{teamId}/notes) ──
 // 서버 응답이 이 모양과 다르면 request()가 ApiError('parse')를 던집니다.
+// z.ZodType<타입>으로 적어 두면 types/note.ts와 모양이 어긋날 때 타입 에러가 납니다.
 
-export const NoteTodo = z.object({
+export const NoteTodoSchema: z.ZodType<NoteTodo> = z.object({
   id: z.number(),
   title: z.string(),
   done: z.boolean(),
@@ -12,9 +14,8 @@ export const NoteTodo = z.object({
   goal: z.object({ id: z.number(), title: z.string() }).nullish(),
   tags: z.array(z.object({ id: z.number(), name: z.string() })).optional(),
 });
-export type NoteTodo = z.infer<typeof NoteTodo>;
 
-export const Note = z.object({
+export const NoteSchema: z.ZodType<Note> = z.object({
   id: z.number(),
   teamId: z.string(),
   userId: z.number(),
@@ -25,28 +26,31 @@ export const Note = z.object({
   linkUrl: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
-  todo: NoteTodo,
+  todo: NoteTodoSchema,
 });
-export type Note = z.infer<typeof Note>;
 
-export const NoteList = z.object({
-  notes: z.array(Note),
+export const NoteListSchema: z.ZodType<NoteList> = z.object({
+  notes: z.array(NoteSchema),
   nextCursor: z.number().nullable(),
   totalCount: z.number(),
 });
-export type NoteList = z.infer<typeof NoteList>;
 
 // ── 요청 파라미터 ──
-export type GetNotesParams = {
+export interface GetNotesParams {
   cursor?: number;
   limit?: number;
   todoId?: number;
   goalId?: number;
   search?: string;
   sort?: 'latest' | 'oldest';
-};
+}
 
 // 브라우저 → /api/notes (Next BFF) → 백엔드 /{teamId}/notes
 export function getNotes(params: GetNotesParams = {}, signal?: AbortSignal) {
-  return request(NoteList, { method: 'GET', url: '/notes', params, signal });
+  return request(NoteListSchema, {
+    method: 'GET',
+    url: '/notes',
+    params,
+    signal,
+  });
 }
