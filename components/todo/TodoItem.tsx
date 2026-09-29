@@ -51,7 +51,7 @@ const titleVariants = cva(
     variants: {
       size: {
         large: 'text-base',
-        small: 'text-sm',
+        small: 'text-sm lg:text-base',
       },
       done: {
         true: 'text-grayscale-500',
@@ -101,6 +101,10 @@ export type TodoItemProps = VariantProps<typeof itemVariants> & {
   onCreateNote: (id: number) => void;
   /** 케밥 드롭다운 (FN-TD-09). 메뉴 항목이 페이지마다 달라 주입받습니다. */
   kebabSlot?: ReactNode;
+  /** 더보기 버튼 노출 여부. 최근 등록한 일 카드처럼 메뉴가 없는 목록에서는 숨깁니다. */
+  showKebab?: boolean;
+  /** 노트가 없을 때 노트 작성 버튼을 표시할지 결정합니다. */
+  showCreateNote?: boolean;
   className?: string;
 };
 
@@ -115,6 +119,8 @@ export default function TodoItem({
   onViewNote,
   onCreateNote,
   kebabSlot,
+  showKebab = true,
+  showCreateNote = true,
   className,
 }: TodoItemProps) {
   const hasNote = todo.noteIds.length > 0;
@@ -172,7 +178,7 @@ export default function TodoItem({
           >
             <NoteViewIcon className="size-6" />
           </button>
-        ) : (
+        ) : showCreateNote ? (
           <button
             type="button"
             aria-label="노트 작성"
@@ -180,7 +186,7 @@ export default function TodoItem({
           >
             <IconNoteWrite className="size-6" />
           </button>
-        )}
+        ) : null}
 
         {linkUrl ? (
           <button
@@ -192,13 +198,15 @@ export default function TodoItem({
           </button>
         ) : null}
 
-        <div className="flex" onClick={(event) => event.stopPropagation()}>
-          {kebabSlot ?? (
-            <button type="button" aria-label="더보기">
-              <KebabIcon className="size-6" />
-            </button>
-          )}
-        </div>
+        {showKebab ? (
+          <div className="flex" onClick={(event) => event.stopPropagation()}>
+            {kebabSlot ?? (
+              <button type="button" aria-label="더보기">
+                <KebabIcon className="size-6" />
+              </button>
+            )}
+          </div>
+        ) : null}
 
         <button
           type="button"
