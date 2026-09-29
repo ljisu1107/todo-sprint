@@ -1,4 +1,4 @@
-export const formatDate = (date: string): string => {
+export const formatUtcDateToYmd = (date: string): string => {
   const parsedDate = new Date(date);
 
   const year = parsedDate.getUTCFullYear();

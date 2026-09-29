@@ -1,7 +1,7 @@
 import { Note } from '@/types/note';
 import Image from 'next/image';
 import TodoStatusChip from '@/components/todo/TodoStatusChip';
-import { formatDate } from '@/lib/formatter';
+import { formatUtcDateToYmd } from '@/lib/formatter';
 
 interface NoteItemProps {
   noteProps: Note;
@@ -39,7 +39,9 @@ export default function NoteItem({ noteProps }: NoteItemProps) {
           <TodoStatusChip isTodo={isTodo} />
           <p className={'truncate text-sm'}>{todoTitle}</p>
         </div>
-        <span className={'text-xs text-grayscale-400'}>{formatDate(date)}</span>
+        <span className={'text-xs text-grayscale-400'}>
+          {formatUtcDateToYmd(date)}
+        </span>
       </div>
     </div>
   );

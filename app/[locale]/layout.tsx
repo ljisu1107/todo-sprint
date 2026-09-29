@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist_Mono } from 'next/font/google';
 import Toaster from '@/components/ui/toast/Toaster';
-import QueryProvider from '@/components/common/queryProvider';
+import QueryProvider from '@/providers/QueryProvider';
 import '@/styles/globals.css';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
