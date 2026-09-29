@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import { Geist_Mono } from 'next/font/google';
-import QueryProvider from '@/components/common/QueryProvider';
+import QueryProvider from '@/providers/QueryProvider';
 import Toaster from '@/components/ui/toast/Toaster';
 import '@/styles/globals.css';
 
