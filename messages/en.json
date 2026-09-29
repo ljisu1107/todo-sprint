@@ -95,6 +95,12 @@
     "viewNote": "View Note",
     "copyLink": "Copy Link",
     "moreActions": "More",
+    "toggleTodoDoneError": "Couldn't update the to-do.",
+    "toggleFavoriteError": "Couldn't update favorites.",
+    "linkCopied": "Link copied.",
+    "copyLinkError": "Couldn't copy the link.",
+    "deleteTodoConfirm": "Are you sure you want to delete {title}?",
+    "deleteTodoError": "Couldn't delete the to-do.",
     "form": {
       "titlePlaceholder": "Enter the title of your to-do",
       "goalPlaceholder": "Select a goal",
