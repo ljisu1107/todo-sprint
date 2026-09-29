@@ -16,6 +16,30 @@ export async function getRecentTodos(signal?: AbortSignal): Promise<Todo[]> {
   return data.todos;
 }
 
+/** 특정 목표의 할 일을 최신순으로 10개씩 조회합니다. */
+export async function getGoalTodos(
+  goalId: number,
+  signal?: AbortSignal,
+  cursor?: number,
+  done?: boolean,
+  keyword?: string,
+): Promise<TodosResponse> {
+  const { data } = await api.get<TodosResponse>('/todos', {
+    params: {
+      goalId,
+      keyword: keyword?.trim() || undefined,
+      sort: 'latest',
+      limit: 10,
+      cursor,
+      done: done === undefined ? undefined : String(done),
+    },
+    signal,
+  });
+
+  // 추가 조회에 필요한 nextCursor를 함께 반환합니다.
+  return data;
+}
+
 /** 전체 할 일 중 완료한 할 일의 비율을 정수 퍼센트로 반환합니다. */
 export async function getTodoProgress(signal?: AbortSignal): Promise<number> {
   // 개수(totalCount)만 필요하므로 목록은 각 요청에서 최소 1개만 받습니다.
