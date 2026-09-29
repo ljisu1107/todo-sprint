@@ -3,8 +3,8 @@
 import Image from 'next/image';
 import NoteItem from '@/components/note/NoteItem';
 import { useNotesInfiniteQuery } from '@/queries/notes';
-import type { GetNotesParams } from '@/lib/api/notes';
 import { useTranslations } from 'next-intl';
+import type { GetNotesParams } from '@/types/api/note';
 
 type NoteListProps = Omit<GetNotesParams, 'cursor'>;
 

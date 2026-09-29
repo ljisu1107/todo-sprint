@@ -5,7 +5,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import messages from '@/messages/ko.json';
 import { getNotes } from '@/lib/api/notes';
-import type { Note, NoteList as NoteListResponse } from '@/types/note';
+import type { Note, NoteList as NoteListResponse } from '@/types/api/note';
 import NoteList from '@/components/note/NoteList';
 
 vi.mock('@/lib/api/notes', () => ({ getNotes: vi.fn() }));
@@ -78,7 +78,7 @@ describe('NoteList', () => {
     mockedGetNotes.mockResolvedValue(page([], null));
     renderNoteList({ goalId: 3, search: 'API', sort: 'oldest' });
 
-    await screen.findByText('아직 등록된 노트가 없어요');
+    await screen.findByText('검색 결과가 없습니다');
     expect(mockedGetNotes).toHaveBeenCalledWith(
       { goalId: 3, search: 'API', sort: 'oldest', cursor: undefined },
       expect.any(AbortSignal),

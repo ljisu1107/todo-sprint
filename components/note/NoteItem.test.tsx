@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import type { Note } from '@/types/note';
+import type { Note } from '@/types/api/note';
 import NoteItem from './NoteItem';
 
 const note: Note = {

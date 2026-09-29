@@ -1,5 +1,6 @@
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
-import { getNotes, type GetNotesParams } from '@/lib/api/notes';
+import { getNotes } from '@/lib/api/notes';
+import type { GetNotesParams } from '@/types/api/note';
 
 // 캐시 키를 한곳에서 관리합니다. 노트 생성·수정·삭제 후
 // queryClient.invalidateQueries({ queryKey: noteKeys.lists() })로 목록을 새로고침할 수 있습니다.

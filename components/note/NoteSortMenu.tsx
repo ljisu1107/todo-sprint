@@ -2,9 +2,7 @@
 
 import { DropdownMenu } from 'radix-ui';
 import { useTranslations } from 'next-intl';
-import type { GetNotesParams } from '@/lib/api/notes';
-
-export type NoteSort = NonNullable<GetNotesParams['sort']>;
+import type { NoteSort } from '@/types/api/note';
 
 interface NoteSortMenuProps {
   value: NoteSort;
@@ -17,13 +15,16 @@ export default function NoteSortMenu({ value, onChange }: NoteSortMenuProps) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
-        aria-label="정렬"
-        className="flex h-10 w-16 items-center justify-center rounded-full"
+        aria-label={t(value)}
+        className="ml-2 flex h-10 items-center justify-center rounded-full text-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
       >
-        <span className="material-symbols-outlined" aria-hidden="true">
+        {t(value)}
+        <span
+          className="material-symbols-outlined ml-2 text-xl"
+          aria-hidden="true"
+        >
           filter_list
         </span>
-        {t(value)}
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Portal>

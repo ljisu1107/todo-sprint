@@ -1,4 +1,18 @@
-/** GET /{teamId}/notes 응답 타입입니다. 서버 스펙을 그대로 따릅니다. */
+/** 노트 API(GET /{teamId}/notes) 요청·응답 DTO입니다. 서버 스펙을 그대로 따릅니다. */
+
+// ── 요청 ──
+export type NoteSort = 'latest' | 'oldest';
+
+export interface GetNotesParams {
+  cursor?: number;
+  limit?: number;
+  todoId?: number;
+  goalId?: number;
+  search?: string;
+  sort?: NoteSort;
+}
+
+// ── 응답 ──
 export interface NoteGoal {
   id: number;
   title: string;
@@ -37,5 +51,3 @@ export interface NoteList {
   nextCursor: number | null;
   totalCount: number;
 }
-
-export type TodoStatus = 'TO DO' | 'DONE';

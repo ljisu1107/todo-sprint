@@ -1,4 +1,4 @@
-import { Note } from '@/types/note';
+import type { Note } from '@/types/api/note';
 import Image from 'next/image';
 import TodoStatusChip from '@/components/todo/TodoStatusChip';
 import { formatUtcDateToYmd } from '@/lib/formatter';
