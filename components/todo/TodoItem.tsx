@@ -21,11 +21,11 @@ import {
   IconStarOutlineWhite,
 } from '@/components/icons';
 import { cn, stopPropagation } from '@/lib/utils';
-import type { Todo } from '@/types/todo';
+import type { TodoDto } from '@/types/api/todo';
 
 /** 아이템 렌더링에 실제로 쓰는 필드만 좁힙니다. 응답 스펙이 바뀌면 여기서 타입 에러로 드러납니다. */
 export type TodoItemData = Pick<
-  Todo,
+  TodoDto,
   'id' | 'title' | 'done' | 'noteIds' | 'linkUrl' | 'isFavorite'
 >;
 

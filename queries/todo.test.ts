@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import type { TodoPage } from '@/lib/api/todos';
+import type { TodoPageDto } from '@/types/api/todo';
 import { todoKeys, todoQueries } from './todo';
 
-const page = (nextCursor: number | null): TodoPage => ({
+const page = (nextCursor: number | null): TodoPageDto => ({
   todos: [],
   nextCursor,
   totalCount: 0,

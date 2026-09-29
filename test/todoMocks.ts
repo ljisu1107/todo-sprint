@@ -1,8 +1,7 @@
 import type { AxiosAdapter } from 'axios';
 
 import { api } from '@/lib/api/client-fetcher';
-import type { TodoPage } from '@/lib/api/todos';
-import type { Todo } from '@/types/todo';
+import type { TodoDto, TodoPageDto } from '@/types/api/todo';
 
 const TITLES = [
   '사용자 데이터 렌더링 구현',
@@ -12,7 +11,10 @@ const TITLES = [
   '로그인/회원가입 폼 만들기',
 ];
 
-export const makeTodo = (id: number, overrides: Partial<Todo> = {}): Todo => ({
+export const makeTodo = (
+  id: number,
+  overrides: Partial<TodoDto> = {},
+): TodoDto => ({
   id,
   teamId: 'team',
   userId: 1,
@@ -85,7 +87,7 @@ export const mockTodosApi = ({
       : allTodos;
     const start = filtered.findIndex((todo) => todo.id >= cursor);
     const todos = start === -1 ? [] : filtered.slice(start, start + limit);
-    const data: TodoPage = {
+    const data: TodoPageDto = {
       todos,
       nextCursor: start === -1 ? null : (filtered[start + limit]?.id ?? null),
       totalCount: filtered.length,

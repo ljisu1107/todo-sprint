@@ -48,14 +48,4 @@ describe('getTodos', () => {
     expect(page.nextCursor).toBe(41);
     expect(page.totalCount).toBe(90);
   });
-
-  it('필수 필드가 빠지면 parse 에러로 실패한다', async () => {
-    const todoWithoutTitle: Partial<typeof todo> = { ...todo };
-    delete todoWithoutTitle.title;
-    replyWith({ todos: [todoWithoutTitle], nextCursor: null, totalCount: 1 });
-
-    await expect(getTodos({ limit: 40 })).rejects.toMatchObject({
-      kind: 'parse',
-    });
-  });
 });

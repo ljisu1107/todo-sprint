@@ -4,10 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { TodoNoteActions } from '@/components/todo/todoNoteActions';
 import { toast } from '@/components/ui/toast/Toaster';
-import { getTodos, type TodoPage } from '@/lib/api/todos';
+import { getTodos } from '@/lib/api/todos';
 import TestProviders from '@/test/TestProviders';
 import { makeTodo } from '@/test/todoMocks';
-import type { Todo } from '@/types/todo';
+import type { TodoDto, TodoPageDto } from '@/types/api/todo';
 import TodoList from './TodoList';
 import TodosHeader from './TodosHeader';
 import { getTodoListParams } from './todoListParams';
@@ -19,7 +19,7 @@ vi.mock('@/components/ui/toast/Toaster', () => ({
 
 const mockedGetTodos = vi.mocked(getTodos);
 
-const todo = (id: number, overrides: Partial<Todo> = {}) =>
+const todo = (id: number, overrides: Partial<TodoDto> = {}) =>
   makeTodo(id, {
     title: `할 일 ${id}`,
     noteIds: [],
@@ -28,10 +28,10 @@ const todo = (id: number, overrides: Partial<Todo> = {}) =>
   });
 
 const page = (
-  todos: Todo[],
+  todos: TodoDto[],
   nextCursor: number | null,
   totalCount = 3,
-): TodoPage => ({ todos, nextCursor, totalCount });
+): TodoPageDto => ({ todos, nextCursor, totalCount });
 
 // 목록 끝 감시 요소가 화면에 들어온 상황을 직접 발생시킵니다.
 let triggerIntersect: () => void = () => {};
