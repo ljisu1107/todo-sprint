@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import PostsPage from '@/app/[locale]/(routes)/(dashboard)/posts/page';
-import type { Post, PostPage } from '@/lib/api/posts';
+import type { PostDto, PostPageDto } from '@/types/api/posts';
 import { postKeys } from '@/queries/posts';
 import { createMockPosts } from '@/lib/test/fixtures/posts';
 
@@ -9,14 +9,14 @@ import { createMockPosts } from '@/lib/test/fixtures/posts';
 const LATEST_LIST_PARAMS = { type: 'all', limit: 10 } as const;
 const POPULAR_LIST_PARAMS = { type: 'best', limit: 10 } as const;
 
-const toPage = (posts: Post[]): PostPage => ({
+const toPage = (posts: PostDto[]): PostPageDto => ({
   posts,
   nextCursor: null,
   totalCount: posts.length,
 });
 
 // 네트워크 없이 보여주도록 캐시에 더미 데이터를 미리 넣습니다.
-const createSeededClient = (posts: Post[]) => {
+const createSeededClient = (posts: PostDto[]) => {
   const client = new QueryClient({
     defaultOptions: { queries: { staleTime: Infinity, retry: false } },
   });
