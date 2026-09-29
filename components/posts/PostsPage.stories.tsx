@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import PostsPage from '@/app/(routes)/(dashboard)/posts/page';
+import PostsPage from '@/app/[locale]/(routes)/(dashboard)/posts/page';
 import type { Post, PostPage } from '@/lib/api/posts';
 import { postKeys } from '@/queries/posts';
 import { createMockPosts } from './mockPosts';
