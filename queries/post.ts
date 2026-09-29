@@ -9,9 +9,7 @@ import {
   getPosts,
   type GetPostsParams,
 } from '@/lib/api/post';
-
-// TanStack Query 기본 재시도 횟수와 같습니다.
-const MAX_RETRY_COUNT = 3;
+import { retryUnlessNotFound } from './retry';
 
 const BEST_POSTS_PARAMS = { type: 'best', limit: 3 } as const;
 
@@ -44,8 +42,7 @@ export const postQueries = {
     queryOptions({
       queryKey: postKeys.detail(postId),
       queryFn: ({ signal }) => getPost(postId, signal),
-      retry: (failureCount, error) =>
-        error.httpCategory !== 'notFound' && failureCount < MAX_RETRY_COUNT,
+      retry: retryUnlessNotFound,
       // 상세 조회마다 서버가 조회수를 올리므로, 포커스·재연결 때 다시 받지 않습니다.
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
