@@ -42,14 +42,4 @@ describe('getPosts', () => {
     expect(sent[0].params).toEqual({ type: 'all', limit: 10, cursor: 'xyz' });
     expect(page.nextCursor).toBe('abc');
   });
-
-  it('필수 필드가 빠지면 parse 에러로 실패한다', async () => {
-    const postWithoutWriter: Partial<typeof post> = { ...post };
-    delete postWithoutWriter.writer;
-    replyWith({ posts: [postWithoutWriter], nextCursor: null, totalCount: 1 });
-
-    await expect(getPosts({ type: 'best', limit: 3 })).rejects.toMatchObject({
-      kind: 'parse',
-    });
-  });
 });

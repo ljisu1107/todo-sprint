@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import type { PostPage } from '@/lib/api/posts';
+import type { PostPageDto } from '@/types/api/posts';
 import { postQueries } from './posts';
 
-const page = (nextCursor: string | null): PostPage => ({
+const page = (nextCursor: string | null): PostPageDto => ({
   posts: [],
   nextCursor,
   totalCount: 0,

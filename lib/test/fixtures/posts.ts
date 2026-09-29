@@ -1,4 +1,4 @@
-import type { Post } from '@/lib/api/posts';
+import type { PostDto } from '@/types/api/posts';
 
 const MINUTE = 60 * 1000;
 
@@ -39,7 +39,7 @@ const SAMPLES = [
   },
 ];
 
-export const createMockPosts = (count: number): Post[] =>
+export const createMockPosts = (count: number): PostDto[] =>
   Array.from({ length: count }, (_, index) => {
     const sample = SAMPLES[index % SAMPLES.length];
     return {
