@@ -1,17 +1,23 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState, type ReactNode } from 'react';
 
-interface QueryProviderProps {
-  children: ReactNode;
+let browserQueryClient: QueryClient | undefined;
+
+function getQueryClient() {
+  // Keep server requests isolated and preserve the browser cache across renders.
+  if (typeof window === 'undefined') return new QueryClient();
+  browserQueryClient ??= new QueryClient();
+  return browserQueryClient;
 }
 
-const QueryProvider = ({ children }: QueryProviderProps) => {
-  const [queryClient] = useState(() => new QueryClient());
+export function QueryProvider({ children }: { children: ReactNode }) {
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={getQueryClient()}>
+      {children}
+    </QueryClientProvider>
   );
-};
+}
 
 export default QueryProvider;
