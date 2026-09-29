@@ -2,7 +2,7 @@
 
 import { useQueryErrorResetBoundary } from '@tanstack/react-query';
 import { catchError, type ErrorInfo } from 'next/error';
-import ErrorRetry from './ErrorRetry';
+import ErrorRetry from '@/components/common/ErrorRetry';
 
 interface QueryErrorFallbackProps {
   message: string;

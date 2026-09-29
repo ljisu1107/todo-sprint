@@ -1,5 +1,5 @@
-import ClientSuspense from '@/components/common/ClientSuspense';
-import QueryErrorBoundary from '@/components/common/QueryErrorBoundary';
+import ClientSuspense from '@/components/boundaries/ClientSuspense';
+import QueryErrorBoundary from '@/components/boundaries/QueryErrorBoundary';
 import BestPostList from '@/components/posts/BestPostList';
 import BestPostListSkeleton from '@/components/posts/BestPostListSkeleton';
 import PostList from '@/components/posts/PostList';
