@@ -2,7 +2,7 @@ import axios from 'axios';
 import z from 'zod';
 
 export type ApiErrorKind =
-  'http' | 'timeout' | 'network' | 'canceled' | 'parse' | 'unknown';
+  'http' | 'timeout' | 'network' | 'canceled' | 'unknown';
 
 export class ApiError extends Error {
   readonly kind: ApiErrorKind;

@@ -1,6 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import { ApiError, toApiError } from './errors';
-import z from 'zod';
+import { toApiError } from './errors';
 
 const API_BASE_URL = '/api';
 
@@ -48,17 +47,10 @@ api.interceptors.response.use(undefined, (error) =>
   Promise.reject(toApiError(error)),
 );
 
-export async function request<T>(
-  schema: z.ZodType<T>,
-  config: AxiosRequestConfig,
-): Promise<T> {
-  const response = await api.request(config);
-  const parsedResponse = schema.safeParse(response.data);
-  if (!parsedResponse.success)
-    throw new ApiError('parse', 'Unexpected response shape', {
-      cause: parsedResponse.error,
-    });
-  return parsedResponse.data;
+// 응답 형태는 런타임 검증하지 않는다(타입 단언). DTO는 types/api/에 TS interface로 정의한다
+export async function request<T>(config: AxiosRequestConfig): Promise<T> {
+  const response = await api.request<T>(config);
+  return response.data;
 }
 
 export async function requestVoid(config: AxiosRequestConfig) {
