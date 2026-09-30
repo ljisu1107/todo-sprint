@@ -85,7 +85,7 @@ export type TodoItemStyle = 'todo' | 'white';
 
 /**
  * 아이콘 버튼의 접근성 이름. 상태는 aria-checked·aria-pressed로 전달하므로 이름은 상태와 무관하게 고정합니다.
- * 번역은 사용하는 화면이 넘깁니다 (components/todo/useTodoItemLabels).
+ * 번역은 사용하는 화면이 넘깁니다 (hooks/todo/useTodoItemLabels).
  */
 export interface TodoItemLabels {
   done: string;
@@ -96,7 +96,7 @@ export interface TodoItemLabels {
   moreActions: string;
 }
 
-export type TodoItemProps = VariantProps<typeof itemVariants> & {
+type TodoItemProps = VariantProps<typeof itemVariants> & {
   todo: TodoItemData;
   labels: TodoItemLabels;
   /** 배경 색 계열. white는 어두운 배경(대시보드 상단 카드)용입니다. */

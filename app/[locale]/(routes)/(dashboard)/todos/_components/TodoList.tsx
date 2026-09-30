@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 
 import TodoItem from '@/components/todo/TodoItem';
 import type { TodoNoteActions } from '@/components/todo/todoNoteActions';
-import useTodoItemLabels from '@/components/todo/useTodoItemLabels';
+import useTodoItemLabels from '@/hooks/todo/useTodoItemLabels';
 import Button from '@/components/ui/button/Button';
 import { toast } from '@/components/ui/toast/Toaster';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
@@ -37,10 +37,14 @@ const TodoList = ({ params, noteActions }: TodoListProps) => {
     fetchNextPage,
   } = useInfiniteQuery(todoQueries.list(params));
   const sentinelRef = useInfiniteScroll<HTMLDivElement>({
-    // 다음 페이지 요청이 실패하면 자동 재요청이 반복되지 않도록 감시를 멈춥니다.
-    hasNextPage: hasNextPage && !isFetchNextPageError,
-    isFetchingNextPage,
-    fetchNextPage,
+    // 다음 페이지가 있고 요청 중이 아닐 때만 감시합니다.
+    // 다음 페이지 요청이 실패하면 자동 재요청이 반복되지 않도록 [다시 시도] 전까지 멈춥니다.
+    enabled:
+      Boolean(hasNextPage) && !isFetchingNextPage && !isFetchNextPageError,
+    onIntersect: () => {
+      // 요청 중 상태가 렌더에 반영되기 전에 다시 호출돼도 새 요청을 시작하지 않습니다.
+      void fetchNextPage({ cancelRefetch: false });
+    },
   });
   const isTablet = useMediaQuery(TABLET_QUERY);
   const actions = useTodoItemActions(noteActions);

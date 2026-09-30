@@ -12,7 +12,6 @@ const TodoListEmpty = () => {
         alt=""
         width={130}
         height={140}
-        unoptimized
         className="h-21.25 w-auto md:h-35"
       />
       <p className="text-sm/5 font-medium tracking-[-0.03em] text-grayscale-500 md:text-base/6">

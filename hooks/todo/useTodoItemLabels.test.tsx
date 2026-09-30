@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import IntlTestProvider, { type TestLocale } from '@/test/IntlTestProvider';
-import TodoItem, { type TodoItemData } from './TodoItem';
+import TodoItem, { type TodoItemData } from '@/components/todo/TodoItem';
 import useTodoItemLabels from './useTodoItemLabels';
 
 const noop = () => {};
