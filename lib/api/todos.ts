@@ -1,6 +1,7 @@
 import { api } from '@/lib/api/client-fetcher';
 import type { Todo } from '@/types/todo';
 
+/** 목록뿐 아니라 다음 조회 위치와 전체 개수를 포함하는 서버 응답입니다. */
 type TodosResponse = {
   todos: Todo[];
   nextCursor: number | null;
@@ -16,7 +17,11 @@ export async function getRecentTodos(signal?: AbortSignal): Promise<Todo[]> {
   return data.todos;
 }
 
-/** 특정 목표의 할 일을 최신순으로 10개씩 조회합니다. */
+/**
+ * 특정 목표의 할 일을 최신순으로 10개씩 조회합니다.
+ * signal: 요청 취소, cursor: 다음 조회 위치(첫 조회에서는 생략)
+ * done: 완료 여부 필터, keyword: 제목 검색어(생략하면 기본 목록)
+ */
 export async function getGoalTodos(
   goalId: number,
   signal?: AbortSignal,

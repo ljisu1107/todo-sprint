@@ -3,8 +3,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import ProgressChart from '@/components/dashboard/ProgressChart';
+import RecentTodosCard from '@/components/dashboard/RecentTodosCard';
+import TodoProgressCard from '@/components/dashboard/TodoProgressCard';
+import GoalProgressBar from '@/components/dashboard/GoalProgressBar';
 import DashboardLoading from '@/components/dashboard/DashboardLoading';
+import DashboardEmptyState from '@/components/dashboard/DashboardEmptyState';
 import TodoItem, { type TodoItemData } from '@/components/todo/TodoItem';
 import SearchInput from '@/components/ui/SearchInput';
 import type { Goal } from '@/types/api/goal';
@@ -14,19 +17,37 @@ import { getGoals } from '@/lib/api/goals';
 // 목표 ID와 완료 여부별로 목록·커서·조회 상태를 따로 보관합니다.
 type GoalTodosState = {
   todos: TodoItemData[];
+  // 입력 중인 값이 아닌, 마지막으로 실행한 검색어입니다. 더보기에도 사용합니다.
   keyword?: string;
   error: boolean;
+  // 서버가 알려준 다음 조회 위치입니다. null이면 마지막 페이지입니다.
   nextCursor: number | null;
+  // 첫 조회와 구분해, 추가 조회 중에도 기존 목록을 유지합니다.
   isLoadingMore?: boolean;
   loadMoreError?: boolean;
 };
 
 export default function Dashboard() {
+  // 상단 주황색 카드에 표시할 최근 할 일 목록입니다.
   const [recentTodos, setRecentTodos] = useState<TodoItemData[]>([]);
   // API에서 받아온 목표 목록을 저장합니다.
   const [goals, setGoals] = useState<Goal[]>([]);
+  // 목표 목록의 첫 조회 상태입니다. 추가 조회 상태와 분리합니다.
   const [isLoadingGoals, setIsLoadingGoals] = useState(true);
   const [goalsError, setGoalsError] = useState(false);
+  // 목표 카드 자체를 2개씩 추가할 때 사용하는 커서입니다.
+  const [nextGoalCursor, setNextGoalCursor] = useState<number | null>(null);
+  const [isLoadingMoreGoals, setIsLoadingMoreGoals] = useState(false);
+  // 추가 조회 실패 시 자동 요청을 멈추고 재시도 버튼을 표시합니다.
+  const [moreGoalsError, setMoreGoalsError] = useState(false);
+  // 목록 끝의 감지용 DOM입니다. 화면에 들어오면 다음 목표를 조회합니다.
+  const goalSentinel = useRef<HTMLDivElement>(null);
+  // 진행 중인 요청을 보관해 중복 호출을 막고, 화면을 떠날 때 취소합니다.
+  const moreGoalsRequest = useRef<AbortController | null>(null);
+  // 할 일 첫 조회를 시작한 목표를 기록해 기존 목표의 검색 결과를 보존합니다.
+  const loadedGoalIds = useRef(new Set<number>());
+  // 키 예: "678-false"는 678번 목표의 TO DO, "678-true"는 DONE입니다.
+  // 해당 키가 없으면 아직 조회가 끝나지 않은 상태로 처리합니다.
   const [todosByGoal, setTodosByGoal] = useState<
     Record<string, GoalTodosState>
   >({});
@@ -41,8 +62,6 @@ export default function Dashboard() {
 
   // 전체 할 일의 완료 진행률(0~100)입니다. null은 진행률 데이터가 아직 없는 상태를 뜻합니다.
   const [progress, setProgress] = useState<number | null>(null);
-  // 최근 할 일이 1개 이상이면 목록을, 없으면 빈 상태 안내를 표시합니다. 로딩·오류 안내가 우선합니다.
-  const hasRecentTodos = recentTodos.length > 0;
 
   // 진행률 조회 실패 여부와 로딩 상태는 최근 할 일 목록과 별도로 관리합니다.
   const [progressError, setProgressError] = useState(false);
@@ -58,7 +77,9 @@ export default function Dashboard() {
 
     getGoals(controller.signal)
       .then((data) => {
-        if (!controller.signal.aborted) setGoals(data.goals);
+        if (controller.signal.aborted) return;
+        setGoals(data.goals);
+        setNextGoalCursor(data.nextCursor ?? null);
       })
       .catch(() => {
         if (!controller.signal.aborted) setGoalsError(true);
@@ -72,6 +93,7 @@ export default function Dashboard() {
 
   // 첫 조회와 검색은 같은 함수를 사용합니다. 같은 영역의 이전 요청은 취소합니다.
   const loadGoalFirstPage = useCallback((goalId: number, keyword?: string) => {
+    // 영역별 더보기를 위해 미완료(false)와 완료(true)를 각각 조회합니다.
     [false, true].forEach((done) => {
       const key = `${goalId}-${done}`;
       goalRequests.current.get(key)?.abort();
@@ -98,22 +120,86 @@ export default function Dashboard() {
           }));
         })
         .finally(() => {
+          // 이전 요청의 정리가 새 검색의 요청 정보를 지우지 않도록 확인합니다.
           if (goalRequests.current.get(key) === controller)
             goalRequests.current.delete(key);
         });
     });
   }, []);
 
-  // 목표 목록을 받은 뒤 TO DO와 DONE을 각각 조회합니다.
+  // 새로 추가된 목표만 조회하여 기존 목표의 검색 결과와 더보기 상태를 유지합니다.
+  useEffect(() => {
+    goals.forEach((goal) => {
+      if (loadedGoalIds.current.has(goal.id)) return;
+      loadedGoalIds.current.add(goal.id);
+      loadGoalFirstPage(goal.id);
+    });
+  }, [goals, loadGoalFirstPage]);
+
+  // 페이지를 떠날 때 진행 중인 할 일·목표 추가 요청을 모두 정리합니다.
   useEffect(() => {
     const requests = goalRequests.current;
-    goals.forEach((goal) => loadGoalFirstPage(goal.id));
+    const loadedIds = loadedGoalIds.current;
     return () => {
       requests.forEach((request) => request.abort());
       requests.clear();
+      loadedIds.clear();
+      moreGoalsRequest.current?.abort();
+      moreGoalsRequest.current = null;
     };
-  }, [goals, loadGoalFirstPage]);
+  }, []);
 
+  // 목표 카드를 2개 추가합니다. 실패해도 기존 카드와 커서를 유지합니다.
+  const loadMoreGoals = useCallback(async () => {
+    if (nextGoalCursor === null || moreGoalsRequest.current) return;
+    const controller = new AbortController();
+    moreGoalsRequest.current = controller;
+    setIsLoadingMoreGoals(true);
+    setMoreGoalsError(false);
+    try {
+      const data = await getGoals(controller.signal, nextGoalCursor);
+      if (controller.signal.aborted) return;
+      setGoals((previous) => {
+        // 같은 목표가 응답에 다시 포함되더라도 카드는 중복으로 추가하지 않습니다.
+        const ids = new Set(previous.map((goal) => goal.id));
+        return [...previous, ...data.goals.filter((goal) => !ids.has(goal.id))];
+      });
+      setNextGoalCursor(data.nextCursor ?? null);
+    } catch {
+      if (!controller.signal.aborted) setMoreGoalsError(true);
+    } finally {
+      if (!controller.signal.aborted) setIsLoadingMoreGoals(false);
+      if (moreGoalsRequest.current === controller)
+        moreGoalsRequest.current = null;
+    }
+  }, [nextGoalCursor]);
+
+  // 스크롤 동작이 아니라 목록 끝이 화면 안에 보이는지를 감지합니다.
+  // 추가 후에도 끝이 보이면 감지를 다시 시작하면서 다음 2개를 불러옵니다.
+  useEffect(() => {
+    const sentinel = goalSentinel.current;
+    if (
+      !sentinel ||
+      nextGoalCursor === null ||
+      isLoadingGoals ||
+      isLoadingMoreGoals ||
+      moreGoalsError
+    )
+      return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) void loadMoreGoals();
+    });
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [
+    nextGoalCursor,
+    isLoadingGoals,
+    isLoadingMoreGoals,
+    moreGoalsError,
+    loadMoreGoals,
+  ]);
+
+  // 검색은 Enter 또는 돋보기 클릭 시 실행하며, 다른 목표의 목록은 유지합니다.
   const searchGoalTodos = (goalId: number, query: string) => {
     // 이 목표의 목록과 커서만 비우면 양쪽에 로딩 안내가 표시됩니다.
     setTodosByGoal((previous) => {
@@ -122,6 +208,7 @@ export default function Dashboard() {
       delete next[`${goalId}-true`];
       return next;
     });
+    // 공백뿐인 검색어는 필터를 생략하여 기본 목록으로 돌아갑니다.
     loadGoalFirstPage(goalId, query.trim() || undefined);
   };
 
@@ -231,6 +318,7 @@ export default function Dashboard() {
     return () => controller.abort();
   }, []);
 
+  // 현재는 최근 목록의 화면 상태만 바꿉니다. 서버 저장은 담당자 기능 연결이 필요합니다.
   const updateRecentTodo = (
     id: number,
     changes: Partial<Pick<TodoItemData, 'done' | 'isFavorite'>>,
@@ -251,253 +339,170 @@ export default function Dashboard() {
       </div>
 
       <div className="md:flex md:flex-wrap md:gap-3 lg:gap-6">
-        <div className="min-w-0 md:flex-1 lg:flex-[1_1_28rem]">
-          <div className="mb-2.5 flex flex-wrap px-2">
-            <h2 className="mr-auto inline-flex items-center text-base font-medium text-heading md:text-lg">
-              <span className="mr-2 inline-flex size-8 items-center justify-center rounded-lg bg-[#ffd0aa]">
-                <Image
-                  src="/icons/icon_memo.svg"
-                  width={16}
-                  height={21}
-                  alt=""
-                />
-              </span>
-              최근 등록한 할일
-            </h2>
-            <Link
-              href="/"
-              className="ml-auto flex items-center text-sm font-semibold text-orange-600"
-            >
-              모두 보기
-              <span>
-                <svg
-                  className="size-5"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M7.5 15L12.5 10L7.5 5"
-                    stroke="#FF8442"
-                    strokeWidth="1.67"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-            </Link>
-          </div>
-          <div className="aspect-[343/186] w-full rounded-[1.75rem] bg-orange-500 px-4.5 py-4 shadow-[0_0.625rem_2.5rem_0_#FF9E594D] md:aspect-auto md:h-[11.625rem] lg:h-64 lg:rounded-[2.5rem] lg:px-8 lg:py-7.5">
-            {isLoadingRecentTodos ? (
-              <DashboardLoading message="할 일을 불러오는 중입니다." />
-            ) : recentTodosError ? (
-              <div
-                role="alert"
-                className="flex h-full items-center justify-center text-base font-semibold text-white"
-              >
-                <p>할 일을 불러오지 못했어요</p>
-              </div>
-            ) : hasRecentTodos ? (
-              <div className="h-full w-full max-md:flex max-md:flex-col max-md:justify-center">
-                <ul className="flex h-full flex-col justify-between max-md:max-h-[14rem]">
-                  {recentTodos.map((todo) => (
-                    <TodoItem
-                      key={todo.id}
-                      todo={todo}
-                      size="small"
-                      style="white"
-                      showKebab={false}
-                      showCreateNote={false}
-                      onToggleDone={(id, done) =>
-                        updateRecentTodo(id, { done })
-                      }
-                      onToggleFavorite={(id, isFavorite) =>
-                        updateRecentTodo(id, { isFavorite })
-                      }
-                      // 아래 동작은 상세·노트·링크 기능 연동 시 해당 페이지 로직으로 교체합니다.
-                      onOpenDetail={() => undefined}
-                      onCopyLink={() => undefined}
-                      onViewNote={() => undefined}
-                      onCreateNote={() => undefined}
-                    />
-                  ))}
-                </ul>
-              </div>
-            ) : (
-              <div className="flex h-full items-center justify-center text-base font-semibold text-white">
-                <p>최근에 등록한 할 일이 없어요</p>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* 최근 등록한일 */}
+        <RecentTodosCard
+          todos={recentTodos}
+          isLoading={isLoadingRecentTodos}
+          error={recentTodosError}
+          onToggleDone={(id, done) => updateRecentTodo(id, { done })}
+          onToggleFavorite={(id, isFavorite) =>
+            updateRecentTodo(id, { isFavorite })
+          }
+        />
 
-        <div className="min-w-0 max-md:mt-10 md:flex-1 lg:flex-[1_1_28rem]">
-          <div className="mb-2.5 flex flex-wrap px-2">
-            <h2 className="mr-auto inline-flex items-center text-base font-medium text-heading md:text-lg">
-              <span className="mr-2 inline-flex size-8 items-center justify-center rounded-lg bg-blue-100">
-                <Image
-                  src="/icons/icon_chart.svg"
-                  width={16}
-                  height={21}
-                  alt=""
-                />
-              </span>{' '}
-              내 진행 상황
-            </h2>{' '}
-          </div>
-
-          <div className="relative isolate aspect-[343/186] w-full overflow-hidden rounded-[1.75rem] bg-blue-200 shadow-[0_0.625rem_2.5rem_0_#00D4BE3D] before:pointer-events-none before:absolute before:top-[55%] before:right-0 before:z-0 before:block before:aspect-[218/154] before:w-[44%] before:bg-[url('/images/dashboard/bg-chart.svg')] before:bg-cover before:opacity-45 before:content-[''] md:aspect-auto md:h-[11.625rem] md:before:top-[41%] md:before:right-[0] lg:h-64 lg:rounded-[2.5rem] lg:before:top-[6.2rem] lg:before:w-[13.875rem]">
-            {/* 장식용 문어 일러스트는 ::before 배경 레이어로 처리합니다. */}
-
-            {isLoadingProgress ? (
-              <DashboardLoading message="진행률을 불러 오는 중입니다" />
-            ) : progressError ? (
-              <div
-                role="alert"
-                className="relative z-10 flex h-full items-center justify-center text-base font-semibold text-white"
-              >
-                <p>진행 상황을 불러오지 못했어요</p>
-              </div>
-            ) : (
-              <div className="absolute top-1/2 left-0 z-10 flex w-full -translate-y-1/2 items-center gap-5 px-6 lg:gap-8 lg:px-10">
-                <ProgressChart
-                  progress={displayProgress}
-                  className="aspect-square w-[31.2%] shrink-0 lg:size-40 lg:w-40"
-                />
-
-                <div className="min-w-0 text-white">
-                  <p className="text-sm font-semibold lg:text-xl">
-                    체다치즈님의 진행도는
-                  </p>
-                  <p className="flex items-baseline">
-                    <span className="text-display-lg leading-none font-bold lg:text-display-xl">
-                      {displayProgress}
-                    </span>
-                    <span className="ml-1 text-xl leading-none font-medium lg:text-3xl">
-                      %
-                    </span>
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* 내 진행 상황 */}
+        <TodoProgressCard
+          userName="체다치즈"
+          progress={displayProgress}
+          isLoading={isLoadingProgress}
+          error={progressError}
+        />
       </div>
 
-      {(isLoadingGoals || goalsError || goals.length > 0) && (
-        <div className="mt-10 lg:mt-8.5">
-          <h2 className="mr-auto inline-flex items-center text-base font-medium text-heading md:text-lg">
-            <span className="mr-2 size-10">
-              <Image src="/icons/icon_goal.svg" width={40} height={40} alt="" />
-            </span>
-            목표별 할일
-          </h2>
-          {isLoadingGoals ? (
-            <p role="status" className="mt-4 text-center text-muted">
-              목표를 불러오는 중입니다.
-              {/* <DashboardLoading message=" 목표를 불러오는 중입니다." /> */}
-            </p>
-          ) : goalsError ? (
-            <p role="alert" className="mt-4 text-center text-muted">
-              목표를 불러오지 못했어요
-            </p>
-          ) : (
-            <div className="mt-2.5">
-              <ul className="space-y-6">
-                {goals.map((goal) => {
-                  // 아직 조회 결과가 없는 목표는 로딩 안내를 표시합니다.
-                  const pendingState = todosByGoal[`${goal.id}-false`];
-                  const completedState = todosByGoal[`${goal.id}-true`];
-                  const pendingTodos = pendingState?.todos ?? [];
-                  const completedTodos = completedState?.todos ?? [];
-                  const goalProgress =
-                    goal.todoCount === 0
-                      ? 0
-                      : Math.round(
-                          (goal.completedCount / goal.todoCount) * 100,
-                        );
+      <div className="mt-10 lg:mt-8.5">
+        <h2 className="mr-auto inline-flex items-center text-base font-medium text-heading md:text-lg">
+          <span className="mr-2 size-10">
+            <Image src="/icons/icon_goal.svg" width={40} height={40} alt="" />
+          </span>
+          목표별 할일
+        </h2>
+        {isLoadingGoals ? (
+          <DashboardLoading
+            message="목표를 불러오는 중입니다."
+            size="md"
+            color="muted"
+            className="mt-4 py-6"
+          />
+        ) : goalsError ? (
+          <p role="alert" className="mt-4 text-center text-muted">
+            목표를 불러오지 못했어요
+          </p>
+        ) : goals.length === 0 ? (
+          <div className="mt-2.5 flex min-h-60 items-center justify-center rounded-[1.75rem] bg-white-section p-6 md:min-h-100 lg:rounded-[2.5rem]">
+            <DashboardEmptyState message="최근에 등록한 목표가 없어요" />
+          </div>
+        ) : (
+          <div className="mt-2.5">
+            <ul className="space-y-6 lg:space-y-8">
+              {goals.map((goal) => {
+                // 아직 조회 결과가 없는 목표는 로딩 안내를 표시합니다.
+                const pendingState = todosByGoal[`${goal.id}-false`];
+                const completedState = todosByGoal[`${goal.id}-true`];
+                const pendingTodos = pendingState?.todos ?? [];
+                const completedTodos = completedState?.todos ?? [];
+                // 양쪽 조회가 모두 성공한 뒤에만 통합 빈 상태를 표시합니다.
+                const isGoalTodosEmpty =
+                  pendingState &&
+                  completedState &&
+                  !pendingState.error &&
+                  !completedState.error &&
+                  pendingTodos.length === 0 &&
+                  completedTodos.length === 0;
+                // 검색·더보기로 표시된 개수가 아니라 목표 전체 개수로 진행률을 계산합니다.
+                const goalProgress =
+                  goal.todoCount === 0
+                    ? 0
+                    : Math.round((goal.completedCount / goal.todoCount) * 100);
 
-                  return (
-                    <li key={goal.id}>
-                      <div className="rounded-[1.75rem] bg-white-section p-4 md:p-6 lg:rounded-[2.5rem] lg:p-8">
-                        <div className="min-w-0">
-                          {/* S: 목표 아이템 헤더 */}
-                          <div className="relative flex flex-wrap items-center gap-3 min-[1204px]:grid min-[1204px]:grid-cols-2 min-[1204px]:gap-8 md:flex-nowrap">
-                            <div className="w-[calc(100%-3.25rem)] min-w-0 min-[1204px]:flex min-[1204px]:items-center min-[1204px]:gap-4 md:w-auto md:flex-1">
-                              <h3 className="text-base font-semibold text-foreground min-[1204px]:min-w-0 min-[1204px]:basis-2/5">
-                                {goal.title}
-                              </h3>
-
-                              <div className="relative mt-2 pr-9 min-[1204px]:mt-0 min-[1204px]:min-w-0 min-[1204px]:flex-1">
-                                {/* 프로그래스바 */}
-                                <p
-                                  className="relative h-2 w-full overflow-hidden rounded-full bg-grayscale-200"
-                                  aria-label={`목표 진행률 ${goalProgress}%`}
-                                >
-                                  <span
-                                    className="absolute top-0 left-0 h-full rounded-full bg-orange-500 transition-[width] duration-300 ease-out"
-                                    style={{ width: `${goalProgress}%` }}
-                                  />
-                                </p>
-                                <span className="absolute top-1/2 right-0 -translate-y-1/2 text-xs font-semibold text-orange-600">
-                                  {goalProgress}%
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="flex w-full items-center gap-3 min-[1204px]:min-w-0 min-[1204px]:justify-end md:w-auto md:shrink-0">
-                              <SearchInput
-                                size="sm"
-                                onSearch={(query) =>
-                                  searchGoalTodos(goal.id, query)
-                                }
-                                onKeyDown={(event) => {
-                                  // 한글 조합을 확정하는 Enter는 검색으로 처리하지 않습니다.
-                                  if (event.nativeEvent.isComposing)
-                                    event.preventDefault();
-                                }}
-                                aria-label={`${goal.title} 할 일 검색`}
-                                placeholder="할 일을 검색해주세요"
-                                className="md:w-52.5 xl:w-60"
-                              />
-                              <button
-                                type="button"
-                                aria-label="할 일 추가"
-                                className="absolute top-0 right-0 inline-flex size-10 shrink-0 items-center justify-center gap-1 rounded-full border border-solid border-orange-500 bg-transparent text-sm leading-none font-semibold text-orange-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 md:static md:w-auto md:px-4"
+                return (
+                  <li key={goal.id}>
+                    <div className="relative rounded-[1.75rem] bg-white-section p-4 after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:opacity-0 after:shadow-lg after:transition-opacity after:duration-300 after:ease-out after:content-[''] hover:after:opacity-100 motion-reduce:after:transition-none md:p-6 lg:rounded-[2.5rem] lg:p-8">
+                      <div className="min-w-0">
+                        {/* S: 목표 아이템 헤더 */}
+                        <div className="relative flex flex-wrap items-center gap-3 md:flex-nowrap lg:grid lg:grid-cols-2 lg:gap-8">
+                          <div className="w-[calc(100%-3.25rem)] min-w-0 md:w-auto md:flex-1 lg:flex lg:items-center lg:gap-4">
+                            <h3 className="text-base font-semibold text-foreground lg:min-w-0 lg:basis-2/5">
+                              {/* TODO: 담당자에게 목표 상세 경로를 확인한 뒤 goal.id로 연결합니다. */}
+                              <Link
+                                href="/"
+                                className="rounded-sm text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
                               >
-                                <span
-                                  aria-hidden="true"
-                                  className="inline-flex size-5 shrink-0 items-center justify-center"
-                                >
-                                  <Image
-                                    src="/icons/icon_plus_orange.svg"
-                                    width={20}
-                                    height={20}
-                                    alt=""
-                                  />
-                                </span>
-                                <span className="hidden md:inline">
-                                  할 일 추가
-                                </span>
-                              </button>
+                                {goal.title}
+                              </Link>
+                            </h3>
+
+                            <div className="mt-0.5 flex min-w-0 items-center gap-2 lg:mt-0 lg:flex-1">
+                              {/* 프로그래스바 */}
+                              <div className="min-w-0 flex-1">
+                                <GoalProgressBar progress={goalProgress} />
+                              </div>
+                              <span
+                                className={`w-[4ch] shrink-0 text-left text-sm font-bold whitespace-nowrap tabular-nums lg:text-base ${goalProgress === 0 ? 'text-grayscale-400' : 'text-orange-600'}`}
+                              >
+                                {goalProgress}%
+                              </span>
                             </div>
                           </div>
-                          {/* E: 목표 아이템 헤더 */}
 
+                          <div className="flex w-full items-center gap-3 md:w-auto md:shrink-0 lg:min-w-0 lg:justify-end">
+                            <SearchInput
+                              size="sm"
+                              onSearch={(query) =>
+                                searchGoalTodos(goal.id, query)
+                              }
+                              onKeyDown={(event) => {
+                                // 한글 조합을 확정하는 Enter는 검색으로 처리하지 않습니다.
+                                if (event.nativeEvent.isComposing)
+                                  event.preventDefault();
+                              }}
+                              aria-label={`${goal.title} 할 일 검색`}
+                              placeholder="할 일을 검색해주세요"
+                              className="md:w-52.5 xl:w-60"
+                            />
+                            <button
+                              type="button"
+                              aria-label="할 일 추가"
+                              className="absolute top-0 right-0 inline-flex size-10 shrink-0 items-center justify-center gap-1 rounded-full border border-solid border-orange-500 bg-transparent text-sm leading-none font-semibold text-orange-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 md:static md:w-auto md:px-4"
+                            >
+                              <span
+                                aria-hidden="true"
+                                className="inline-flex size-5 shrink-0 items-center justify-center"
+                              >
+                                <Image
+                                  src="/icons/icon_plus_orange.svg"
+                                  width={20}
+                                  height={20}
+                                  alt=""
+                                />
+                              </span>
+                              <span className="hidden md:inline">
+                                할 일 추가
+                              </span>
+                            </button>
+                          </div>
+                        </div>
+                        {/* E: 목표 아이템 헤더 */}
+
+                        {!pendingState || !completedState ? (
+                          <div
+                            role="status"
+                            className="mt-2.5 flex min-h-48 flex-col items-center justify-center gap-3 py-6 text-center text-muted md:min-h-64 lg:mt-6"
+                          >
+                            <span
+                              aria-hidden="true"
+                              className="size-6 animate-spin rounded-full border-2 border-current border-t-transparent motion-reduce:animate-none"
+                            />
+                            <p className="text-sm font-medium md:text-base">
+                              할 일을 불러오는 중입니다.
+                            </p>
+                          </div>
+                        ) : isGoalTodosEmpty ? (
+                          <div className="mt-2.5 flex min-h-48 items-center justify-center py-6 md:min-h-64 lg:mt-6">
+                            <DashboardEmptyState
+                              message={
+                                pendingState.keyword || completedState.keyword
+                                  ? '검색 결과가 없습니다.'
+                                  : '등록된 할 일이 없어요'
+                              }
+                            />
+                          </div>
+                        ) : (
                           <div className="mt-2.5 grid gap-4 lg:mt-6 lg:grid-cols-2 lg:gap-8">
-                            <div className="min-h-34 rounded-2xl bg-[#fff6df] p-4 lg:min-h-48 lg:p-6">
-                              <p className="text-xs font-semibold text-orange-600">
+                            <div className="relative min-h-34 rounded-2xl bg-[#fff6df] p-4 lg:min-h-48 lg:p-6">
+                              <p className="text-sm font-semibold tracking-[-0.03em] text-orange-600 lg:text-base">
                                 TO DO
                               </p>
-                              {!pendingState ? (
-                                <p
-                                  role="status"
-                                  className="mt-4 text-center text-xs text-muted"
-                                >
-                                  할 일을 불러오는 중입니다.
-                                </p>
-                              ) : pendingState.error ? (
+                              {pendingState.error ? (
                                 <p
                                   role="alert"
                                   className="mt-4 text-center text-xs text-muted"
@@ -505,30 +510,33 @@ export default function Dashboard() {
                                   할 일을 불러오지 못했어요
                                 </p>
                               ) : pendingTodos.length > 0 ? (
-                                <ul className="mt-3">
-                                  {pendingTodos.map((todo) => (
-                                    <TodoItem
-                                      key={todo.id}
-                                      todo={todo}
-                                      size="small"
-                                      style="todo"
-                                      showKebab={false}
-                                      showCreateNote={false}
-                                      // 조회만 연결한 상태입니다. 버튼 동작은 담당자 작업 후 연결합니다.
-                                      onToggleDone={() => undefined}
-                                      onToggleFavorite={() => undefined}
-                                      onOpenDetail={() => undefined}
-                                      onCopyLink={() => undefined}
-                                      onViewNote={() => undefined}
-                                      onCreateNote={() => undefined}
-                                    />
-                                  ))}
-                                </ul>
+                                <div className="mt-3 scrollbar-thin md:max-h-122 md:overflow-y-auto">
+                                  <ul className="lg:space-y-1">
+                                    {pendingTodos.map((todo) => (
+                                      <TodoItem
+                                        key={todo.id}
+                                        todo={todo}
+                                        size="small"
+                                        style="todo"
+                                        className="lg:h-11 lg:gap-2 lg:py-0"
+                                        showKebab={false}
+                                        showCreateNote={false}
+                                        // 조회만 연결한 상태입니다. 버튼 동작은 담당자 작업 후 연결합니다.
+                                        onToggleDone={() => undefined}
+                                        onToggleFavorite={() => undefined}
+                                        onOpenDetail={() => undefined}
+                                        onCopyLink={() => undefined}
+                                        onViewNote={() => undefined}
+                                        onCreateNote={() => undefined}
+                                      />
+                                    ))}
+                                  </ul>
+                                </div>
                               ) : (
-                                <p className="mt-4 text-center text-xs text-muted">
+                                <p className="absolute inset-0 flex items-center justify-center px-4 text-center text-sm font-medium text-muted md:text-base">
                                   {pendingState.keyword
                                     ? '검색 결과가 없습니다.'
-                                    : '등록된 할 일이 없어요'}
+                                    : '남은 할 일이 없어요'}
                                 </p>
                               )}
                               {pendingState &&
@@ -575,17 +583,10 @@ export default function Dashboard() {
                                 )}
                             </div>
                             <div className="flex min-h-20 flex-col p-4 lg:min-h-48 lg:p-6">
-                              <p className="text-xs font-semibold text-muted">
+                              <p className="text-sm font-semibold tracking-[-0.03em] text-muted lg:text-base">
                                 DONE
                               </p>
-                              {!completedState ? (
-                                <p
-                                  role="status"
-                                  className="mt-4 text-center text-xs text-muted"
-                                >
-                                  할 일을 불러오는 중입니다.
-                                </p>
-                              ) : completedState.error ? (
+                              {completedState.error ? (
                                 <p
                                   role="alert"
                                   className="mt-4 text-center text-xs text-muted"
@@ -593,13 +594,14 @@ export default function Dashboard() {
                                   할 일을 불러오지 못했어요
                                 </p>
                               ) : completedTodos.length > 0 ? (
-                                <ul className="mt-3">
+                                <ul className="mt-3 lg:space-y-1">
                                   {completedTodos.map((todo) => (
                                     <TodoItem
                                       key={todo.id}
                                       todo={todo}
                                       size="small"
                                       style="todo"
+                                      className="lg:h-11 lg:gap-2 lg:py-0"
                                       showKebab={false}
                                       showCreateNote={false}
                                       // 조회만 연결한 상태입니다. 버튼 동작은 담당자 작업 후 연결합니다.
@@ -613,7 +615,7 @@ export default function Dashboard() {
                                   ))}
                                 </ul>
                               ) : (
-                                <p className="mt-4 text-center text-xs text-muted">
+                                <p className="mt-4 text-center text-sm font-medium text-muted md:text-base">
                                   {completedState.keyword
                                     ? '검색 결과가 없습니다.'
                                     : '완료한 할 일이 없어요'}
@@ -663,16 +665,41 @@ export default function Dashboard() {
                                 )}
                             </div>
                           </div>
-                        </div>
+                        )}
                       </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            {nextGoalCursor !== null && (
+              <div
+                ref={goalSentinel}
+                className="flex min-h-12 items-center justify-center py-4"
+              >
+                {isLoadingMoreGoals ? (
+                  <p role="status" className="text-sm font-medium text-muted">
+                    목표를 더 불러오는 중입니다.
+                  </p>
+                ) : moreGoalsError ? (
+                  <div className="text-center">
+                    <p role="alert" className="text-sm text-muted">
+                      목표를 더 불러오지 못했어요.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={loadMoreGoals}
+                      className="mt-2 rounded-lg px-4 py-2 text-sm font-medium text-orange-600 focus-visible:outline-2 focus-visible:outline-orange-600"
+                    >
+                      다시 시도
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       {/* 개발 참고용: 버튼에 사용할 아이콘을 확인하는 임시 영역입니다. */}
     </div>
   );

@@ -54,7 +54,10 @@ beforeEach(() => {
   });
   getGoalTodos.mockReset();
 });
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
 
 describe('목표별 영역별 더보기', () => {
   it.each([false, true])(
@@ -237,7 +240,7 @@ describe('목표별 검색', () => {
     fireEvent.change(input, { target: { value: '없는 제목' } });
     fireEvent.click(screen.getByRole('button', { name: '검색' }));
     await waitFor(() =>
-      expect(screen.getAllByText('검색 결과가 없습니다.')).toHaveLength(2),
+      expect(screen.getAllByText('검색 결과가 없습니다.')).toHaveLength(1),
     );
     expect(
       screen.queryByRole('button', { name: '테스트 목표 TO DO 더보기' }),
@@ -267,7 +270,7 @@ describe('목표별 검색', () => {
     });
     fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Enter' });
     await waitFor(() =>
-      expect(screen.getAllByText('검색 결과가 없습니다.')).toHaveLength(2),
+      expect(screen.getAllByText('검색 결과가 없습니다.')).toHaveLength(1),
     );
     expect(oldSignal.aborted).toBe(true);
     await act(async () => {
@@ -275,4 +278,117 @@ describe('목표별 검색', () => {
     });
     expect(screen.queryByText('TODO 테스트 13')).not.toBeInTheDocument();
   });
+});
+
+describe('목표 없음 안내', () => {
+  it('목표가 없으면 섹션 제목과 빈 상태를 표시하고 할 일 조회는 하지 않는다', async () => {
+    getGoals.mockResolvedValue({ goals: [], nextCursor: null, totalCount: 0 });
+    render(<Dashboard />);
+    expect(
+      await screen.findByText('최근에 등록한 목표가 없어요'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: '목표별 할일' }),
+    ).toBeInTheDocument();
+    expect(getGoalTodos).not.toHaveBeenCalled();
+  });
+
+  it('목표 조회 실패를 목표 없음으로 표시하지 않는다', async () => {
+    getGoals.mockRejectedValue(new Error('network'));
+    render(<Dashboard />);
+    expect(
+      await screen.findByText('목표를 불러오지 못했어요'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('최근에 등록한 목표가 없어요'),
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe('목표 목록 무한 스크롤', () => {
+  const goalPage = (start: number) => ({
+    goals: [start, start + 1].map((id) => ({
+      id,
+      title: `스크롤 목표 ${id}`,
+      todoCount: 0,
+      completedCount: 0,
+    })),
+    nextCursor: start === 5 ? null : start + 2,
+    totalCount: 6,
+  });
+
+  const observeVisibleEnd = () => {
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(private callback: IntersectionObserverCallback) {}
+        observe() {
+          this.callback(
+            [{ isIntersecting: true } as IntersectionObserverEntry],
+            this as unknown as IntersectionObserver,
+          );
+        }
+        disconnect() {}
+      },
+    );
+  };
+
+  it('스크롤 없이 끝이 보이면 2개씩 6개까지 채우고 종료한다', async () => {
+    observeVisibleEnd();
+    getGoals.mockImplementation((_signal, cursor) =>
+      Promise.resolve(goalPage(cursor ?? 1)),
+    );
+    getGoalTodos.mockResolvedValue({ todos: [], nextCursor: null });
+    render(<Dashboard />);
+    await screen.findByRole('heading', { name: '스크롤 목표 6' });
+    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(6);
+    expect(getGoals).toHaveBeenCalledTimes(3);
+    expect(getGoals).toHaveBeenNthCalledWith(2, expect.any(AbortSignal), 3);
+    expect(getGoals).toHaveBeenNthCalledWith(3, expect.any(AbortSignal), 5);
+    // 기존 목표를 다시 요청하지 않고 목표마다 두 영역을 한 번씩 조회합니다.
+    await waitFor(() => expect(getGoalTodos).toHaveBeenCalledTimes(12));
+  });
+
+  it('추가 목표 조회 실패 시 기존 카드를 유지하며 버튼으로 재시도한다', async () => {
+    observeVisibleEnd();
+    getGoals
+      .mockResolvedValueOnce(goalPage(1))
+      .mockRejectedValueOnce(new Error('network'))
+      .mockResolvedValueOnce({ ...goalPage(3), nextCursor: null });
+    getGoalTodos.mockResolvedValue({ todos: [], nextCursor: null });
+    render(<Dashboard />);
+    const retry = await screen.findByRole('button', { name: '다시 시도' });
+    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(2);
+    expect(getGoals).toHaveBeenCalledTimes(2);
+    fireEvent.click(retry);
+    await screen.findByRole('heading', { name: '스크롤 목표 4' });
+    expect(getGoals).toHaveBeenLastCalledWith(expect.any(AbortSignal), 3);
+    expect(
+      screen.queryByRole('button', { name: '다시 시도' }),
+    ).not.toBeInTheDocument();
+  });
+});
+
+it('한쪽 빈 결과가 먼저 와도 양쪽 조회 완료 전까지 빈 안내를 노출하지 않는다', async () => {
+  let finish!: (value: { todos: never[]; nextCursor: null }) => void;
+  getGoalTodos.mockImplementation((_id, _signal, _cursor, done) =>
+    done
+      ? new Promise((resolve) => {
+          finish = resolve;
+        })
+      : Promise.resolve({ todos: [], nextCursor: null }),
+  );
+  render(<Dashboard />);
+  await screen.findByRole('heading', { name: '테스트 목표' });
+  await waitFor(() => expect(getGoalTodos).toHaveBeenCalledTimes(2));
+  expect(screen.getByText('할 일을 불러오는 중입니다.')).toBeInTheDocument();
+  expect(screen.queryByText('등록된 할 일이 없어요')).not.toBeInTheDocument();
+  expect(screen.queryByText('완료한 할 일이 없어요')).not.toBeInTheDocument();
+  await act(async () => {
+    finish({ todos: [], nextCursor: null });
+  });
+  expect(screen.getAllByText('등록된 할 일이 없어요')).toHaveLength(1);
+  expect(
+    screen.queryByText('할 일을 불러오는 중입니다.'),
+  ).not.toBeInTheDocument();
 });
