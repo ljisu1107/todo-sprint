@@ -1,7 +1,7 @@
 import type { AxiosAdapter, InternalAxiosRequestConfig } from 'axios';
 import { afterEach, describe, expect, it } from 'vitest';
 import { api } from './client-fetcher';
-import { getComments } from './comments';
+import { createComment, getComments } from './comments';
 
 const originalAdapter = api.defaults.adapter;
 afterEach(() => {
@@ -30,5 +30,17 @@ describe('getComments', () => {
       limit: 10,
       cursor: 'abc',
     });
+  });
+});
+
+describe('createComment', () => {
+  it('POST /posts/{postId}/comments로 댓글 내용을 보낸다', async () => {
+    const sent = replyWith({});
+
+    await createComment(5, { content: '좋은 글이네요!' });
+
+    expect(sent[0].url).toBe('/posts/5/comments');
+    expect(sent[0].method).toBe('post');
+    expect(JSON.parse(sent[0].data)).toEqual({ content: '좋은 글이네요!' });
   });
 });

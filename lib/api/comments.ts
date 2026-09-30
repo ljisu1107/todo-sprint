@@ -1,4 +1,8 @@
-import type { CommentPageDto } from '@/types/api/comments';
+import type {
+  CommentDto,
+  CommentPageDto,
+  CreateCommentBodyDto,
+} from '@/types/api/comments';
 import { request } from './client-fetcher';
 
 export type GetCommentsParams = {
@@ -18,4 +22,11 @@ export const getComments = (
     url: `/posts/${postId}/comments`,
     params: { parentId: TOP_LEVEL_PARENT_ID, ...params },
     signal,
+  });
+
+export const createComment = (postId: number, body: CreateCommentBodyDto) =>
+  request<CommentDto>({
+    url: `/posts/${postId}/comments`,
+    method: 'POST',
+    data: body,
   });

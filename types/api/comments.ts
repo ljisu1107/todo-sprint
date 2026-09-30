@@ -20,3 +20,7 @@ export interface CommentPageDto {
   nextCursor: string | null;
   totalCount: number;
 }
+
+export interface CreateCommentBodyDto {
+  content: string;
+}
