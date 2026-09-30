@@ -4,8 +4,11 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
+import DeleteTodoModal from '@/components/todo/DeleteTodoModal';
 import TodoItem from '@/components/todo/TodoItem';
+import TodoItemKebab from '@/components/todo/TodoItemKebab';
 import type { TodoNoteActions } from '@/components/todo/todoNoteActions';
+import useTodoItemActions from '@/hooks/todo/useTodoItemActions';
 import useTodoItemLabels from '@/hooks/todo/useTodoItemLabels';
 import Button from '@/components/ui/button/Button';
 import { toast } from '@/components/ui/toast/Toaster';
@@ -13,13 +16,15 @@ import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { todoQueries, type TodoListParams } from '@/queries/todo';
 import type { TodoDto } from '@/types/api/todo';
-import DeleteTodoModal from './DeleteTodoModal';
-import TodoItemKebab from './TodoItemKebab';
 import TodoListEmpty from './TodoListEmpty';
-import useTodoItemActions from './useTodoItemActions';
 
 // globals.css의 --breakpoint-md(744px)와 같은 값입니다.
 const TABLET_QUERY = '(min-width: 46.5rem)';
+
+// 할 일 상세 모달(FN-TD-13)이 생기면 연결합니다.
+const openDetailNotConnected = () => {};
+// 노트 보기·작성(FN-TD-11, 12)은 노트 담당과 연결 방식을 확정한 뒤 noteActions로 받습니다.
+const noteNotConnected = () => {};
 
 interface TodoListProps {
   params: TodoListParams;
@@ -50,7 +55,7 @@ const TodoList = ({ params, noteActions }: TodoListProps) => {
     },
   });
   const isTablet = useMediaQuery(TABLET_QUERY);
-  const actions = useTodoItemActions(noteActions);
+  const actions = useTodoItemActions();
   const labels = useTodoItemLabels();
   const t = useTranslations('Todo');
   const [deleteTarget, setDeleteTarget] = useState<Pick<
@@ -108,6 +113,9 @@ const TodoList = ({ params, noteActions }: TodoListProps) => {
             // FN-TD-01: 새 항목이 부드럽게 올라오는 애니메이션
             className="transition-[opacity,translate] duration-300 ease-out motion-reduce:transition-none starting:translate-y-2 starting:opacity-0"
             {...actions}
+            onOpenDetail={openDetailNotConnected}
+            onViewNote={noteActions?.onViewNote ?? noteNotConnected}
+            onCreateNote={noteActions?.onCreateNote ?? noteNotConnected}
             kebabSlot={
               <TodoItemKebab
                 onDelete={() =>
