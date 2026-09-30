@@ -25,7 +25,7 @@ const CommentList = ({ postId }: CommentListProps) => {
       <ul className="flex flex-col gap-8 md:gap-10">
         {comments.map((comment) => (
           <li key={comment.id}>
-            <CommentItem comment={comment} />
+            <CommentItem postId={postId} comment={comment} />
           </li>
         ))}
       </ul>
