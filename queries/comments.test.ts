@@ -1,6 +1,8 @@
 import { MutationObserver, QueryClient } from '@tanstack/react-query';
 import { describe, expect, it, vi } from 'vitest';
-import type { CommentPageDto } from '@/types/api/comments';
+import { deleteComment, updateComment } from '@/lib/api/comments';
+import { ApiError } from '@/lib/api/errors';
+import type { CommentDto, CommentPageDto } from '@/types/api/comments';
 import type { PostDto } from '@/types/api/posts';
 import { commentKeys, commentMutations, commentQueries } from './comments';
 import { postKeys } from './posts';
@@ -8,6 +10,8 @@ import { postKeys } from './posts';
 vi.mock('@/lib/api/comments', () => ({
   getComments: vi.fn(),
   createComment: vi.fn(async () => ({})),
+  updateComment: vi.fn(async () => ({ id: 10, content: '수정' })),
+  deleteComment: vi.fn(async () => {}),
 }));
 
 const page = (nextCursor: string | null): CommentPageDto => ({
@@ -41,6 +45,84 @@ describe('commentMutations.create', () => {
     expect(client.getQueryData<PostDto>(postKeys.detail(7))?.commentCount).toBe(
       4,
     );
+    expect(client.getQueryState(commentKeys.list(7))?.isInvalidated).toBe(true);
+  });
+});
+
+const seedClient = () => {
+  const client = new QueryClient();
+  client.setQueryData(postKeys.detail(7), { commentCount: 3 } as PostDto);
+  client.setQueryData(commentKeys.list(7), { pages: [], pageParams: [] });
+  return client;
+};
+
+describe('commentMutations.delete', () => {
+  it('성공하면 게시글의 댓글 수를 1 줄이고 댓글 목록을 무효화한다', async () => {
+    const client = seedClient();
+
+    await new MutationObserver(client, commentMutations.delete(7)).mutate(10);
+
+    expect(client.getQueryData<PostDto>(postKeys.detail(7))?.commentCount).toBe(
+      2,
+    );
+    expect(client.getQueryState(commentKeys.list(7))?.isInvalidated).toBe(true);
+  });
+
+  it('이미 삭제된 댓글(404)이면 댓글 수를 1 줄이고 목록을 무효화한다', async () => {
+    vi.mocked(deleteComment).mockRejectedValueOnce(
+      new ApiError('http', 'Not found', { status: 404 }),
+    );
+    const client = seedClient();
+
+    await expect(
+      new MutationObserver(client, commentMutations.delete(7)).mutate(10),
+    ).rejects.toThrow();
+
+    expect(client.getQueryData<PostDto>(postKeys.detail(7))?.commentCount).toBe(
+      2,
+    );
+    expect(client.getQueryState(commentKeys.list(7))?.isInvalidated).toBe(true);
+  });
+});
+
+describe('commentMutations.update', () => {
+  it('성공하면 불러온 목록의 해당 댓글만 응답으로 바꾼다', async () => {
+    const client = new QueryClient();
+    const other = { id: 11, content: '다른 댓글' } as CommentDto;
+    client.setQueryData(commentKeys.list(7), {
+      pages: [
+        {
+          comments: [{ id: 10, content: '원래' } as CommentDto, other],
+          nextCursor: null,
+          totalCount: 2,
+        },
+      ],
+      pageParams: [undefined],
+    });
+
+    await new MutationObserver(client, commentMutations.update(7)).mutate({
+      commentId: 10,
+      content: '수정',
+    });
+
+    expect(
+      client.getQueryData(commentQueries.list(7).queryKey)?.pages[0].comments,
+    ).toEqual([{ id: 10, content: '수정' }, other]);
+  });
+
+  it('이미 삭제된 댓글(404)이면 댓글 목록을 무효화한다', async () => {
+    vi.mocked(updateComment).mockRejectedValueOnce(
+      new ApiError('http', 'Not found', { status: 404 }),
+    );
+    const client = seedClient();
+
+    await expect(
+      new MutationObserver(client, commentMutations.update(7)).mutate({
+        commentId: 10,
+        content: '수정',
+      }),
+    ).rejects.toThrow();
+
     expect(client.getQueryState(commentKeys.list(7))?.isInvalidated).toBe(true);
   });
 });

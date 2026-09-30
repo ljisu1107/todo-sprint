@@ -24,3 +24,7 @@ export interface CommentPageDto {
 export interface CreateCommentBodyDto {
   content: string;
 }
+
+export interface UpdateCommentBodyDto {
+  content: string;
+}
