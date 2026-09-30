@@ -3,7 +3,9 @@
 import { catchError, type ErrorInfo } from 'next/error';
 import ClientSuspense from '@/components/boundaries/ClientSuspense';
 import { QueryErrorFallback } from '@/components/boundaries/QueryErrorBoundary';
+import useCommentCount from '@/hooks/post/useCommentCount';
 import { ApiError } from '@/lib/api/errors';
+import CommentCreateForm from './CommentCreateForm';
 import CommentList from './CommentList';
 import CommentListSkeleton from './CommentListSkeleton';
 
@@ -25,24 +27,27 @@ interface CommentSectionProps {
   postId: number;
 }
 
-const CommentSection = ({ postId }: CommentSectionProps) => (
-  <section aria-label="댓글" className="flex flex-col gap-6">
-    <CommentErrorBoundary>
-      <ClientSuspense
-        fallback={
-          <>
-            <div
-              aria-hidden
-              className="h-6 w-14 animate-pulse rounded-md bg-muted/20 md:h-7"
-            />
-            <CommentListSkeleton count={INITIAL_SKELETON_COUNT} />
-          </>
-        }
-      >
-        <CommentList postId={postId} />
-      </ClientSuspense>
-    </CommentErrorBoundary>
-  </section>
-);
+const CommentSection = ({ postId }: CommentSectionProps) => {
+  const commentCount = useCommentCount(postId);
+
+  return (
+    <section aria-label="댓글" className="flex flex-col gap-6">
+      <CommentErrorBoundary>
+        <div className="flex flex-col gap-4">
+          <h3 className="flex gap-0.5 text-base font-semibold md:gap-1 md:text-lg">
+            <span className="text-heading">댓글</span>
+            <span className="text-orange-600">{commentCount}</span>
+          </h3>
+          <CommentCreateForm postId={postId} />
+        </div>
+        <ClientSuspense
+          fallback={<CommentListSkeleton count={INITIAL_SKELETON_COUNT} />}
+        >
+          <CommentList postId={postId} />
+        </ClientSuspense>
+      </CommentErrorBoundary>
+    </section>
+  );
+};
 
 export default CommentSection;
