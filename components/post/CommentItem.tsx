@@ -1,26 +1,22 @@
 'use client';
 
-import KebabMenu, {
-  type KebabMenuItem,
-} from '@/components/ui/kebab-menu/KebabMenu';
+import { useState } from 'react';
 import useIsMe from '@/hooks/user/useIsMe';
 import { formatUtcDateToYmd } from '@/lib/formatter';
 import type { CommentDto } from '@/types/api/comment';
+import CommentActions from './CommentActions';
+import CommentEditForm from './CommentEditForm';
 import WriterAvatar from './WriterAvatar';
 
-// 수정·삭제 동작은 댓글 수정/삭제 기능에서 연결합니다.
-const COMMENT_MENU_ITEMS: KebabMenuItem[] = [
-  { label: '수정하기', onSelect: () => {} },
-  { label: '삭제하기', onSelect: () => {} },
-];
-
 interface CommentItemProps {
-  comment: Pick<CommentDto, 'content' | 'createdAt' | 'writer'>;
+  postId: number;
+  comment: Pick<CommentDto, 'id' | 'content' | 'createdAt' | 'writer'>;
 }
 
-const CommentItem = ({ comment }: CommentItemProps) => {
-  const { content, createdAt, writer } = comment;
+const CommentItem = ({ postId, comment }: CommentItemProps) => {
+  const { id, content, createdAt, writer } = comment;
   const isMine = useIsMe(writer.id);
+  const [isEditing, setIsEditing] = useState(false);
 
   return (
     <article className="flex flex-col gap-3">
@@ -37,17 +33,29 @@ const CommentItem = ({ comment }: CommentItemProps) => {
           )}
         </div>
         {isMine && (
-          <KebabMenu ariaLabel="댓글 메뉴" items={COMMENT_MENU_ITEMS} />
+          <CommentActions
+            postId={postId}
+            commentId={id}
+            onEdit={() => setIsEditing(true)}
+          />
         )}
       </div>
-      <div className="flex flex-col gap-2">
-        <p className="text-sm wrap-break-word whitespace-pre-wrap text-foreground md:text-base">
-          {content}
-        </p>
-        <time dateTime={createdAt} className="text-xs text-subtle md:text-sm">
-          {formatUtcDateToYmd(createdAt)}
-        </time>
-      </div>
+      {isEditing ? (
+        <CommentEditForm
+          postId={postId}
+          comment={comment}
+          onClose={() => setIsEditing(false)}
+        />
+      ) : (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm wrap-break-word whitespace-pre-wrap text-foreground md:text-base">
+            {content}
+          </p>
+          <time dateTime={createdAt} className="text-xs text-subtle md:text-sm">
+            {formatUtcDateToYmd(createdAt)}
+          </time>
+        </div>
+      )}
     </article>
   );
 };
