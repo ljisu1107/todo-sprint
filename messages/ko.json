@@ -109,6 +109,9 @@
       "attachImage": "이미지 첨부",
       "imagePreview": "첨부한 이미지 미리보기",
       "removeImage": "이미지 삭제",
+      "closeConfirm": "할 일 작성을 취소하시겠어요?",
+      "closeWarning": "작성하신 모든 내용이 사라집니다",
+      "createError": "할 일을 생성하지 못했어요",
       "errors": {
         "titleRequired": "제목을 입력해주세요",
         "titleTooLong": "제목은 {max}자 이내로 입력해주세요",

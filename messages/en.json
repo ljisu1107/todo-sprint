@@ -109,6 +109,9 @@
       "attachImage": "Attach Image",
       "imagePreview": "Preview of the attached image",
       "removeImage": "Remove image",
+      "closeConfirm": "Would you like to cancel writing this to-do?",
+      "closeWarning": "All the content you have written will be lost.",
+      "createError": "Couldn't create the to-do.",
       "errors": {
         "titleRequired": "Enter a title.",
         "titleTooLong": "The title must be {max} characters or fewer.",
