@@ -1,4 +1,4 @@
-import type { WriterDto } from './posts';
+import type { WriterDto } from './post';
 
 export interface CommentDto {
   id: number;

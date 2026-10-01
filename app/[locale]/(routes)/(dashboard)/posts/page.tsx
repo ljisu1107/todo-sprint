@@ -1,8 +1,8 @@
 import ClientSuspense from '@/components/boundaries/ClientSuspense';
 import QueryErrorBoundary from '@/components/boundaries/QueryErrorBoundary';
-import BestPostList from '@/components/posts/BestPostList';
-import BestPostListSkeleton from '@/components/posts/BestPostListSkeleton';
-import PostListSection from '@/components/posts/PostListSection';
+import BestPostList from '@/components/post/BestPostList';
+import BestPostListSkeleton from '@/components/post/BestPostListSkeleton';
+import PostListSection from '@/components/post/PostListSection';
 
 export default function PostsPage() {
   return (
