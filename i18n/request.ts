@@ -1,9 +1,11 @@
 import { hasLocale } from 'next-intl';
 import { getRequestConfig } from 'next-intl/server';
+import { locale as rootLocale } from 'next/root-params';
 import { routing } from './routing';
 
-export default getRequestConfig(async ({ requestLocale }) => {
-  const requested = await requestLocale;
+export default getRequestConfig(async ({ locale: explicitLocale }) => {
+  // getTranslations({ locale }) 처럼 명시한 locale이 있으면 우선 사용합니다.
+  const requested = explicitLocale ?? (await rootLocale());
   const locale = hasLocale(routing.locales, requested)
     ? requested
     : routing.defaultLocale;

@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
+import { Geist_Mono } from 'next/font/google';
+import Toaster from '@/components/ui/toast/Toaster';
+import QueryProvider from '@/providers/QueryProvider';
+import '@/styles/globals.css';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
+import { locale as rootLocale } from 'next/root-params';
 import { routing } from '@/i18n/routing';
-import { Geist_Mono } from 'next/font/google';
-import QueryProvider from '@/providers/QueryProvider';
-import Toaster from '@/components/ui/toast/Toaster';
-import '@/styles/globals.css';
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
@@ -21,18 +22,11 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-export default async function LocaleLayout({
+export default async function RootLayout({
   children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-
-  if (!hasLocale(routing.locales, locale)) {
-    notFound();
-  }
+}: LayoutProps<'/[locale]'>) {
+  const locale = await rootLocale();
+  if (!hasLocale(routing.locales, locale)) notFound();
 
   return (
     <html lang={locale} className={`${geistMono.variable} h-full antialiased`}>
@@ -52,8 +46,8 @@ export default async function LocaleLayout({
       <body>
         <NextIntlClientProvider>
           <QueryProvider>{children}</QueryProvider>
+          <Toaster />
         </NextIntlClientProvider>
-        <Toaster />
       </body>
     </html>
   );
