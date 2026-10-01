@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import usePostDetail from '@/hooks/posts/usePostDetail';
+import usePostDetail from '@/hooks/post/usePostDetail';
 import { formatUtcDateToYmd } from '@/lib/formatter';
 import PostActions from './PostActions';
 import WriterAvatar from './WriterAvatar';

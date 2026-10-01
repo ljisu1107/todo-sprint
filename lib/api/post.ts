@@ -1,4 +1,4 @@
-import type { PostDto, PostPageDto } from '@/types/api/posts';
+import type { PostDto, PostPageDto } from '@/types/api/post';
 import { request, requestVoid } from './client-fetcher';
 
 export type PostSortType = 'all' | 'best';

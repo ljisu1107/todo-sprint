@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { toast } from '@/components/ui/toast/Toaster';
 import { ApiError } from '@/lib/api/errors';
-import { deletePost } from '@/lib/api/posts';
+import { deletePost } from '@/lib/api/post';
 import { userKeys } from '@/queries/users';
 import type { UserDto } from '@/types/api/users';
 import PostActions from './PostActions';
@@ -15,7 +15,7 @@ vi.mock('@/i18n/navigation', () => ({ useRouter: () => router }));
 vi.mock('@/lib/api/users', () => ({
   getMe: vi.fn(async () => ({ id: 1, name: '체다치즈' })),
 }));
-vi.mock('@/lib/api/posts', () => ({ deletePost: vi.fn(async () => {}) }));
+vi.mock('@/lib/api/post', () => ({ deletePost: vi.fn(async () => {}) }));
 vi.mock('@/components/ui/toast/Toaster', () => ({
   toast: { error: vi.fn() },
 }));

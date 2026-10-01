@@ -8,7 +8,7 @@ import {
   getPost,
   getPosts,
   type GetPostsParams,
-} from '@/lib/api/posts';
+} from '@/lib/api/post';
 
 // TanStack Query 기본 재시도 횟수와 같습니다.
 const MAX_RETRY_COUNT = 3;

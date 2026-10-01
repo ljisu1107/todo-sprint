@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { PostPageDto } from '@/types/api/posts';
+import type { PostPageDto } from '@/types/api/post';
 import { ApiError } from '@/lib/api/errors';
-import { postQueries } from './posts';
+import { postQueries } from './post';
 
 const page = (nextCursor: string | null): PostPageDto => ({
   posts: [],

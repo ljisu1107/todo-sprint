@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import BestPostList from './BestPostList';
 import PostList from './PostList';
 
-vi.mock('@/lib/api/posts', () => ({
+vi.mock('@/lib/api/post', () => ({
   getPosts: vi.fn(async () => ({ posts: [], nextCursor: null, totalCount: 0 })),
 }));
 

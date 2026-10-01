@@ -1,7 +1,7 @@
 import type { AxiosAdapter, InternalAxiosRequestConfig } from 'axios';
 import { afterEach, describe, expect, it } from 'vitest';
 import { api } from './client-fetcher';
-import { deletePost, getPost, getPosts } from './posts';
+import { deletePost, getPost, getPosts } from './post';
 
 const originalAdapter = api.defaults.adapter;
 afterEach(() => {

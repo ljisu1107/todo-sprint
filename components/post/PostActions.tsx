@@ -6,7 +6,7 @@ import KebabMenu, {
   type KebabMenuItem,
 } from '@/components/ui/kebab-menu/KebabMenu';
 import { toast } from '@/components/ui/toast/Toaster';
-import useDeletePost from '@/hooks/posts/useDeletePost';
+import useDeletePost from '@/hooks/post/useDeletePost';
 import useIsMe from '@/hooks/users/useIsMe';
 import { useRouter } from '@/i18n/navigation';
 import type { ApiHttpCategory } from '@/lib/api/errors';
