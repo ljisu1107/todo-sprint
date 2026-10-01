@@ -1,5 +1,5 @@
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
-import { postQueries, type PostListParams } from '@/queries/posts';
+import { postQueries, type PostListParams } from '@/queries/post';
 
 const usePostList = (params: PostListParams) => {
   const {

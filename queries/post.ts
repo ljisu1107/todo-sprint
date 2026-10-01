@@ -1,5 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
-import { getPosts, type GetPostsParams } from '@/lib/api/posts';
+import { getPosts, type GetPostsParams } from '@/lib/api/post';
 
 const BEST_POSTS_PARAMS = { type: 'best', limit: 3 } as const;
 

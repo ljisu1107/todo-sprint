@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import ClientSuspense from '@/components/boundaries/ClientSuspense';
 import QueryErrorBoundary from '@/components/boundaries/QueryErrorBoundary';
-import type { PostSortType } from '@/lib/api/posts';
+import type { PostSortType } from '@/lib/api/post';
 import PostList from './PostList';
 import PostListSkeleton from './PostListSkeleton';
 import PostSortDropdown from './PostSortDropdown';

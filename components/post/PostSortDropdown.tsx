@@ -1,7 +1,7 @@
 'use client';
 
 import { DropdownMenu } from 'radix-ui';
-import type { PostSortType } from '@/lib/api/posts';
+import type { PostSortType } from '@/lib/api/post';
 
 const SORT_LABELS: Record<PostSortType, string> = {
   all: '최신순',

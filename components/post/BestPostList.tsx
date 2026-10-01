@@ -1,6 +1,6 @@
 'use client';
 
-import useBestPosts from '@/hooks/posts/useBestPosts';
+import useBestPosts from '@/hooks/post/useBestPosts';
 import BestPostCard from './BestPostCard';
 
 const BestPostList = () => {
