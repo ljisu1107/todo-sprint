@@ -1,9 +1,9 @@
 import ClientSuspense from '@/components/boundaries/ClientSuspense';
 import QueryErrorBoundary from '@/components/boundaries/QueryErrorBoundary';
-import BestPostList from '@/components/posts/BestPostList';
-import BestPostListSkeleton from '@/components/posts/BestPostListSkeleton';
-import PostList from '@/components/posts/PostList';
-import PostListSkeleton from '@/components/posts/PostListSkeleton';
+import BestPostList from '@/components/post/BestPostList';
+import BestPostListSkeleton from '@/components/post/BestPostListSkeleton';
+import PostList from '@/components/post/PostList';
+import PostListSkeleton from '@/components/post/PostListSkeleton';
 
 const POST_LIST_SKELETON_COUNT = 5;
 

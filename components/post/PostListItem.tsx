@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import type { PostDto } from '@/types/api/posts';
+import type { PostDto } from '@/types/api/post';
 import { formatRelativeTime } from '@/lib/formatRelativeTime';
 import CommentCount from './CommentCount';
 import WriterAvatar from './WriterAvatar';

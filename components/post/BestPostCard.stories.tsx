@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import BestPostCard from './BestPostCard';
-import { createMockPosts } from '@/lib/test/fixtures/posts';
+import { createMockPosts } from '@/lib/test/fixtures/post';
 
 const [withImage, , withoutImage, , longTitle] = createMockPosts(5);
 

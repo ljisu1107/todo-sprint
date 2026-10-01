@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { createMockPosts } from '@/lib/test/fixtures/posts';
+import { createMockPosts } from '@/lib/test/fixtures/post';
 import PostListItem from './PostListItem';
 
 const [, , withoutImage, longContent, longTitle] = createMockPosts(5);
