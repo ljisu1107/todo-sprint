@@ -82,6 +82,8 @@ interface MockTodosApiOptions {
   failCreate?: boolean;
   /** 이미지 업로드(PUT)를 실패시킵니다. */
   failUpload?: boolean;
+  /** 수정·삭제·찜 요청을 모두 실패시킵니다. */
+  failMutations?: boolean;
 }
 
 /** 배열을 cursor(다음에 줄 항목의 1부터 센 위치)로 잘라 줍니다. */
@@ -106,6 +108,7 @@ const wait = (delay: number) =>
  * - GET /todos: done으로 거르고 최신순(만든 순서의 반대)으로 돌려줍니다.
  * - GET /goals: 10개씩 돌려줍니다.
  * - POST /images, 업로드 PUT, POST /todos: 생성한 할 일을 목록 맨 앞에 넣습니다.
+ * - PATCH·DELETE /todos/{id}, POST·DELETE /todos/{id}/favorites: 메모리의 할 일을 바꿉니다.
  * 브라우저 Network 탭에는 잡히지 않으므로 요청마다 콘솔에 [mock ...]으로 남깁니다.
  * 되돌리는 함수를 반환합니다.
  */
@@ -119,6 +122,7 @@ export const mockTodosApi = ({
   failGoals = false,
   failCreate = false,
   failUpload = false,
+  failMutations = false,
 }: MockTodosApiOptions) => {
   const originalAdapter = api.defaults.adapter;
   const originalUploadAdapter = axios.defaults.adapter;
@@ -223,6 +227,31 @@ export const mockTodosApi = ({
     return ok(todo, config, 201);
   };
 
+  // /todos/{id} 또는 /todos/{id}/favorites
+  const mutateTodoResponse = async (
+    config: InternalAxiosRequestConfig,
+    method: string,
+  ) => {
+    const label = `[mock ${method} ${config.url}]`;
+    await wait(delay);
+    if (failMutations) {
+      console.info(`${label} → 실패`);
+      throw new Error('mock network error');
+    }
+
+    const [, , id, sub] = config.url?.split('/') ?? [];
+    const index = todos.findIndex((todo) => todo.id === Number(id));
+    if (sub === 'favorites') {
+      todos[index].isFavorite = method === 'POST';
+    } else if (method === 'PATCH') {
+      Object.assign(todos[index], JSON.parse(config.data ?? '{}'));
+    } else if (method === 'DELETE') {
+      todos.splice(index, 1);
+    }
+    console.info(`${label} ${config.data ?? ''} → 성공`);
+    return ok('', config, 204);
+  };
+
   const adapter: AxiosAdapter = (config) => {
     const method = config.method?.toUpperCase() ?? 'GET';
 
@@ -237,6 +266,9 @@ export const mockTodosApi = ({
     }
     if (config.url === '/images' && method === 'POST') {
       return createImageUrlResponse(config);
+    }
+    if (config.url?.startsWith('/todos/')) {
+      return mutateTodoResponse(config, method);
     }
     return Promise.reject(
       new Error(`mock에 없는 요청입니다: ${method} ${config.url}`),
