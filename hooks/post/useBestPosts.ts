@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { postQueries } from '@/queries/posts';
+import { postQueries } from '@/queries/post';
 
 const useBestPosts = () => {
   const { data } = useSuspenseQuery(postQueries.best());

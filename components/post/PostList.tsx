@@ -2,9 +2,9 @@
 
 import Image from 'next/image';
 import ErrorRetry from '@/components/common/ErrorRetry';
-import usePostList from '@/hooks/posts/usePostList';
+import usePostList from '@/hooks/post/usePostList';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
-import type { PostListParams } from '@/queries/posts';
+import type { PostListParams } from '@/queries/post';
 import PostListItem from './PostListItem';
 import PostListSkeleton from './PostListSkeleton';
 

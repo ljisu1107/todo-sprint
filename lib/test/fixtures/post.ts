@@ -1,4 +1,4 @@
-import type { PostDto } from '@/types/api/posts';
+import type { PostDto } from '@/types/api/post';
 
 const MINUTE = 60 * 1000;
 

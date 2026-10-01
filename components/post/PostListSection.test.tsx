@@ -1,10 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getPosts } from '@/lib/api/posts';
+import { getPosts } from '@/lib/api/post';
 import PostListSection from './PostListSection';
 
-vi.mock('@/lib/api/posts', () => ({
+vi.mock('@/lib/api/post', () => ({
   getPosts: vi.fn(async () => ({ posts: [], nextCursor: null, totalCount: 0 })),
 }));
 
