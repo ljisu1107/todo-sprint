@@ -92,7 +92,10 @@
     "favorite": "Favorite",
     "viewNote": "View Note",
     "copyLink": "Copy Link",
-    "moreActions": "More"
+    "moreActions": "More",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "dateWithTodoCount": "{date}, {count} to-dos"
   },
   "Auth": {
     "loginTitle": "Log in",
