@@ -5,8 +5,9 @@ import type { PostDto, PostPageDto } from '@/types/api/post';
 import { postKeys } from '@/queries/post';
 import { createMockPosts } from '@/lib/test/fixtures/post';
 
-// PostList가 쓰는 파라미터와 같아야 캐시가 적중합니다.
-const POST_LIST_PARAMS = { type: 'all', limit: 10 } as const;
+// PostListSection이 정렬별로 쓰는 파라미터와 같아야 캐시가 적중합니다.
+const LATEST_LIST_PARAMS = { type: 'all', limit: 10 } as const;
+const POPULAR_LIST_PARAMS = { type: 'best', limit: 10 } as const;
 
 const toPage = (posts: PostDto[]): PostPageDto => ({
   posts,
@@ -24,8 +25,12 @@ const createSeededClient = (posts: PostDto[]) => {
     ...toPage(byViews.slice(0, 3)),
     totalCount: posts.length,
   });
-  client.setQueryData(postKeys.list(POST_LIST_PARAMS), {
+  client.setQueryData(postKeys.list(LATEST_LIST_PARAMS), {
     pages: [toPage(posts)],
+    pageParams: [undefined],
+  });
+  client.setQueryData(postKeys.list(POPULAR_LIST_PARAMS), {
+    pages: [toPage(byViews)],
     pageParams: [undefined],
   });
   return client;

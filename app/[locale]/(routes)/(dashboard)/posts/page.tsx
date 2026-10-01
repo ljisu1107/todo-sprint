@@ -2,10 +2,7 @@ import ClientSuspense from '@/components/boundaries/ClientSuspense';
 import QueryErrorBoundary from '@/components/boundaries/QueryErrorBoundary';
 import BestPostList from '@/components/post/BestPostList';
 import BestPostListSkeleton from '@/components/post/BestPostListSkeleton';
-import PostList from '@/components/post/PostList';
-import PostListSkeleton from '@/components/post/PostListSkeleton';
-
-const POST_LIST_SKELETON_COUNT = 5;
+import PostListSection from '@/components/post/PostListSection';
 
 export default function PostsPage() {
   return (
@@ -18,13 +15,7 @@ export default function PostsPage() {
           <BestPostList />
         </ClientSuspense>
       </QueryErrorBoundary>
-      <QueryErrorBoundary message="게시글을 불러오지 못했어요.">
-        <ClientSuspense
-          fallback={<PostListSkeleton count={POST_LIST_SKELETON_COUNT} />}
-        >
-          <PostList />
-        </ClientSuspense>
-      </QueryErrorBoundary>
+      <PostListSection />
     </div>
   );
 }

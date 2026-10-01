@@ -18,7 +18,7 @@ const renderWithClient = (ui: ReactNode) =>
 
 describe('게시글이 없을 때', () => {
   it('목록은 빈 상태 안내를 표시한다', async () => {
-    renderWithClient(<PostList />);
+    renderWithClient(<PostList params={{ type: 'all', limit: 10 }} />);
     expect(
       await screen.findByText('아직 등록된 게시물이 없어요.'),
     ).toBeInTheDocument();
