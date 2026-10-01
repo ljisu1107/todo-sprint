@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import { getMe } from '@/lib/api/users';
+import { getMe } from '@/lib/api/user';
 
 export const userKeys = {
   all: ['users'] as const,

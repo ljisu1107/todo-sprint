@@ -1,4 +1,4 @@
-import type { UserDto } from '@/types/api/users';
+import type { UserDto } from '@/types/api/user';
 import { request } from './client-fetcher';
 
 export const getMe = (signal?: AbortSignal) =>
