@@ -8,6 +8,7 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Dashboard from './page';
+import IntlTestProvider from '@/test/IntlTestProvider';
 
 const { getGoals, getGoalTodos } = vi.hoisted(() => ({
   getGoals: vi.fn(),
@@ -71,7 +72,7 @@ describe('목표별 영역별 더보기', () => {
               finish = resolve;
             }),
       );
-      render(<Dashboard />);
+      render(<Dashboard />, { wrapper: IntlTestProvider });
       const label = done ? 'DONE' : 'TO DO';
       const prefix = done ? 'DONE' : 'TODO';
       const otherPrefix = done ? 'TODO' : 'DONE';
@@ -134,7 +135,7 @@ describe('목표별 영역별 더보기', () => {
       }
       return Promise.resolve(page(done, cursor));
     });
-    render(<Dashboard />);
+    render(<Dashboard />, { wrapper: IntlTestProvider });
     fireEvent.click(
       await screen.findByRole('button', { name: '테스트 목표 TO DO 더보기' }),
     );
@@ -188,7 +189,7 @@ describe('목표별 검색', () => {
           : result,
       );
     });
-    render(<Dashboard />);
+    render(<Dashboard />, { wrapper: IntlTestProvider });
     await screen.findByText('다른 목표 할 일');
     const input = screen.getByRole('searchbox', {
       name: '테스트 목표 할 일 검색',
@@ -234,7 +235,7 @@ describe('목표별 검색', () => {
         keyword ? { todos: [], nextCursor: null } : page(done, cursor),
       ),
     );
-    render(<Dashboard />);
+    render(<Dashboard />, { wrapper: IntlTestProvider });
     await screen.findByText('TODO 테스트 1');
     const input = screen.getByRole('searchbox');
     fireEvent.change(input, { target: { value: '없는 제목' } });
@@ -261,7 +262,7 @@ describe('목표별 검색', () => {
         keyword ? { todos: [], nextCursor: null } : page(done),
       );
     });
-    render(<Dashboard />);
+    render(<Dashboard />, { wrapper: IntlTestProvider });
     fireEvent.click(
       await screen.findByRole('button', { name: '테스트 목표 TO DO 더보기' }),
     );
@@ -283,7 +284,7 @@ describe('목표별 검색', () => {
 describe('목표 없음 안내', () => {
   it('목표가 없으면 섹션 제목과 빈 상태를 표시하고 할 일 조회는 하지 않는다', async () => {
     getGoals.mockResolvedValue({ goals: [], nextCursor: null, totalCount: 0 });
-    render(<Dashboard />);
+    render(<Dashboard />, { wrapper: IntlTestProvider });
     expect(
       await screen.findByText('최근에 등록한 목표가 없어요'),
     ).toBeInTheDocument();
@@ -295,7 +296,7 @@ describe('목표 없음 안내', () => {
 
   it('목표 조회 실패를 목표 없음으로 표시하지 않는다', async () => {
     getGoals.mockRejectedValue(new Error('network'));
-    render(<Dashboard />);
+    render(<Dashboard />, { wrapper: IntlTestProvider });
     expect(
       await screen.findByText('목표를 불러오지 못했어요'),
     ).toBeInTheDocument();
@@ -339,7 +340,7 @@ describe('목표 목록 무한 스크롤', () => {
       Promise.resolve(goalPage(cursor ?? 1)),
     );
     getGoalTodos.mockResolvedValue({ todos: [], nextCursor: null });
-    render(<Dashboard />);
+    render(<Dashboard />, { wrapper: IntlTestProvider });
     await screen.findByRole('heading', { name: '스크롤 목표 6' });
     expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(6);
     expect(getGoals).toHaveBeenCalledTimes(3);
@@ -356,7 +357,7 @@ describe('목표 목록 무한 스크롤', () => {
       .mockRejectedValueOnce(new Error('network'))
       .mockResolvedValueOnce({ ...goalPage(3), nextCursor: null });
     getGoalTodos.mockResolvedValue({ todos: [], nextCursor: null });
-    render(<Dashboard />);
+    render(<Dashboard />, { wrapper: IntlTestProvider });
     const retry = await screen.findByRole('button', { name: '다시 시도' });
     expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(2);
     expect(getGoals).toHaveBeenCalledTimes(2);
@@ -378,7 +379,7 @@ it('한쪽 빈 결과가 먼저 와도 양쪽 조회 완료 전까지 빈 안내
         })
       : Promise.resolve({ todos: [], nextCursor: null }),
   );
-  render(<Dashboard />);
+  render(<Dashboard />, { wrapper: IntlTestProvider });
   await screen.findByRole('heading', { name: '테스트 목표' });
   await waitFor(() => expect(getGoalTodos).toHaveBeenCalledTimes(2));
   expect(screen.getByText('할 일을 불러오는 중입니다.')).toBeInTheDocument();

@@ -21,11 +21,11 @@ import {
   IconStarOutlineWhite,
 } from '@/components/icons';
 import { cn, stopPropagation } from '@/lib/utils';
-import type { Todo } from '@/types/todo';
+import type { TodoDto } from '@/types/api/todo';
 
 /** 아이템 렌더링에 실제로 쓰는 필드만 좁힙니다. 응답 스펙이 바뀌면 여기서 타입 에러로 드러납니다. */
 export type TodoItemData = Pick<
-  Todo,
+  TodoDto,
   'id' | 'title' | 'done' | 'noteIds' | 'linkUrl' | 'isFavorite'
 >;
 
@@ -83,8 +83,22 @@ const iconGroupVariants = cva('flex h-6 shrink-0 items-center', {
 
 export type TodoItemStyle = 'todo' | 'white';
 
+/**
+ * 아이콘 버튼의 접근성 이름. 상태는 aria-checked·aria-pressed로 전달하므로 이름은 상태와 무관하게 고정합니다.
+ * 번역은 사용하는 화면이 넘깁니다 (hooks/todo/useTodoItemLabels).
+ */
+export interface TodoItemLabels {
+  done: string;
+  favorite: string;
+  viewNote: string;
+  writeNote: string;
+  copyLink: string;
+  moreActions: string;
+}
+
 export type TodoItemProps = VariantProps<typeof itemVariants> & {
   todo: TodoItemData;
+  labels: TodoItemLabels;
   /** 배경 색 계열. white는 어두운 배경(대시보드 상단 카드)용입니다. */
   style?: TodoItemStyle;
   /** 완료 토글 (FN-TD-06). next는 토글 후의 값입니다. API 호출과 롤백은 페이지가 담당합니다. */
@@ -110,6 +124,7 @@ export type TodoItemProps = VariantProps<typeof itemVariants> & {
 
 export default function TodoItem({
   todo,
+  labels,
   size = 'large',
   style = 'todo',
   onToggleDone,
@@ -151,7 +166,7 @@ export default function TodoItem({
         type="button"
         role="checkbox"
         aria-checked={todo.done}
-        aria-label={todo.done ? '완료 취소' : '완료로 표시'}
+        aria-label={labels.done}
         onClick={stopPropagation(() => onToggleDone(todo.id, !todo.done))}
         className="shrink-0"
       >
@@ -173,7 +188,7 @@ export default function TodoItem({
         {hasNote ? (
           <button
             type="button"
-            aria-label="노트 보기"
+            aria-label={labels.viewNote}
             onClick={stopPropagation(() => onViewNote(todo.noteIds[0]))}
           >
             <NoteViewIcon className="size-6" />
@@ -181,7 +196,7 @@ export default function TodoItem({
         ) : showCreateNote ? (
           <button
             type="button"
-            aria-label="노트 작성"
+            aria-label={labels.writeNote}
             onClick={stopPropagation(() => onCreateNote(todo.id))}
           >
             <IconNoteWrite className="size-6" />
@@ -191,7 +206,7 @@ export default function TodoItem({
         {linkUrl ? (
           <button
             type="button"
-            aria-label="링크 복사"
+            aria-label={labels.copyLink}
             onClick={stopPropagation(() => onCopyLink(linkUrl))}
           >
             <LinkIcon className="size-6" />
@@ -201,7 +216,7 @@ export default function TodoItem({
         {showKebab ? (
           <div className="flex" onClick={(event) => event.stopPropagation()}>
             {kebabSlot ?? (
-              <button type="button" aria-label="더보기">
+              <button type="button" aria-label={labels.moreActions}>
                 <KebabIcon className="size-6" />
               </button>
             )}
@@ -210,7 +225,7 @@ export default function TodoItem({
 
         <button
           type="button"
-          aria-label={todo.isFavorite ? '찜 해제' : '찜하기'}
+          aria-label={labels.favorite}
           aria-pressed={todo.isFavorite}
           onClick={stopPropagation(() =>
             onToggleFavorite(todo.id, !todo.isFavorite),

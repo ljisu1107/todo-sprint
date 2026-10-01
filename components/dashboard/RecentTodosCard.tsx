@@ -8,6 +8,7 @@ import DashboardLoading from '@/components/dashboard/DashboardLoading';
 
 type RecentTodosCardProps = {
   todos: TodoItemData[];
+  labels: TodoItemProps['labels'];
   isLoading: boolean;
   error: boolean;
   onToggleDone: TodoItemProps['onToggleDone'];
@@ -17,6 +18,7 @@ type RecentTodosCardProps = {
 /** 최근 할 일의 표시만 담당합니다. 조회와 상태 변경은 페이지에서 전달합니다. */
 export default function RecentTodosCard({
   todos,
+  labels,
   isLoading,
   error,
   onToggleDone,
@@ -55,7 +57,7 @@ export default function RecentTodosCard({
           </span>
         </Link>
       </div>
-      <div className="aspect-[343/186] w-full rounded-[1.75rem] bg-orange-500 px-4.5 py-4 shadow-[0_0.625rem_2.5rem_0_#FF9E594D] md:aspect-auto md:h-[11.625rem] lg:h-64 lg:rounded-[2.5rem] lg:px-8 lg:py-7.5">
+      <div className="aspect-343/186 w-full rounded-[1.75rem] bg-orange-500 px-4.5 py-4 shadow-[0_0.625rem_2.5rem_0_#FF9E594D] md:aspect-auto md:h-46.5 lg:h-64 lg:rounded-[2.5rem] lg:px-8 lg:py-7.5">
         {isLoading ? (
           <DashboardLoading message="할 일을 불러오는 중입니다." />
         ) : error ? (
@@ -66,12 +68,13 @@ export default function RecentTodosCard({
             <p>할 일을 불러오지 못했어요</p>
           </div>
         ) : todos.length > 0 ? (
-          <div className="h-full w-full max-md:flex max-md:flex-col max-md:justify-center">
-            <ul className="flex h-full flex-col justify-between max-md:max-h-[14rem]">
+          <div className="size-full max-md:flex max-md:flex-col max-md:justify-center">
+            <ul className="flex h-full flex-col justify-between max-md:max-h-56">
               {todos.map((todo) => (
                 <TodoItem
                   key={todo.id}
                   todo={todo}
+                  labels={labels}
                   size="small"
                   style="white"
                   showKebab={false}

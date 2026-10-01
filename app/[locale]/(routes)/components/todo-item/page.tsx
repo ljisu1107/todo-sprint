@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import useTodoItemLabels from '@/hooks/todo/useTodoItemLabels';
 import TodoItem, {
   type TodoItemData,
   type TodoItemStyle,
@@ -55,6 +56,7 @@ const previews: {
 
 // 개발 확인용 페이지입니다. TodoItem 원본을 수정하지 않고 샘플 데이터와 콜백만 전달합니다.
 export default function TodoItemSamplePage() {
+  const labels = useTodoItemLabels();
   const [todos, setTodos] = useState(initialTodos);
   const [message, setMessage] = useState(
     '완료·찜 버튼을 눌러 상태 변화를 확인하세요.',
@@ -117,6 +119,7 @@ export default function TodoItemSamplePage() {
                 <ul>
                   {todos.map((todo) => (
                     <TodoItem
+                      labels={labels}
                       key={todo.id}
                       todo={todo}
                       size={preview.size}

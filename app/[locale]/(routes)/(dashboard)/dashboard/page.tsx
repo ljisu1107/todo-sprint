@@ -9,6 +9,7 @@ import GoalProgressBar from '@/components/dashboard/GoalProgressBar';
 import DashboardLoading from '@/components/dashboard/DashboardLoading';
 import DashboardEmptyState from '@/components/dashboard/DashboardEmptyState';
 import TodoItem, { type TodoItemData } from '@/components/todo/TodoItem';
+import useTodoItemLabels from '@/hooks/todo/useTodoItemLabels';
 import SearchInput from '@/components/ui/SearchInput';
 import type { Goal } from '@/types/api/goal';
 import { getGoalTodos, getRecentTodos, getTodoProgress } from '@/lib/api/todos';
@@ -28,6 +29,7 @@ type GoalTodosState = {
 };
 
 export default function Dashboard() {
+  const todoLabels = useTodoItemLabels();
   // 상단 주황색 카드에 표시할 최근 할 일 목록입니다.
   const [recentTodos, setRecentTodos] = useState<TodoItemData[]>([]);
   // API에서 받아온 목표 목록을 저장합니다.
@@ -341,6 +343,7 @@ export default function Dashboard() {
       <div className="md:flex md:flex-wrap md:gap-3 lg:gap-6">
         {/* 최근 등록한일 */}
         <RecentTodosCard
+          labels={todoLabels}
           todos={recentTodos}
           isLoading={isLoadingRecentTodos}
           error={recentTodosError}
@@ -516,6 +519,7 @@ export default function Dashboard() {
                                       <TodoItem
                                         key={todo.id}
                                         todo={todo}
+                                        labels={todoLabels}
                                         size="small"
                                         style="todo"
                                         className="lg:h-11 lg:gap-2 lg:py-0"
@@ -599,6 +603,7 @@ export default function Dashboard() {
                                     <TodoItem
                                       key={todo.id}
                                       todo={todo}
+                                      labels={todoLabels}
                                       size="small"
                                       style="todo"
                                       className="lg:h-11 lg:gap-2 lg:py-0"
