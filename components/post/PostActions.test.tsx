@@ -5,14 +5,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { toast } from '@/components/ui/toast/Toaster';
 import { ApiError } from '@/lib/api/errors';
 import { deletePost } from '@/lib/api/post';
-import { userKeys } from '@/queries/users';
-import type { UserDto } from '@/types/api/users';
+import { userKeys } from '@/queries/user';
+import type { UserDto } from '@/types/api/user';
 import PostActions from './PostActions';
 
 const router = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn() }));
 
 vi.mock('@/i18n/navigation', () => ({ useRouter: () => router }));
-vi.mock('@/lib/api/users', () => ({
+vi.mock('@/lib/api/user', () => ({
   getMe: vi.fn(async () => ({ id: 1, name: '체다치즈' })),
 }));
 vi.mock('@/lib/api/post', () => ({ deletePost: vi.fn(async () => {}) }));
