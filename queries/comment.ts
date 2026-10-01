@@ -1,5 +1,5 @@
 import { infiniteQueryOptions } from '@tanstack/react-query';
-import { getComments } from '@/lib/api/comments';
+import { getComments } from '@/lib/api/comment';
 import { retryUnlessNotFound } from './retry';
 
 const COMMENT_LIST_LIMIT = 10;

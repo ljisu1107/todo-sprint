@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { CommentPageDto } from '@/types/api/comments';
-import { commentQueries } from './comments';
+import type { CommentPageDto } from '@/types/api/comment';
+import { commentQueries } from './comment';
 
 const page = (nextCursor: string | null): CommentPageDto => ({
   comments: [],

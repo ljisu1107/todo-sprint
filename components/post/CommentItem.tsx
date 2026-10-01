@@ -5,7 +5,7 @@ import KebabMenu, {
 } from '@/components/ui/kebab-menu/KebabMenu';
 import useIsMe from '@/hooks/user/useIsMe';
 import { formatUtcDateToYmd } from '@/lib/formatter';
-import type { CommentDto } from '@/types/api/comments';
+import type { CommentDto } from '@/types/api/comment';
 import WriterAvatar from './WriterAvatar';
 
 // 수정·삭제 동작은 댓글 수정/삭제 기능에서 연결합니다.

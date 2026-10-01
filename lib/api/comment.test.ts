@@ -1,7 +1,7 @@
 import type { AxiosAdapter, InternalAxiosRequestConfig } from 'axios';
 import { afterEach, describe, expect, it } from 'vitest';
 import { api } from './client-fetcher';
-import { getComments } from './comments';
+import { getComments } from './comment';
 
 const originalAdapter = api.defaults.adapter;
 afterEach(() => {

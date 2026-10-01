@@ -1,4 +1,4 @@
-import type { CommentPageDto } from '@/types/api/comments';
+import type { CommentPageDto } from '@/types/api/comment';
 import { request } from './client-fetcher';
 
 export type GetCommentsParams = {
