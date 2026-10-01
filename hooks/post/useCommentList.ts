@@ -1,5 +1,5 @@
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
-import { commentQueries } from '@/queries/comments';
+import { commentQueries } from '@/queries/comment';
 
 const useCommentList = (postId: number) => {
   const {
