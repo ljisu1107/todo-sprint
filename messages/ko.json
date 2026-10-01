@@ -81,6 +81,17 @@
     "noCompletedTodos": "완료한 일이 아직 없어요",
     "allTodos": "모든 할 일",
     "viewAll": "모두 보기",
-    "noSearchResults": "검색 결과가 없습니다"
+    "noSearchResults": "검색 결과가 없습니다",
+    "loadingTodos": "할 일을 불러오는 중이에요",
+    "loadingMoreTodos": "더 불러오는 중이에요",
+    "fetchTodosError": "할 일을 불러오지 못했어요",
+    "retry": "다시 시도",
+    "noAllTodos": "아직 등록한 할 일이 없어요",
+    "todoStatusTabs": "완료 상태",
+    "completed": "완료",
+    "favorite": "찜",
+    "viewNote": "노트 보기",
+    "copyLink": "링크 복사",
+    "moreActions": "더보기"
   }
 }
