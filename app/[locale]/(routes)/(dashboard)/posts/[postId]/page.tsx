@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
 import ClientSuspense from '@/components/boundaries/ClientSuspense';
-import CommentSection from '@/components/posts/CommentSection';
-import PostDetail from '@/components/posts/PostDetail';
-import PostDetailErrorBoundary from '@/components/posts/PostDetailErrorBoundary';
-import PostDetailSkeleton from '@/components/posts/PostDetailSkeleton';
+import CommentSection from '@/components/post/CommentSection';
+import PostDetail from '@/components/post/PostDetail';
+import PostDetailErrorBoundary from '@/components/post/PostDetailErrorBoundary';
+import PostDetailSkeleton from '@/components/post/PostDetailSkeleton';
 
 export default async function PostDetailPage({
   params,
