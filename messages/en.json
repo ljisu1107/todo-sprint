@@ -46,6 +46,8 @@
     "cancelPostConfirm": "Would you like to cancel writing this post?",
     "cancelPostWarning": "All the content you have written will be lost.",
     "allGoals": "All Goals",
+    "loadingGoals": "Loading goals…",
+    "fetchGoalsError": "Couldn't load goals.",
     "all": "ALL",
     "toDo": "TO DO",
     "done": "DONE",
