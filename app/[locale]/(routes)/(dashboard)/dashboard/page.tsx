@@ -11,7 +11,7 @@ import DashboardEmptyState from '@/components/dashboard/DashboardEmptyState';
 import TodoItem, { type TodoItemData } from '@/components/todo/TodoItem';
 import useTodoItemLabels from '@/hooks/todo/useTodoItemLabels';
 import SearchInput from '@/components/ui/SearchInput';
-import type { Goal } from '@/types/api/goal';
+import type { GoalDto as Goal } from '@/types/api/goal';
 import { getGoalTodos, getRecentTodos, getTodoProgress } from '@/lib/api/todos';
 import { getGoals } from '@/lib/api/goals';
 
@@ -77,7 +77,7 @@ export default function Dashboard() {
   useEffect(() => {
     const controller = new AbortController();
 
-    getGoals(controller.signal)
+    getGoals({ limit: 2 }, controller.signal)
       .then((data) => {
         if (controller.signal.aborted) return;
         setGoals(data.goals);
@@ -159,7 +159,10 @@ export default function Dashboard() {
     setIsLoadingMoreGoals(true);
     setMoreGoalsError(false);
     try {
-      const data = await getGoals(controller.signal, nextGoalCursor);
+      const data = await getGoals(
+        { limit: 2, cursor: nextGoalCursor },
+        controller.signal,
+      );
       if (controller.signal.aborted) return;
       setGoals((previous) => {
         // 같은 목표가 응답에 다시 포함되더라도 카드는 중복으로 추가하지 않습니다.

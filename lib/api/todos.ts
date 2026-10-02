@@ -1,4 +1,8 @@
-import type { TodoDto, TodoPageDto } from '@/types/api/todo';
+import type {
+  CreateTodoRequestDto,
+  TodoDto,
+  TodoPageDto,
+} from '@/types/api/todo';
 import { request } from './client-fetcher';
 
 export type TodoSortType = 'latest' | 'dueSoon';
@@ -65,3 +69,6 @@ export async function getTodoProgress(signal?: AbortSignal): Promise<number> {
   // 두 요청 사이에 데이터가 변경되더라도 차트 범위(0~100)를 벗어나지 않게 합니다.
   return Math.min(100, Math.max(0, Math.round((doneCount / totalCount) * 100)));
 }
+
+export const createTodo = (body: CreateTodoRequestDto) =>
+  request<TodoDto>({ url: '/todos', method: 'POST', data: body });

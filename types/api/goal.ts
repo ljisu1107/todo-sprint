@@ -1,18 +1,17 @@
-export interface Goal {
+/** 목표 API(GET /{teamId}/goals) 응답 DTO입니다. 서버 스펙을 그대로 따릅니다. */
+export interface GoalDto {
   id: number;
   teamId: string;
   userId: number;
   title: string;
-  todoCount: number;
-  completedCount: number;
   createdAt: string;
   updatedAt: string;
+  todoCount: number;
+  completedCount: number;
 }
 
-/** 목표 목록 조회 응답입니다. */
-export interface GoalsResponse {
-  goals: Goal[];
-  /** 다음 조회에 전달할 값입니다. null이면 마지막 목록입니다. */
+export interface GoalPageDto {
+  goals: GoalDto[];
   nextCursor: number | null;
   totalCount: number;
 }

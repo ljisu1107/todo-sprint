@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import { api } from './client-fetcher';
 import {
+  createTodo,
   getTodos,
   getGoalTodos,
   getRecentTodos,
@@ -103,4 +104,23 @@ describe('대시보드 할 일 조회', () => {
       expect(await getTodoProgress()).toBe(expected);
     },
   );
+});
+
+describe('createTodo', () => {
+  it('POST /todos로 요청 본문을 보내고 생성된 할 일을 돌려준다', async () => {
+    const sent = replyWith({ ...todo, id: 7, title: '새 할 일' });
+    const body = {
+      title: '새 할 일',
+      goalId: 3,
+      dueDate: '2026-10-10T23:59:59+09:00',
+      tags: ['공부'],
+    };
+
+    const created = await createTodo(body);
+
+    expect(sent[0].url).toBe('/todos');
+    expect(sent[0].method).toBe('post');
+    expect(JSON.parse(sent[0].data)).toEqual(body);
+    expect(created.id).toBe(7);
+  });
 });
