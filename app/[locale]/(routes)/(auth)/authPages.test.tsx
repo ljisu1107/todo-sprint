@@ -18,17 +18,11 @@ const renderPage = (page: ReactNode, locale: 'ko' | 'en' = 'ko') =>
   render(<TestProviders locale={locale}>{page}</TestProviders>);
 
 describe('인증 화면', () => {
-  it('로그인 화면은 폼·소셜 버튼과 회원가입 링크를 가진다', () => {
+  it('로그인 화면은 폼과 회원가입 링크를 가진다', () => {
     renderPage(<LoginPage />);
 
     expect(
       screen.getByRole('button', { name: '로그인하기' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: '구글로 로그인' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: '카카오로 로그인' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '회원가입' })).toHaveAttribute(
       'href',
@@ -36,14 +30,11 @@ describe('인증 화면', () => {
     );
   });
 
-  it('회원가입 화면은 폼·소셜 버튼과 로그인 링크를 가진다', () => {
+  it('회원가입 화면은 폼과 로그인 링크를 가진다', () => {
     renderPage(<SignupPage />);
 
     expect(
       screen.getByRole('button', { name: '회원가입 하기' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: '구글로 회원가입' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '로그인' })).toHaveAttribute(
       'href',
