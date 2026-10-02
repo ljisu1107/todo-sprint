@@ -1,53 +1,122 @@
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { NextIntlClientProvider } from 'next-intl';
-import type { ReactNode } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import messages from '@/messages/ko.json';
+import { api } from '@/lib/api/client-fetcher';
+import { replyToAuthRequest } from '@/test/authApiMocks';
+import TestProviders from '@/test/TestProviders';
 import LoginForm from './LoginForm';
 
-function wrapper({ children }: { children: ReactNode }) {
-  return (
-    <NextIntlClientProvider locale="ko" messages={messages}>
-      {children}
-    </NextIntlClientProvider>
-  );
-}
+const replace = vi.hoisted(() => vi.fn());
+vi.mock('next/navigation', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('next/navigation')>()),
+  useRouter: () => ({ replace }),
+}));
+
+const originalAdapter = api.defaults.adapter;
+afterEach(() => {
+  api.defaults.adapter = originalAdapter;
+  replace.mockClear();
+  vi.useRealTimers();
+});
+
+const renderForm = () => render(<LoginForm />, { wrapper: TestProviders });
+const emailInput = () => screen.getByRole('textbox', { name: '이메일' });
+const passwordInput = () => screen.getByLabelText('비밀번호');
+const submit = () => screen.getByRole('button', { name: '로그인하기' });
 
 describe('LoginForm', () => {
   it('email·password 입력과 submit 버튼을 가진다', () => {
-    render(<LoginForm />, { wrapper });
+    renderForm();
 
-    const email = screen.getByRole('textbox', { name: '이메일' });
-    expect(email).toHaveAttribute('name', 'email');
-    expect(email).toHaveAttribute('type', 'email');
-
-    const password = screen.getByLabelText('비밀번호');
-    expect(password).toHaveAttribute('name', 'password');
-    expect(password).toHaveAttribute('type', 'password');
-
-    expect(screen.getByRole('button', { name: '로그인하기' })).toHaveAttribute(
-      'type',
-      'submit',
-    );
+    expect(emailInput()).toHaveAttribute('name', 'email');
+    expect(emailInput()).toHaveAttribute('type', 'email');
+    expect(passwordInput()).toHaveAttribute('name', 'password');
+    expect(passwordInput()).toHaveAttribute('type', 'password');
+    expect(submit()).toHaveAttribute('type', 'submit');
   });
 
-  it('제출하면 onSubmit을 호출한다', async () => {
+  it('빈 값으로 제출하면 안내 메시지를 표시하고 요청하지 않는다', async () => {
     const user = userEvent.setup();
-    const onSubmit = vi.fn((event) => event.preventDefault());
-    render(<LoginForm onSubmit={onSubmit} />, { wrapper });
+    const sent = replyToAuthRequest(200);
+    renderForm();
 
-    await user.click(screen.getByRole('button', { name: '로그인하기' }));
+    await user.click(submit());
 
-    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(emailInput()).toHaveAccessibleDescription('이메일을 입력해 주세요.');
+    expect(passwordInput()).toHaveAccessibleDescription(
+      '비밀번호를 입력해 주세요.',
+    );
+    expect(sent).toHaveLength(0);
   });
 
-  it('errors를 해당 필드 아래에 표시한다', () => {
-    render(<LoginForm errors={{ password: '비밀번호 오류' }} />, { wrapper });
+  it('포커스가 이동하면 그 입력을 검사한다', async () => {
+    const user = userEvent.setup();
+    renderForm();
 
-    expect(screen.getByLabelText('비밀번호')).toHaveAccessibleDescription(
-      '비밀번호 오류',
+    await user.type(emailInput(), 'not-an-email');
+    await user.tab();
+
+    expect(emailInput()).toHaveAccessibleDescription(
+      '이메일 형식으로 입력해 주세요.',
     );
+  });
+
+  it('입력을 멈추고 1초가 지나면 그 입력을 검사한다', async () => {
+    vi.useFakeTimers();
+    renderForm();
+
+    fireEvent.change(emailInput(), { target: { value: 'not-an-email' } });
+    await act(() => vi.advanceTimersByTimeAsync(999));
+    expect(emailInput()).not.toHaveAccessibleDescription();
+
+    await act(() => vi.advanceTimersByTimeAsync(1));
+    expect(emailInput()).toHaveAccessibleDescription(
+      '이메일 형식으로 입력해 주세요.',
+    );
+  });
+
+  it('포커스만 하고 입력하지 않으면 1초가 지나도 검사하지 않는다', async () => {
+    vi.useFakeTimers();
+    renderForm();
+
+    fireEvent.focus(emailInput());
+    await act(() => vi.advanceTimersByTimeAsync(1000));
+
+    expect(emailInput()).not.toHaveAccessibleDescription();
+  });
+
+  it('로그인에 성공하면 대시보드로 이동한다', async () => {
+    const user = userEvent.setup();
+    const sent = replyToAuthRequest(200);
+    renderForm();
+
+    await user.type(emailInput(), 'user@example.com');
+    await user.type(passwordInput(), 'password123');
+    await user.click(submit());
+
+    await vi.waitFor(() =>
+      expect(replace).toHaveBeenCalledWith('/ko/dashboard'),
+    );
+    expect(sent[0].url).toBe('/auth/login');
+    expect(JSON.parse(sent[0].data)).toEqual({
+      email: 'user@example.com',
+      password: 'password123',
+    });
+  });
+
+  it('인증에 실패하면 원인을 구분하지 않는 안내를 폼 하단에 표시한다', async () => {
+    const user = userEvent.setup();
+    replyToAuthRequest(401);
+    renderForm();
+
+    await user.type(emailInput(), 'user@example.com');
+    await user.type(passwordInput(), 'wrong-password');
+    await user.click(submit());
+
+    expect(
+      await screen.findByText('이메일 또는 비밀번호가 올바르지 않습니다.'),
+    ).toBeInTheDocument();
+    expect(replace).not.toHaveBeenCalled();
   });
 });

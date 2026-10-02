@@ -1,33 +1,21 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { FormEventHandler } from 'react';
 
 import Button from '@/components/ui/button/Button';
+import useLoginForm from '@/hooks/auth/useLoginForm';
 import AuthTextField from './AuthTextField';
-import { preventSubmit } from './authForm';
 
-export interface LoginFormProps {
-  onSubmit?: FormEventHandler<HTMLFormElement>;
-  errors?: Partial<Record<'email' | 'password', string>>;
-}
-
-/** 로그인 폼 UI. 시안에 보이는 라벨이 없어 aria-label로 이름을 줍니다. */
-const LoginForm = ({
-  onSubmit = preventSubmit,
-  errors = {},
-}: LoginFormProps) => {
+/** 로그인 폼. 시안에 보이는 라벨이 없어 aria-label로 이름을 줍니다. */
+const LoginForm = () => {
   const t = useTranslations('Auth');
+  const { formProps, fields, errors, isLoggingIn } = useLoginForm();
 
   return (
-    <form
-      noValidate
-      onSubmit={onSubmit}
-      className="flex flex-col gap-6 md:gap-8"
-    >
+    <form noValidate {...formProps} className="flex flex-col gap-6 md:gap-8">
       <div className="flex flex-col gap-3 md:gap-4">
         <AuthTextField
-          name="email"
+          {...fields.email}
           type="email"
           inputMode="email"
           autoComplete="username"
@@ -36,15 +24,16 @@ const LoginForm = ({
           error={errors.email}
         />
         <AuthTextField
-          name="password"
+          {...fields.password}
           type="password"
           autoComplete="current-password"
           aria-label={t('passwordLabel')}
           placeholder={t('passwordPlaceholder')}
-          error={errors.password}
+          // 인증 실패 문구는 Figma 에러 시안대로 마지막 입력 아래(폼 하단)에 표시합니다.
+          error={errors.password ?? errors.credentials}
         />
       </div>
-      <Button type="submit" size="lg">
+      <Button type="submit" size="lg" disabled={isLoggingIn}>
         {t('loginSubmit')}
       </Button>
     </form>
