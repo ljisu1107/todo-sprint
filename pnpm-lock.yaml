@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@gsap/react':
+        specifier: ^2.1.2
+        version: 2.1.2(gsap@3.15.0)(react@19.2.8)
       '@tanstack/react-query':
         specifier: ^5.102.8
         version: 5.102.8(react@19.2.8)
@@ -20,6 +23,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      gsap:
+        specifier: ^3.15.0
+        version: 3.15.0
       material-symbols:
         specifier: ^0.47.2
         version: 0.47.2
@@ -59,7 +65,7 @@ importers:
         version: 10.0.1(eslint@10.10.0(jiti@2.7.0))
       '@hookform/resolvers':
         specifier: ^5.9.1
-        version: 5.9.1(ajv@6.15.0)(react-hook-form@7.88.0(react@19.2.8))(valibot@1.5.0(typescript@5.9.3))(zod@4.6.4)
+        version: 5.9.1(ajv@8.20.0)(react-hook-form@7.88.0(react@19.2.8))(valibot@1.5.0(typescript@5.9.3))(zod@4.6.4)
       '@storybook/nextjs':
         specifier: ^10.6.0
         version: 10.6.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(esbuild@0.28.2)(next@16.3.4(@babel/core@7.29.7)(@types/node@22.20.3)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(storybook@10.6.0(@types/react@19.3.0)(prettier@3.9.6)(react@19.2.8))(type-fest@2.19.0)(typescript@5.9.3)(webpack-hot-middleware@2.26.1)(webpack@5.111.0(esbuild@0.28.2)(postcss@8.5.28))
@@ -4072,6 +4078,9 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
+  gsap@3.15.0:
+    resolution: {integrity: sha512-dMW4CWBTUK1AEEDeZc1g4xpPGIrSf9fJF960qbTZmN/QwZIWY5wgliS6JWl9/25fpTGJrMRtSjGtOmPnfjZB+A==}
+
   has-bigints@1.1.0:
     resolution: {integrity: sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg==}
     engines: {node: '>= 0.4'}
@@ -7168,7 +7177,7 @@ snapshots:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.88.0(react@19.2.8)
     optionalDependencies:
-      ajv: 6.15.0
+      ajv: 8.20.0
       valibot: 1.5.0(typescript@5.9.3)
       zod: 4.6.4
 
@@ -10328,6 +10337,8 @@ snapshots:
   gopd@1.2.0: {}
 
   graceful-fs@4.2.11: {}
+
+  gsap@3.15.0: {}
 
   has-bigints@1.1.0: {}
 
