@@ -22,6 +22,8 @@ const useSignup = () => {
     mutate(body, {
       onSuccess,
       onError: (error) => {
+        // TODO: [2026.10.02] PR #27이 병합되면 status 비교 대신 error.httpCategory로 판별하도록 리팩터링
+        // (#27의 HTTP_CATEGORY_BY_STATUS에는 403·404만 있어 409 범주를 추가해야 함)
         const isConflict =
           error instanceof ApiError && error.status === CONFLICT;
         onFailure(isConflict ? 'emailTaken' : 'unknown');
