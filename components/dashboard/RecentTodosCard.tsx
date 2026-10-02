@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import TodoItemKebab from '@/components/todo/TodoItemKebab';
 import Image from 'next/image';
 import TodoItem, {
   type TodoItemData,
@@ -13,6 +14,8 @@ type RecentTodosCardProps = {
   error: boolean;
   onToggleDone: TodoItemProps['onToggleDone'];
   onToggleFavorite: TodoItemProps['onToggleFavorite'];
+  onCopyLink: TodoItemProps['onCopyLink'];
+  onDelete: (todo: TodoItemData) => void;
 };
 
 /** 최근 할 일의 표시만 담당합니다. 조회와 상태 변경은 페이지에서 전달합니다. */
@@ -23,6 +26,8 @@ export default function RecentTodosCard({
   error,
   onToggleDone,
   onToggleFavorite,
+  onCopyLink,
+  onDelete,
 }: RecentTodosCardProps) {
   return (
     <div className="min-w-0 md:flex-1 lg:flex-[1_1_28rem]">
@@ -34,7 +39,7 @@ export default function RecentTodosCard({
           최근 등록한 할일
         </h2>
         <Link
-          href="/"
+          href="/todos"
           className="ml-auto flex items-center text-sm font-semibold text-orange-600"
         >
           모두 보기
@@ -77,13 +82,15 @@ export default function RecentTodosCard({
                   labels={labels}
                   size="small"
                   style="white"
-                  showKebab={false}
+                  kebabSlot={
+                    <TodoItemKebab isWhite onDelete={() => onDelete(todo)} />
+                  }
                   showCreateNote={false}
                   onToggleDone={onToggleDone}
                   onToggleFavorite={onToggleFavorite}
-                  // 아래 동작은 상세·노트·링크 기능 연동 시 해당 페이지 로직으로 교체합니다.
+                  // 상세·노트 화면은 해당 기능 구현 후 연결합니다.
                   onOpenDetail={() => undefined}
-                  onCopyLink={() => undefined}
+                  onCopyLink={onCopyLink}
                   onViewNote={() => undefined}
                   onCreateNote={() => undefined}
                 />

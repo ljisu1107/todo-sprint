@@ -293,7 +293,7 @@ describe('TodoCreateModal', { timeout: 20_000 }, () => {
         expect(mockedCreateTodo).toHaveBeenCalledWith({
           title: '보고서 작성',
           goalId: 2,
-          dueDate: `${date}T23:59:59+09:00`,
+          dueDate: `${date}T14:59:59.000Z`,
         }),
       );
       expect(mockedUploadImage).not.toHaveBeenCalled();

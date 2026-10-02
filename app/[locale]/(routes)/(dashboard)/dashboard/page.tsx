@@ -2,6 +2,16 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
+import TodoCreateModal from '@/components/todo/todo-create/TodoCreateModal';
+import DeleteTodoModal from '@/components/todo/DeleteTodoModal';
+import TodoItemKebab from '@/components/todo/TodoItemKebab';
+import { toast } from '@/components/ui/toast/Toaster';
+import {
+  useToggleTodoDone,
+  useToggleTodoFavorite,
+} from '@/queries/todoMutations';
+import useTodoItemActions from '@/hooks/todo/useTodoItemActions';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import RecentTodosCard from '@/components/dashboard/RecentTodosCard';
 import TodoProgressCard from '@/components/dashboard/TodoProgressCard';
@@ -14,6 +24,17 @@ import SearchInput from '@/components/ui/SearchInput';
 import type { GoalDto as Goal } from '@/types/api/goal';
 import { getGoalTodos, getRecentTodos, getTodoProgress } from '@/lib/api/todos';
 import { getGoals } from '@/lib/api/goals';
+
+// TO DO·DONE에 같은 스크롤 높이를 적용합니다. 모바일 276px / 태블릿 248px / PC 324px.
+const goalTodoScrollClass =
+  'mt-3 max-h-69 overflow-y-auto scrollbar-thin md:max-h-62 lg:max-h-81';
+// 대시보드 목표 카드에만 hover를 적용합니다. 키보드로 버튼에 접근할 때도 강조합니다.
+const goalTodoItemClass =
+  'group/dashboard-todo rounded-lg transition-colors hover:bg-orange-alpha-20 focus-within:bg-orange-alpha-20 md:px-2 lg:h-11 lg:gap-2 lg:py-0 hover:[&>button:nth-of-type(2)]:text-orange-600 focus-within:[&>button:nth-of-type(2)]:text-orange-600';
+
+// 작은 주황색 점의 공용 아이콘을 사용합니다. SVG의 흰 원 대신 행 hover·포커스 배경으로 표시합니다.
+const goalTodoKebabClass =
+  'flex shrink-0 rounded-full transition-colors group-hover/dashboard-todo:bg-white group-focus-within/dashboard-todo:bg-white [&>button]:size-6 [&>button]:rounded-full [&>button[data-state=open]]:bg-white [&_svg>circle:first-child]:fill-transparent';
 
 // 목표 ID와 완료 여부별로 목록·커서·조회 상태를 따로 보관합니다.
 type GoalTodosState = {
@@ -30,6 +51,18 @@ type GoalTodosState = {
 
 export default function Dashboard() {
   const todoLabels = useTodoItemLabels();
+  const t = useTranslations('Todo');
+  const [createGoal, setCreateGoal] = useState<Pick<
+    Goal,
+    'id' | 'title'
+  > | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<TodoItemData | null>(null);
+  const [refreshVersion, setRefreshVersion] = useState(0);
+  const loadedGoalCount = useRef(2);
+  const pendingTodoIds = useRef(new Set<number>());
+  const doneMutation = useToggleTodoDone();
+  const favoriteMutation = useToggleTodoFavorite();
+  const { onCopyLink } = useTodoItemActions();
   // 상단 주황색 카드에 표시할 최근 할 일 목록입니다.
   const [recentTodos, setRecentTodos] = useState<TodoItemData[]>([]);
   // API에서 받아온 목표 목록을 저장합니다.
@@ -48,6 +81,8 @@ export default function Dashboard() {
   const moreGoalsRequest = useRef<AbortController | null>(null);
   // 할 일 첫 조회를 시작한 목표를 기록해 기존 목표의 검색 결과를 보존합니다.
   const loadedGoalIds = useRef(new Set<number>());
+  const goalKeywords = useRef(new Map<number, string | undefined>());
+  const refreshingGoals = useRef(false);
   // 키 예: "678-false"는 678번 목표의 TO DO, "678-true"는 DONE입니다.
   // 해당 키가 없으면 아직 조회가 끝나지 않은 상태로 처리합니다.
   const [todosByGoal, setTodosByGoal] = useState<
@@ -77,9 +112,29 @@ export default function Dashboard() {
   useEffect(() => {
     const controller = new AbortController();
 
-    getGoals({ limit: 2 }, controller.signal)
+    // 갱신할 때도 표시 중인 목표 수를 유지하도록 필요한 페이지까지 조회합니다.
+    const fetchVisibleGoals = async () => {
+      const visibleGoals: Goal[] = [];
+      let cursor: number | undefined;
+      let nextCursor: number | null = null;
+      do {
+        const page = await getGoals({ limit: 2, cursor }, controller.signal);
+        visibleGoals.push(...page.goals);
+        nextCursor = page.nextCursor;
+        if (
+          nextCursor === null ||
+          nextCursor === cursor ||
+          page.goals.length === 0
+        )
+          break;
+        cursor = nextCursor;
+      } while (visibleGoals.length < loadedGoalCount.current);
+      return { goals: visibleGoals, nextCursor };
+    };
+    fetchVisibleGoals()
       .then((data) => {
         if (controller.signal.aborted) return;
+        setGoalsError(false);
         setGoals(data.goals);
         setNextGoalCursor(data.nextCursor ?? null);
       })
@@ -87,14 +142,18 @@ export default function Dashboard() {
         if (!controller.signal.aborted) setGoalsError(true);
       })
       .finally(() => {
-        if (!controller.signal.aborted) setIsLoadingGoals(false);
+        if (!controller.signal.aborted) {
+          refreshingGoals.current = false;
+          setIsLoadingGoals(false);
+        }
       });
 
     return () => controller.abort();
-  }, []);
+  }, [refreshVersion]);
 
   // 첫 조회와 검색은 같은 함수를 사용합니다. 같은 영역의 이전 요청은 취소합니다.
   const loadGoalFirstPage = useCallback((goalId: number, keyword?: string) => {
+    goalKeywords.current.set(goalId, keyword);
     // 영역별 더보기를 위해 미완료(false)와 완료(true)를 각각 조회합니다.
     [false, true].forEach((done) => {
       const key = `${goalId}-${done}`;
@@ -131,6 +190,7 @@ export default function Dashboard() {
 
   // 새로 추가된 목표만 조회하여 기존 목표의 검색 결과와 더보기 상태를 유지합니다.
   useEffect(() => {
+    loadedGoalCount.current = Math.max(2, goals.length);
     goals.forEach((goal) => {
       if (loadedGoalIds.current.has(goal.id)) return;
       loadedGoalIds.current.add(goal.id);
@@ -153,7 +213,12 @@ export default function Dashboard() {
 
   // 목표 카드를 2개 추가합니다. 실패해도 기존 카드와 커서를 유지합니다.
   const loadMoreGoals = useCallback(async () => {
-    if (nextGoalCursor === null || moreGoalsRequest.current) return;
+    if (
+      nextGoalCursor === null ||
+      moreGoalsRequest.current ||
+      refreshingGoals.current
+    )
+      return;
     const controller = new AbortController();
     moreGoalsRequest.current = controller;
     setIsLoadingMoreGoals(true);
@@ -290,7 +355,10 @@ export default function Dashboard() {
     getRecentTodos(controller.signal)
       .then((todos) => {
         // 성공: 받은 목록을 저장하면 TodoItem 또는 빈 목록 안내가 표시됩니다.
-        if (!controller.signal.aborted) setRecentTodos(todos);
+        if (!controller.signal.aborted) {
+          setRecentTodos(todos);
+          setRecentTodosError(false);
+        }
       })
       .catch(() => {
         // 실패: 요청 취소를 제외한 조회 오류는 동일한 안내로 처리합니다.
@@ -303,7 +371,7 @@ export default function Dashboard() {
 
     // 페이지를 벗어날 때 요청을 취소하고, 이전 요청이 화면 상태를 바꾸지 않게 합니다.
     return () => controller.abort();
-  }, []);
+  }, [refreshVersion]);
 
   // 전체·완료 할 일 수로 계산한 진행률을 차트와 퍼센트 텍스트에 전달합니다.
   useEffect(() => {
@@ -311,7 +379,10 @@ export default function Dashboard() {
 
     getTodoProgress(controller.signal)
       .then((percentage) => {
-        if (!controller.signal.aborted) setProgress(percentage);
+        if (!controller.signal.aborted) {
+          setProgress(percentage);
+          setProgressError(false);
+        }
       })
       .catch(() => {
         if (!controller.signal.aborted) setProgressError(true);
@@ -321,16 +392,88 @@ export default function Dashboard() {
       });
 
     return () => controller.abort();
-  }, []);
+  }, [refreshVersion]);
 
-  // 현재는 최근 목록의 화면 상태만 바꿉니다. 서버 저장은 담당자 기능 연결이 필요합니다.
-  const updateRecentTodo = (
-    id: number,
-    changes: Partial<Pick<TodoItemData, 'done' | 'isFavorite'>>,
-  ) => {
-    setRecentTodos((todos) =>
-      todos.map((todo) => (todo.id === id ? { ...todo, ...changes } : todo)),
+  // 공용 mutation은 Query 캐시를 갱신합니다. 대시보드의 자체 상태도 다시 조회합니다.
+  // 검색어는 유지하고 각 할 일 목록은 첫 페이지로 갱신해 오래된 커서를 재사용하지 않습니다.
+  const refreshDashboard = () => {
+    refreshingGoals.current = true;
+    moreGoalsRequest.current?.abort();
+    moreGoalsRequest.current = null;
+    setIsLoadingMoreGoals(false);
+    setMoreGoalsError(false);
+    setRefreshVersion((version) => version + 1);
+    goals.forEach((goal) => {
+      const keyword = goalKeywords.current.get(goal.id);
+      loadGoalFirstPage(goal.id, keyword);
+    });
+  };
+
+  // 같은 할 일이 최근 목록·목표 카드에 중복 표시되어도 두 위치를 함께 갱신합니다.
+  const patchTodo = (id: number, patch: Partial<TodoItemData>) => {
+    setRecentTodos((previous) =>
+      previous.map((todo) => (todo.id === id ? { ...todo, ...patch } : todo)),
     );
+    setTodosByGoal((previous) =>
+      Object.fromEntries(
+        Object.entries(previous).map(([key, state]) => [
+          key,
+          {
+            ...state,
+            todos: state.todos.map((todo) =>
+              todo.id === id ? { ...todo, ...patch } : todo,
+            ),
+          },
+        ]),
+      ),
+    );
+  };
+
+  const toggleTodo = async (
+    id: number,
+    field: 'done' | 'isFavorite',
+    value: boolean,
+  ) => {
+    // 동일 항목의 연속 클릭으로 요청 순서가 뒤집히지 않도록 직전 요청을 기다립니다.
+    if (pendingTodoIds.current.has(id)) return;
+    pendingTodoIds.current.add(id);
+    try {
+      if (field === 'done')
+        await doneMutation.mutateAsync({ todoId: id, done: value });
+      else
+        await favoriteMutation.mutateAsync({ todoId: id, isFavorite: value });
+      patchTodo(id, { [field]: value });
+      refreshDashboard();
+    } catch {
+      // 서버 성공 전까지 목록을 변경하지 않으므로 실패 시 기존 상태를 유지합니다.
+      toast.error(
+        t(field === 'done' ? 'toggleTodoDoneError' : 'toggleFavoriteError'),
+      );
+    } finally {
+      pendingTodoIds.current.delete(id);
+    }
+  };
+  const onToggleDone = (id: number, done: boolean) => {
+    void toggleTodo(id, 'done', done);
+  };
+  const onToggleFavorite = (id: number, isFavorite: boolean) => {
+    void toggleTodo(id, 'isFavorite', isFavorite);
+  };
+
+  const onDeleted = (id: number) => {
+    setRecentTodos((previous) => previous.filter((todo) => todo.id !== id));
+    setTodosByGoal((previous) =>
+      Object.fromEntries(
+        Object.entries(previous).map(([key, state]) => [
+          key,
+          {
+            ...state,
+            todos: state.todos.filter((todo) => todo.id !== id),
+          },
+        ]),
+      ),
+    );
+    refreshDashboard();
   };
 
   return (
@@ -350,10 +493,10 @@ export default function Dashboard() {
           todos={recentTodos}
           isLoading={isLoadingRecentTodos}
           error={recentTodosError}
-          onToggleDone={(id, done) => updateRecentTodo(id, { done })}
-          onToggleFavorite={(id, isFavorite) =>
-            updateRecentTodo(id, { isFavorite })
-          }
+          onToggleDone={onToggleDone}
+          onToggleFavorite={onToggleFavorite}
+          onCopyLink={onCopyLink}
+          onDelete={setDeleteTarget}
         />
 
         {/* 내 진행 상황 */}
@@ -458,6 +601,12 @@ export default function Dashboard() {
                             <button
                               type="button"
                               aria-label="할 일 추가"
+                              onClick={() =>
+                                setCreateGoal({
+                                  id: goal.id,
+                                  title: goal.title,
+                                })
+                              }
                               className="absolute top-0 right-0 inline-flex size-10 shrink-0 items-center justify-center gap-1 rounded-full border border-solid border-orange-500 bg-transparent text-sm leading-none font-semibold text-orange-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 md:static md:w-auto md:px-4"
                             >
                               <span
@@ -516,7 +665,7 @@ export default function Dashboard() {
                                   할 일을 불러오지 못했어요
                                 </p>
                               ) : pendingTodos.length > 0 ? (
-                                <div className="mt-3 scrollbar-thin md:max-h-122 md:overflow-y-auto">
+                                <div className={goalTodoScrollClass}>
                                   <ul className="lg:space-y-1">
                                     {pendingTodos.map((todo) => (
                                       <TodoItem
@@ -525,14 +674,23 @@ export default function Dashboard() {
                                         labels={todoLabels}
                                         size="small"
                                         style="todo"
-                                        className="lg:h-11 lg:gap-2 lg:py-0"
-                                        showKebab={false}
+                                        className={goalTodoItemClass}
+                                        kebabSlot={
+                                          <span className={goalTodoKebabClass}>
+                                            <TodoItemKebab
+                                              isWhite
+                                              onDelete={() =>
+                                                setDeleteTarget(todo)
+                                              }
+                                            />
+                                          </span>
+                                        }
                                         showCreateNote={false}
-                                        // 조회만 연결한 상태입니다. 버튼 동작은 담당자 작업 후 연결합니다.
-                                        onToggleDone={() => undefined}
-                                        onToggleFavorite={() => undefined}
+                                        // 상세·노트 화면은 해당 기능 구현 후 연결합니다.
+                                        onToggleDone={onToggleDone}
+                                        onToggleFavorite={onToggleFavorite}
                                         onOpenDetail={() => undefined}
-                                        onCopyLink={() => undefined}
+                                        onCopyLink={onCopyLink}
                                         onViewNote={() => undefined}
                                         onCreateNote={() => undefined}
                                       />
@@ -601,27 +759,38 @@ export default function Dashboard() {
                                   할 일을 불러오지 못했어요
                                 </p>
                               ) : completedTodos.length > 0 ? (
-                                <ul className="mt-3 lg:space-y-1">
-                                  {completedTodos.map((todo) => (
-                                    <TodoItem
-                                      key={todo.id}
-                                      todo={todo}
-                                      labels={todoLabels}
-                                      size="small"
-                                      style="todo"
-                                      className="lg:h-11 lg:gap-2 lg:py-0"
-                                      showKebab={false}
-                                      showCreateNote={false}
-                                      // 조회만 연결한 상태입니다. 버튼 동작은 담당자 작업 후 연결합니다.
-                                      onToggleDone={() => undefined}
-                                      onToggleFavorite={() => undefined}
-                                      onOpenDetail={() => undefined}
-                                      onCopyLink={() => undefined}
-                                      onViewNote={() => undefined}
-                                      onCreateNote={() => undefined}
-                                    />
-                                  ))}
-                                </ul>
+                                <div className={goalTodoScrollClass}>
+                                  <ul className="lg:space-y-1">
+                                    {completedTodos.map((todo) => (
+                                      <TodoItem
+                                        key={todo.id}
+                                        todo={todo}
+                                        labels={todoLabels}
+                                        size="small"
+                                        style="todo"
+                                        className={goalTodoItemClass}
+                                        kebabSlot={
+                                          <span className={goalTodoKebabClass}>
+                                            <TodoItemKebab
+                                              isWhite
+                                              onDelete={() =>
+                                                setDeleteTarget(todo)
+                                              }
+                                            />
+                                          </span>
+                                        }
+                                        showCreateNote={false}
+                                        // 상세·노트 화면은 해당 기능 구현 후 연결합니다.
+                                        onToggleDone={onToggleDone}
+                                        onToggleFavorite={onToggleFavorite}
+                                        onOpenDetail={() => undefined}
+                                        onCopyLink={onCopyLink}
+                                        onViewNote={() => undefined}
+                                        onCreateNote={() => undefined}
+                                      />
+                                    ))}
+                                  </ul>
+                                </div>
                               ) : (
                                 <p className="mt-4 text-center text-sm font-medium text-muted md:text-base">
                                   {completedState.keyword
@@ -708,7 +877,19 @@ export default function Dashboard() {
           </div>
         )}
       </div>
-      {/* 개발 참고용: 버튼에 사용할 아이콘을 확인하는 임시 영역입니다. */}
+      <TodoCreateModal
+        isOpen={createGoal !== null}
+        initialGoal={createGoal ?? undefined}
+        onOpenChange={(open) => {
+          if (!open) setCreateGoal(null);
+        }}
+        onCreated={refreshDashboard}
+      />
+      <DeleteTodoModal
+        todo={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onDeleted={onDeleted}
+      />
     </div>
   );
 }
