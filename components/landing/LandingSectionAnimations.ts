@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 // 각 함수의 duration(초), start(시작 위치), 마지막 숫자(등장 시점)를 개별 수정합니다.
 // 트리거는 움직이지 않는 콘텐츠 래퍼로 지정해 등장 모션이 시작 위치에 영향을 주지 않습니다.
 
-/** 1번: 0.4초 뒤 문구 등장. 각 모션이 끝나면 0.1초 쉬고 다음 요소를 표시합니다. */
+/** sec01 */
 export function animateHero(section: HTMLElement) {
   const text = section.querySelector('[data-enter="text"]')!;
   const button = section.querySelector('[data-enter="button"]')!;
@@ -19,7 +19,7 @@ export function animateHero(section: HTMLElement) {
     .to(image, { autoAlpha: 1, y: 0 }, '+=0.1');
 }
 
-/** 2번: 가로 배치는 시간차 등장, 세로 배치는 문구와 이미지의 진입을 각각 감지합니다. */
+/** sec02 */
 export function animateFeatures(section: HTMLElement) {
   const text = section.querySelector('[data-enter="text"]')!;
   const image = section.querySelector('[data-enter="image"]')!;
@@ -89,7 +89,7 @@ export function animateFeatures(section: HTMLElement) {
   return media;
 }
 
-/** 4번: 문구가 1초 동안 등장한 뒤 0.1초 후 이미지가 등장합니다. */
+/** sec04 */
 export function animateCommunity(section: HTMLElement) {
   const text = section.querySelector('[data-enter="text"]')!;
   const image = section.querySelector('[data-enter="image"]')!;
@@ -97,18 +97,18 @@ export function animateCommunity(section: HTMLElement) {
 
   return gsap
     .timeline({
-      defaults: { duration: 0.9, ease: 'power2.out' },
+      defaults: { duration: 0.7, ease: 'power2.out' },
       scrollTrigger: {
         trigger: section.querySelector('[data-reveal-trigger]'),
         start: 'top 75%',
         once: true,
       },
     })
-    .to(image, { autoAlpha: 1, y: 0, duration: 1 }, 0.3)
+    .to(image, { autoAlpha: 1, y: 0, duration: 1 }, 0.2)
     .to(text, { autoAlpha: 1, y: 0 }, '+=0.1');
 }
 
-/** 5번: 문구 → 버튼 → 장식. 배경 크기는 바꾸지 않습니다. */
+/** sec05 */
 export function animateFinale(section: HTMLElement) {
   const texts = section.querySelectorAll('[data-enter="text"]');
   const button = section.querySelector('[data-enter="button"]')!;
@@ -130,7 +130,7 @@ export function animateFinale(section: HTMLElement) {
     .to(ornaments, { autoAlpha: 1, stagger: 0.1 }, '+=0.1');
 }
 
-/** 3번: PC는 겹친 카드 펼치기, 태블릿은 순차 등장, 모바일은 한 장씩 교체. */
+/** sec03 */
 export function animateSteps(section: HTMLElement) {
   const heading = section.querySelector('[data-steps-heading]')!;
   const headingTexts = heading.querySelectorAll('p, h2');

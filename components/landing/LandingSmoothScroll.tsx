@@ -36,7 +36,7 @@ export default function LandingSmoothScroll({
           wrapper: wrapperRef.current,
           content: contentRef.current,
           smooth: 1,
-          speed: 0.95,
+          speed: 1,
           smoothTouch: 0.1,
           effects: false,
         });

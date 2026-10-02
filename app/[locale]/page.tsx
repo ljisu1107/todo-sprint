@@ -24,45 +24,47 @@ export default function Home() {
       {/* section01 */}
       <section
         data-landing-section="hero"
-        className="flex min-h-svh flex-col items-center justify-center gap-[clamp(2rem,5svh,3.5rem)] px-5 py-[clamp(2.5rem,6svh,5rem)] text-center [background:radial-gradient(ellipse_at_20%_80%,#dcfaf3_0,transparent_55%),radial-gradient(ellipse_at_85%_15%,#fff0df_0,transparent_55%),#fafafb] md:px-12"
+        className="min-h-svh [background:radial-gradient(ellipse_at_20%_80%,#dcfaf3_0,transparent_55%),radial-gradient(ellipse_at_85%_15%,#fff0df_0,transparent_55%),#fafafb]"
       >
-        <div data-enter="text">
-          <p data-enter="text" className={eyebrowClass}>
-            슬리드투두 하나로 정리부터 실행까지
-          </p>
-          <h1 className={hdadingManinClass}>
-            오늘의 할 일,
-            <br />
-            <span>슬리드투두</span>로 계획해요
-          </h1>
-        </div>
-        <Link data-enter="button" href="/" className={startClass}>
-          시작하기{' '}
-          <span aria-hidden="true" className="ml-3">
-            →
-          </span>
-        </Link>
-        <div
-          data-enter="image"
-          className="w-full max-w-256 overflow-hidden rounded-3xl border border-white bg-white shadow-[0_1rem_3rem_#36645414] md:rounded-[2rem]"
-        >
-          <div
-            aria-hidden="true"
-            className="flex h-7 items-center gap-1.5 border-b border-[#f4f4f4] px-4 [&>span]:size-1.5 [&>span]:rounded-full [&>span]:bg-[#dedede]"
-          >
-            <span />
-            <span />
-            <span />
+        <div className="mx-auto flex h-full w-full max-w-320 flex-col items-center justify-center gap-[clamp(2rem,5svh,3.5rem)] px-5 py-[clamp(2.5rem,6svh,5rem)] text-center md:px-12">
+          <div data-enter="text">
+            <p data-enter="text" className={eyebrowClass}>
+              슬리드투두 하나로 정리부터 실행까지
+            </p>
+            <h1 className={hdadingManinClass}>
+              오늘의 할 일,
+              <br />
+              <span>슬리드투두</span>로 계획해요
+            </h1>
           </div>
-          <Image
-            src="/images/landing/sec01.png"
-            alt="할 일 목록과 진행률을 한눈에 확인하는 슬리드 투두 대시보드"
-            width={1328}
-            height={635}
-            sizes="(min-width: 1120px) 1024px, 94vw"
-            preload
-            className="block h-auto max-h-[46svh] w-full object-contain object-top"
-          />
+          <Link data-enter="button" href="/" className={startClass}>
+            시작하기{' '}
+            <span aria-hidden="true" className="ml-3">
+              →
+            </span>
+          </Link>
+          <div
+            data-enter="image"
+            className="w-full max-w-320 overflow-hidden rounded-3xl border border-white bg-white shadow-[0_1rem_3rem_#36645414] md:rounded-[2rem]"
+          >
+            <div
+              aria-hidden="true"
+              className="flex h-7 items-center gap-1.5 border-b border-[#f4f4f4] px-4 [&>span]:size-1.5 [&>span]:rounded-full [&>span]:bg-[#dedede]"
+            >
+              <span />
+              <span />
+              <span />
+            </div>
+            <Image
+              src="/images/landing/sec01.png"
+              alt="할 일 목록과 진행률을 한눈에 확인하는 슬리드 투두 대시보드"
+              width={1328}
+              height={635}
+              sizes="(min-width: 1120px) 1024px, 94vw"
+              preload
+              className="block h-auto max-h-[46svh] w-full object-contain object-top"
+            />
+          </div>
         </div>
       </section>
 
@@ -73,7 +75,7 @@ export default function Home() {
       >
         <div
           data-reveal-trigger
-          className="mx-auto grid w-full max-w-332 gap-[clamp(2rem,5svh,3.5rem)] lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center lg:gap-[clamp(2rem,4vw,4.5rem)] min-[80rem]:max-w-384 min-[80rem]:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)]"
+          className="mx-auto grid w-full max-w-320 gap-[clamp(2rem,5svh,3.5rem)] lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center lg:gap-[clamp(2rem,4vw,4.5rem)] min-[80rem]:max-w-384 min-[80rem]:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)]"
         >
           <div
             data-enter="text"
@@ -139,7 +141,7 @@ export default function Home() {
         data-landing-section="steps"
         className="group/steps flex min-h-svh items-center bg-[linear-gradient(140deg,#fff5ef,#fafafb_55%,#eafaf7)] px-5 py-20 max-md:data-[steps-pinned]:py-8 md:px-8"
       >
-        <div className="mx-auto w-full max-w-300 text-center">
+        <div className="mx-auto w-full max-w-320 text-center">
           <div data-steps-heading>
             <p className={eyebrowClass}>목표 설정부터 기록까지</p>
             <h2 className={headingClass}>쉽고 빠르게 할 일을 시작해요</h2>
@@ -220,7 +222,7 @@ export default function Home() {
       >
         <div
           data-reveal-trigger
-          className="mx-auto grid w-full max-w-352 gap-12 md:gap-16 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:gap-22"
+          className="mx-auto grid w-full max-w-320 gap-12 md:gap-16 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:gap-22"
         >
           <div
             data-enter="text"
@@ -257,7 +259,7 @@ export default function Home() {
         data-landing-section="finale"
         className="flex min-h-svh items-center bg-[#fff8e3]"
       >
-        <div className="relative isolate mx-auto flex min-h-svh w-full items-center justify-center overflow-hidden px-4 py-24 md:px-8 lg:px-10">
+        <div className="relative isolate mx-auto flex min-h-svh w-full max-w-320 items-center justify-center overflow-hidden px-4 py-24 md:px-8 lg:px-10">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 -z-10"
