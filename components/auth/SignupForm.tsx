@@ -13,7 +13,7 @@ const SignupForm = () => {
 
   return (
     <form noValidate {...formProps} className="flex flex-col gap-8">
-      <div className="flex flex-col gap-3 md:gap-4">
+      <div className="flex flex-col gap-1">
         <AuthTextField
           {...fields.name}
           type="text"

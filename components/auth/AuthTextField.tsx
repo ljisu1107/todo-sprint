@@ -90,16 +90,19 @@ const AuthTextField = ({
         )}
       </div>
 
-      {error && (
-        <p
-          key={error}
-          id={errorId}
-          // FN-AU-13: 오류 메시지가 강조되며 나타나는 애니메이션
-          className="px-1 text-sm/5 font-medium tracking-[-0.03em] text-[#ff3434] transition-[opacity,translate] duration-200 ease-out motion-reduce:transition-none starting:-translate-y-1 starting:opacity-0"
-        >
-          {error}
-        </p>
-      )}
+      {/* 오류 문구가 나타나거나 사라져도 화면이 밀리지 않도록 한 줄 자리를 항상 비워 둡니다. */}
+      <div className="min-h-5">
+        {error && (
+          <p
+            key={error}
+            id={errorId}
+            // FN-AU-13: 오류 메시지가 강조되며 나타나는 애니메이션
+            className="px-1 text-sm/5 font-medium tracking-[-0.03em] text-[#ff3434] transition-[opacity,translate] duration-200 ease-out motion-reduce:transition-none starting:-translate-y-1 starting:opacity-0"
+          >
+            {error}
+          </p>
+        )}
+      </div>
     </div>
   );
 };
