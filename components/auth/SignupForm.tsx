@@ -1,31 +1,21 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { FormEventHandler } from 'react';
 
 import Button from '@/components/ui/button/Button';
+import useSignupForm from '@/hooks/auth/useSignupForm';
 import AuthTextField from './AuthTextField';
-import { preventSubmit } from './authForm';
 
-type SignupField = 'name' | 'email' | 'password' | 'passwordConfirm';
-
-export interface SignupFormProps {
-  onSubmit?: FormEventHandler<HTMLFormElement>;
-  errors?: Partial<Record<SignupField, string>>;
-}
-
-/** 회원가입 폼 UI. passwordConfirm은 화면에서만 씁니다. */
-const SignupForm = ({
-  onSubmit = preventSubmit,
-  errors = {},
-}: SignupFormProps) => {
+/** 회원가입 폼. passwordConfirm은 화면에서만 씁니다. */
+const SignupForm = () => {
   const t = useTranslations('Auth');
+  const { formProps, fields, errors, isSigningUp } = useSignupForm();
 
   return (
-    <form noValidate onSubmit={onSubmit} className="flex flex-col gap-8">
+    <form noValidate {...formProps} className="flex flex-col gap-8">
       <div className="flex flex-col gap-3 md:gap-4">
         <AuthTextField
-          name="name"
+          {...fields.name}
           type="text"
           autoComplete="name"
           label={t('nameLabel')}
@@ -33,7 +23,7 @@ const SignupForm = ({
           error={errors.name}
         />
         <AuthTextField
-          name="email"
+          {...fields.email}
           type="email"
           inputMode="email"
           autoComplete="email"
@@ -42,7 +32,7 @@ const SignupForm = ({
           error={errors.email}
         />
         <AuthTextField
-          name="password"
+          {...fields.password}
           type="password"
           autoComplete="new-password"
           label={t('passwordLabel')}
@@ -50,7 +40,7 @@ const SignupForm = ({
           error={errors.password}
         />
         <AuthTextField
-          name="passwordConfirm"
+          {...fields.passwordConfirm}
           type="password"
           autoComplete="new-password"
           label={t('passwordConfirmLabel')}
@@ -60,7 +50,7 @@ const SignupForm = ({
           hidePasswordLabel={t('hidePasswordConfirm')}
         />
       </div>
-      <Button type="submit" size="lg">
+      <Button type="submit" size="lg" disabled={isSigningUp}>
         {t('signupSubmit')}
       </Button>
     </form>
