@@ -13,6 +13,7 @@ import {
   groupTodosByDueDate,
   type DateKey,
 } from '../_lib/calendarDates';
+import type { CalendarGoal } from './CalendarGoalFilter';
 import CalendarGrid from './CalendarGrid';
 import CalendarHeader from './CalendarHeader';
 import DayTodosModal from './DayTodosModal';
@@ -32,12 +33,13 @@ const MonthCalendar = ({
   const [month, setMonth] = useState(() => getMonthKey(today));
   const [selectedDate, setSelectedDate] = useState(today);
   const [openedDate, setOpenedDate] = useState<DateKey | null>(null);
+  const [selectedGoal, setSelectedGoal] = useState<CalendarGoal | null>(null);
 
   const days = getCalendarDays(month);
-  // TODO: [2026.10.01] 목표 필터(FN-CL-04, 05) 추가하기. 선택한 goalId 상태를 두고 useCalendarTodos에 넘기고, 드롭다운은 CalendarHeader에 배치
   const { todos, isLoading, isError, retry } = useCalendarTodos({
     from: days[0],
     to: days[days.length - 1],
+    goalId: selectedGoal?.id,
   });
   const todosByDate = groupTodosByDueDate(todos ?? []);
 
@@ -56,6 +58,8 @@ const MonthCalendar = ({
       <section className="-mx-4 overflow-hidden bg-white-section shadow-lg md:mx-0 md:rounded-3xl lg:rounded-4xl">
         <CalendarHeader
           month={month}
+          selectedGoal={selectedGoal}
+          onSelectGoal={setSelectedGoal}
           onPreviousMonth={handlePreviousMonth}
           onNextMonth={handleNextMonth}
         />
