@@ -6,13 +6,24 @@ import {
   screen,
   within,
 } from '@testing-library/react';
-import type { AnchorHTMLAttributes } from 'react';
+import { NextIntlClientProvider } from 'next-intl';
+import type { AnchorHTMLAttributes, ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import messages from '@/messages/ko.json';
 import Gnb from './Gnb';
 
 vi.mock('next/link', () => ({
   default: (props: AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props} />,
 }));
+
+// Gnb의 i18n Link가 useLocale()을 쓰므로 앱 layout처럼 Provider로 감쌉니다.
+function wrapper({ children }: { children: ReactNode }) {
+  return (
+    <NextIntlClientProvider locale="ko" messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
 
 beforeEach(() => {
   vi.stubGlobal('matchMedia', () => ({
@@ -30,7 +41,7 @@ const menu = () => within(screen.getByRole('navigation', { name: '주 메뉴' })
 
 describe('주 메뉴 활성 상태', () => {
   it('목표를 기본 선택하고 목록을 펼친다', () => {
-    render(<Gnb />);
+    render(<Gnb />, { wrapper });
     expect(menu().getByRole('link', { name: '목표' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -41,7 +52,7 @@ describe('주 메뉴 활성 상태', () => {
   });
 
   it('이동을 차단하고 클릭한 주 메뉴 하나와 아이콘만 활성화한다', () => {
-    render(<Gnb />);
+    render(<Gnb />, { wrapper });
     const titles = ['대시보드', '캘린더', '소통 게시판', '찜한 할 일', '목표'];
     for (const title of titles) {
       const link = menu().getByRole('link', { name: title });
@@ -64,7 +75,7 @@ describe('주 메뉴 활성 상태', () => {
   });
 
   it('제목 링크 선택과 화살표 펼침 동작이 서로 영향을 주지 않는다', () => {
-    render(<Gnb />);
+    render(<Gnb />, { wrapper });
     const calendar = menu().getByRole('link', { name: '캘린더' });
     fireEvent.click(calendar);
     fireEvent.click(menu().getByRole('button', { name: '목표 목록 접기' }));
@@ -98,6 +109,7 @@ it('배치 위치가 달라도 같은 알림 상태와 열기 함수를 사용�
       hasNotification
       onOpenNotifications={onOpenNotifications}
     />,
+    { wrapper },
   );
   expect(screen.getByText('내 정보 관리')).toBeInTheDocument();
   // jsdom은 반응형 CSS를 계산하지 않으므로 세 배치의 공통 연결을 검증합니다.
