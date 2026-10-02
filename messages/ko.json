@@ -112,15 +112,22 @@
     "signupLink": "회원가입",
     "loginPrompt": "이미 회원이신가요?",
     "loginLink": "로그인",
-    "socialLoginTitle": "SNS 계정으로 로그인",
-    "socialSignupTitle": "SNS 계정으로 회원가입",
-    "googleLogin": "구글로 로그인",
-    "kakaoLogin": "카카오로 로그인",
-    "googleSignup": "구글로 회원가입",
-    "kakaoSignup": "카카오로 회원가입",
     "showPassword": "비밀번호 보기",
     "hidePassword": "비밀번호 숨기기",
     "showPasswordConfirm": "비밀번호 확인 보기",
-    "hidePasswordConfirm": "비밀번호 확인 숨기기"
+    "hidePasswordConfirm": "비밀번호 확인 숨기기",
+    "loginFailed": "로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+    "signupFailed": "회원가입에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+    "errors": {
+      "emailRequired": "이메일을 입력해 주세요.",
+      "emailInvalid": "이메일 형식으로 입력해 주세요.",
+      "passwordRequired": "비밀번호를 입력해 주세요.",
+      "invalidCredentials": "이메일 또는 비밀번호가 올바르지 않습니다.",
+      "nameRequired": "이름을 입력해 주세요.",
+      "emailTaken": "이미 사용 중인 이메일입니다.",
+      "passwordTooShort": "비밀번호가 8자 이상이 되도록 해 주세요.",
+      "passwordTooLong": "비밀번호는 72자 이하로 입력해 주세요.",
+      "passwordMismatch": "비밀번호가 일치하지 않습니다."
+    }
   }
 }
