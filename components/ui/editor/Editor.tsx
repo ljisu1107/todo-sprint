@@ -1,6 +1,11 @@
 'use client';
 
-import { useEditor, EditorContent, useEditorState } from '@tiptap/react';
+import {
+  useEditor,
+  EditorContent,
+  useEditorState,
+  JSONContent,
+} from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
 import { Placeholder } from '@tiptap/extensions';
@@ -8,8 +13,8 @@ import Toolbar from '@/components/ui/editor/Toolbar';
 import { useTranslations } from 'next-intl';
 
 type Props = {
-  value: string; // HTML
-  onChange: (html: string) => void;
+  value?: JSONContent; // Tiptap 문서 JSON
+  onChange: (json: JSONContent | undefined) => void;
   children: React.ReactNode; // 제목, 목표, 할일, 작성일, 태그 등 추가 데이터 컴포넌트
 };
 
@@ -21,12 +26,13 @@ export default function NoteEditor({ value, onChange, children }: Props) {
       StarterKit.configure({ link: { openOnClick: false } }),
       TextAlign.configure({ types: ['paragraph', 'heading'] }),
       Placeholder.configure({
-        placeholder: `${t('noteContentPlaceholder', { name: '이 곳을 통해 노트 작성을 시작해주세요' })}`,
+        placeholder: `${t('noteContentPlaceholder')}`,
       }),
     ],
     content: value,
     immediatelyRender: false, // Next.js SSR hydration 에러 방지 (중요)
-    onUpdate: ({ editor }) => onChange(editor.isEmpty ? '' : editor.getHTML()),
+    onUpdate: ({ editor }) =>
+      onChange(editor.isEmpty ? undefined : editor.getJSON()),
     editorProps: {
       attributes: { class: 'min-h-[400px] outline-none' },
     },
