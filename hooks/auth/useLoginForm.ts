@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
+import type { FormEvent } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { toast } from '@/components/ui/toast/Toaster';
@@ -20,6 +21,7 @@ const useLoginForm = () => {
     handleSubmit,
     trigger,
     setError,
+    clearErrors,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -32,7 +34,6 @@ const useLoginForm = () => {
   );
 
   const submit = (values: LoginFormValues) => {
-    idleValidation.cancel();
     login(values, {
       onSuccess: () => router.replace('/dashboard'),
       onFailure: (reason) => {
@@ -45,10 +46,20 @@ const useLoginForm = () => {
     });
   };
 
+  const handleChange = (event: FormEvent<HTMLFormElement>) => {
+    // 입력을 고치기 시작하면 직전 인증 실패 안내는 더 이상 맞지 않습니다.
+    clearErrors('root');
+    idleValidation.onChange(event);
+  };
+
   const errorText = (key?: string) => (key ? t(`errors.${key}`) : undefined);
 
   return {
-    formProps: { onSubmit: handleSubmit(submit), ...idleValidation.handlers },
+    formProps: {
+      onSubmit: handleSubmit(submit),
+      onChange: handleChange,
+      onBlur: idleValidation.onBlur,
+    },
     fields: { email: register('email'), password: register('password') },
     errors: {
       email: errorText(errors.email?.message),

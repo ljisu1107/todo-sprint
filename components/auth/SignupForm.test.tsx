@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import Toaster from '@/components/ui/toast/Toaster';
 import { api } from '@/lib/api/client-fetcher';
 import { replyToAuthRequest } from '@/test/authApiMocks';
 import TestProviders from '@/test/TestProviders';
@@ -171,5 +172,61 @@ describe('SignupForm', () => {
     expect(screen.getByLabelText('이메일')).toHaveAccessibleDescription(
       '이미 사용 중인 이메일입니다.',
     );
+  });
+
+  it('중복 안내는 이메일을 고치지 않고 포커스만 옮기면 남고, 고치면 사라진다', async () => {
+    const user = userEvent.setup();
+    replyToAuthRequest(409);
+    renderForm();
+    const email = screen.getByLabelText('이메일');
+
+    await fillForm(user, VALID);
+    await user.click(submit());
+    await vi.waitFor(() =>
+      expect(email).toHaveAccessibleDescription('이미 사용 중인 이메일입니다.'),
+    );
+
+    await user.click(email);
+    await user.tab();
+    expect(email).toHaveAccessibleDescription('이미 사용 중인 이메일입니다.');
+
+    await user.type(email, 'x');
+    await user.tab();
+    expect(email).not.toHaveAccessibleDescription();
+  });
+
+  it('비밀번호가 72자를 넘으면 안내 메시지를 표시한다', async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.click(screen.getByLabelText('비밀번호'));
+    await user.paste('a'.repeat(73));
+    await user.tab();
+
+    expect(screen.getByLabelText('비밀번호')).toHaveAccessibleDescription(
+      '비밀번호는 72자 이하로 입력해 주세요.',
+    );
+    expect(screen.getByLabelText('이름')).toHaveAttribute('maxlength', '20');
+  });
+
+  it('그 밖의 실패는 토스트로 알린다', async () => {
+    const user = userEvent.setup();
+    replyToAuthRequest(500);
+    render(
+      <>
+        <SignupForm />
+        <Toaster />
+      </>,
+      { wrapper: TestProviders },
+    );
+
+    await fillForm(user, VALID);
+    await user.click(submit());
+
+    expect(
+      await screen.findByText(
+        '회원가입에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+      ),
+    ).toBeInTheDocument();
   });
 });

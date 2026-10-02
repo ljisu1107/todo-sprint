@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import Toaster from '@/components/ui/toast/Toaster';
 import { api } from '@/lib/api/client-fetcher';
 import { replyToAuthRequest } from '@/test/authApiMocks';
 import TestProviders from '@/test/TestProviders';
@@ -118,5 +119,45 @@ describe('LoginForm', () => {
       await screen.findByText('이메일 또는 비밀번호가 올바르지 않습니다.'),
     ).toBeInTheDocument();
     expect(replace).not.toHaveBeenCalled();
+  });
+
+  it('입력을 고치면 인증 실패 안내를 지운다', async () => {
+    const user = userEvent.setup();
+    replyToAuthRequest(401);
+    renderForm();
+
+    await user.type(emailInput(), 'user@example.com');
+    await user.type(passwordInput(), 'wrong-password');
+    await user.click(submit());
+    await screen.findByText('이메일 또는 비밀번호가 올바르지 않습니다.');
+
+    await user.type(passwordInput(), '1');
+
+    expect(
+      screen.queryByText('이메일 또는 비밀번호가 올바르지 않습니다.'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('그 밖의 실패는 토스트로 알린다', async () => {
+    const user = userEvent.setup();
+    replyToAuthRequest(500);
+    render(
+      <>
+        <LoginForm />
+        <Toaster />
+      </>,
+      { wrapper: TestProviders },
+    );
+
+    await user.type(emailInput(), 'user@example.com');
+    await user.type(passwordInput(), 'password123');
+    await user.click(submit());
+
+    expect(
+      await screen.findByText(
+        '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+      ),
+    ).toBeInTheDocument();
+    expect(passwordInput()).not.toHaveAccessibleDescription();
   });
 });

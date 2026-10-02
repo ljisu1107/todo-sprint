@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 
 import Button from '@/components/ui/button/Button';
 import useSignupForm from '@/hooks/auth/useSignupForm';
+import { NAME_MAX_LENGTH } from '@/lib/auth/authFormSchema';
 import AuthTextField from './AuthTextField';
 
 /** 회원가입 폼. passwordConfirm은 화면에서만 씁니다. */
@@ -18,6 +19,7 @@ const SignupForm = () => {
           {...fields.name}
           type="text"
           autoComplete="name"
+          maxLength={NAME_MAX_LENGTH}
           label={t('nameLabel')}
           placeholder={t('namePlaceholder')}
           error={errors.name}

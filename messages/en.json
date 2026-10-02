@@ -132,6 +132,7 @@
       "nameRequired": "Enter your name.",
       "emailTaken": "This email is already in use.",
       "passwordTooShort": "Use at least 8 characters for your password.",
+      "passwordTooLong": "Use 72 characters or fewer for your password.",
       "passwordMismatch": "The passwords do not match."
     }
   }

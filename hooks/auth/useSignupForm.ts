@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { toast } from '@/components/ui/toast/Toaster';
@@ -15,6 +16,7 @@ const useSignupForm = () => {
   const t = useTranslations('Auth');
   const router = useRouter();
   const { signup, isSigningUp } = useSignup();
+  const [takenEmail, setTakenEmail] = useState<string>();
   const {
     register,
     handleSubmit,
@@ -23,7 +25,13 @@ const useSignupForm = () => {
     setError,
     formState: { errors },
   } = useForm<SignupFormValues>({
-    resolver: zodResolver(signupFormSchema),
+    // 서버가 중복이라고 알려준 이메일은 값을 바꾸기 전까지 검증에서 계속 실패시킵니다.
+    resolver: zodResolver(
+      signupFormSchema.refine(({ email }) => email !== takenEmail, {
+        path: ['email'],
+        error: 'emailTaken',
+      }),
+    ),
     defaultValues: { name: '', email: '', password: '', passwordConfirm: '' },
     mode: 'onBlur',
     reValidateMode: 'onBlur',
@@ -39,14 +47,13 @@ const useSignupForm = () => {
   const idleValidation = useValidateOnIdle(validateField);
 
   const submit = ({ name, email, password }: SignupFormValues) => {
-    // 대기 중인 검사가 응답 뒤에 실행되면 서버가 알려준 이메일 중복 안내를 지웁니다.
-    idleValidation.cancel();
     signup(
       { name, email, password },
       {
         onSuccess: () => router.replace('/dashboard'),
         onFailure: (reason) => {
           if (reason === 'emailTaken') {
+            setTakenEmail(email);
             setError('email', { message: 'emailTaken' });
             return;
           }
@@ -59,7 +66,7 @@ const useSignupForm = () => {
   const errorText = (key?: string) => (key ? t(`errors.${key}`) : undefined);
 
   return {
-    formProps: { onSubmit: handleSubmit(submit), ...idleValidation.handlers },
+    formProps: { onSubmit: handleSubmit(submit), ...idleValidation },
     fields: {
       name: register('name'),
       email: register('email'),
