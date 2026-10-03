@@ -66,7 +66,7 @@ const AuthTextField = ({
             // FN-AU-14: 포커스 시 테두리 색이 바뀌는 애니메이션
             'transition-colors duration-200 motion-reduce:transition-none',
             hasError
-              ? 'border-[#ff3434]'
+              ? 'border-danger'
               : 'border-grayscale-300 focus:border-orange-500',
             isPassword && 'pr-10 md:pr-12',
             className,
@@ -95,7 +95,7 @@ const AuthTextField = ({
           key={error}
           id={errorId}
           // FN-AU-13: 오류 메시지가 강조되며 나타나는 애니메이션
-          className="px-1 text-sm/5 font-medium tracking-[-0.03em] text-[#ff3434] transition-[opacity,translate] duration-200 ease-out motion-reduce:transition-none starting:-translate-y-1 starting:opacity-0"
+          className="px-1 text-sm/5 font-medium tracking-[-0.03em] text-danger transition-[opacity,translate] duration-200 ease-out motion-reduce:transition-none starting:-translate-y-1 starting:opacity-0"
         >
           {error}
         </p>
