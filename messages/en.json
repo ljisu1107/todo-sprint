@@ -125,5 +125,34 @@
         "imageExtensionInvalid": "Only jpg, jpeg, png, gif, webp, and svg files can be attached."
       }
     }
+  },
+  "Auth": {
+    "loginTitle": "Log in",
+    "signupTitle": "Sign up",
+    "logoAlt": "Slid to-do",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "passwordConfirmLabel": "Confirm password",
+    "namePlaceholder": "Enter your name",
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "passwordConfirmPlaceholder": "Enter your password again",
+    "loginSubmit": "Log in",
+    "signupSubmit": "Sign up",
+    "signupPrompt": "New to Slid to-do?",
+    "signupLink": "Sign up",
+    "loginPrompt": "Already have an account?",
+    "loginLink": "Log in",
+    "socialLoginTitle": "Log in with a social account",
+    "socialSignupTitle": "Sign up with a social account",
+    "googleLogin": "Log in with Google",
+    "kakaoLogin": "Log in with Kakao",
+    "googleSignup": "Sign up with Google",
+    "kakaoSignup": "Sign up with Kakao",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "showPasswordConfirm": "Show password confirmation",
+    "hidePasswordConfirm": "Hide password confirmation"
   }
 }
