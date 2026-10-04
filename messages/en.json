@@ -121,6 +121,19 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "showPasswordConfirm": "Show password confirmation",
-    "hidePasswordConfirm": "Hide password confirmation"
+    "hidePasswordConfirm": "Hide password confirmation",
+    "loginFailed": "Could not log in. Please try again later.",
+    "signupFailed": "Could not sign up. Please try again later.",
+    "errors": {
+      "emailRequired": "Enter your email.",
+      "emailInvalid": "Enter a valid email address.",
+      "passwordRequired": "Enter your password.",
+      "invalidCredentials": "The email or password is incorrect.",
+      "nameRequired": "Enter your name.",
+      "emailTaken": "This email is already in use.",
+      "passwordTooShort": "Use at least 8 characters for your password.",
+      "passwordTooLong": "Use 72 characters or fewer for your password.",
+      "passwordMismatch": "The passwords do not match."
+    }
   }
 }

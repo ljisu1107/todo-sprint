@@ -1,18 +1,17 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs';
-import { NextIntlClientProvider } from 'next-intl';
 
-import messages from '@/messages/ko.json';
+import TestProviders from '@/test/TestProviders';
 import AuthLayout from './layout';
 import LoginPage from './login/page';
 import SignupPage from './signup/page';
 
 /** 실제 라우트와 같이 인증 레이아웃 안에 페이지를 그립니다. */
 const withAuthLayout: Decorator = (Story) => (
-  <NextIntlClientProvider locale="ko" messages={messages}>
+  <TestProviders>
     <AuthLayout>
       <Story />
     </AuthLayout>
-  </NextIntlClientProvider>
+  </TestProviders>
 );
 
 const meta = {
