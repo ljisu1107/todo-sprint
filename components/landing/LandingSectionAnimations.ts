@@ -15,8 +15,8 @@ export function animateHero(section: HTMLElement) {
   return gsap
     .timeline({ defaults: { duration: 0.8, ease: 'power2.out' } })
     .to(text, { autoAlpha: 1, y: 0, duration: 1 }, 0.4)
-    .to(button, { autoAlpha: 1, y: 0 }, '<0.2')
-    .to(image, { autoAlpha: 1, y: 0 }, '+=0.1');
+    .to(button, { autoAlpha: 1, y: 0 }, '<0.3')
+    .to(image, { autoAlpha: 1, y: 0 }, '<0.4');
 }
 
 /** sec02 */
@@ -27,18 +27,18 @@ export function animateFeatures(section: HTMLElement) {
   media.add(
     { stacked: '(max-width: 63.999rem)', columns: '(min-width: 64rem)' },
     (context) => {
+      // [모바일·태블릿] 64rem 미만: 텍스트 아래에 이미지가 놓이는 세로 배치입니다.
       if (context.conditions?.stacked) {
         // 이미지 래퍼는 움직이지 않고 내부 이미지에만 모션을 적용합니다.
         const picture = image.querySelector('img')!;
         gsap.set([text, picture], { autoAlpha: 0, y: 30 });
-        // 문구 완료와 이미지의 화면 진입을 모두 기다린 뒤 0.1초 후 표시합니다.
         let textFinished = false;
         let imageEntered = false;
         const pictureTween = gsap.to(picture, {
           autoAlpha: 1,
           y: 0,
           duration: 0.85,
-          delay: 0.1,
+          delay: 0.1, // 텍스트 완료 + 이미지 화면 진입 후 기다리는 시간
           ease: 'power2.out',
           paused: true,
         });
@@ -48,8 +48,8 @@ export function animateFeatures(section: HTMLElement) {
         gsap.to(text, {
           autoAlpha: 1,
           y: 0,
-          duration: 1,
-          delay: 0.3,
+          duration: 1, // 텍스트가 나타나는 데 걸리는 시간
+          delay: 0.3, // 스크롤 시작 조건 충족 후 텍스트가 시작되기까지의 대기
           ease: 'power2.out',
           onComplete: () => {
             textFinished = true;
@@ -70,8 +70,9 @@ export function animateFeatures(section: HTMLElement) {
             revealPicture();
           },
         });
-        return;
+        return; // 모바일·태블릿에서는 아래 PC용 타임라인을 실행하지 않습니다.
       }
+      // [PC] 64rem 이상: 텍스트 왼쪽 / 이미지 오른쪽의 가로 배치입니다.
       gsap.set([text, image], { autoAlpha: 0, y: 20 });
       gsap
         .timeline({
@@ -83,7 +84,7 @@ export function animateFeatures(section: HTMLElement) {
           },
         })
         .to(text, { autoAlpha: 1, y: 0, duration: 1 }, 0.3)
-        .to(image, { autoAlpha: 1, y: 0 }, '+=0.1');
+        .to(image, { autoAlpha: 1, y: 0 }, '<0.4');
     },
   );
   return media;
@@ -105,7 +106,7 @@ export function animateCommunity(section: HTMLElement) {
       },
     })
     .to(image, { autoAlpha: 1, y: 0, duration: 1 }, 0.2)
-    .to(text, { autoAlpha: 1, y: 0 }, '+=0.1');
+    .to(text, { autoAlpha: 1, y: 0 }, '<0.3');
 }
 
 /** sec05 */
@@ -126,7 +127,7 @@ export function animateFinale(section: HTMLElement) {
       },
     })
     .to(texts, { autoAlpha: 1, y: 0, duration: 1 }, 0.3)
-    .to(button, { autoAlpha: 1, y: 0 }, '+=0.1')
+    .to(button, { autoAlpha: 1, y: 0 }, '<0.2')
     .to(ornaments, { autoAlpha: 1, stagger: 0.1 }, '+=0.1');
 }
 
@@ -185,7 +186,7 @@ export function animateSteps(section: HTMLElement) {
             end: () => `+=${window.innerHeight * 2.2}`,
             pin: true,
             pinSpacing: true,
-            scrub: 0.5,
+            scrub: 1,
             invalidateOnRefresh: true,
           },
         });
