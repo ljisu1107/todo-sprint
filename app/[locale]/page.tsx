@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import LandingStartButton from '@/components/landing/LandingStartButton';
 import LandingSmoothScroll from '@/components/landing/LandingSmoothScroll';
 
 // 반복되는 문구와 버튼 스타일은 함께 수정할 수 있도록 모았습니다.
@@ -37,12 +37,9 @@ export default function Home() {
               <span>슬리드투두</span>로 계획해요
             </h1>
           </div>
-          <Link data-enter="button" href="/" className={startClass}>
-            시작하기{' '}
-            <span aria-hidden="true" className="ml-3">
-              →
-            </span>
-          </Link>
+          <LandingStartButton className={startClass}>
+            시작하기
+          </LandingStartButton>
           <div
             data-enter="image"
             className="w-full max-w-320 overflow-hidden rounded-3xl border border-white bg-white shadow-[0_1rem_3rem_#36645414] md:rounded-[2rem]"
@@ -297,13 +294,9 @@ export default function Home() {
             <h2 data-enter="text" className={hdadingManinClass}>
               오늘의 할 일, <br /> 슬리드 투두로 계획해요
             </h2>
-            <Link
-              data-enter="button"
-              href="/"
-              className={`${startClass} mt-10 md:mt-12`}
-            >
+            <LandingStartButton className={`${startClass} mt-10 md:mt-12`}>
               시작하기
-            </Link>
+            </LandingStartButton>
           </div>
         </div>
       </section>
