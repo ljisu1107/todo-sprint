@@ -131,5 +131,51 @@
         "imageExtensionInvalid": "Only jpg, jpeg, png, gif, webp, and svg files can be attached."
       }
     }
+  },
+  "Auth": {
+    "loginTitle": "Log in",
+    "signupTitle": "Sign up",
+    "logoAlt": "Slid to-do",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "passwordConfirmLabel": "Confirm password",
+    "namePlaceholder": "Enter your name",
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "passwordConfirmPlaceholder": "Enter your password again",
+    "loginSubmit": "Log in",
+    "signupSubmit": "Sign up",
+    "signupPrompt": "New to Slid to-do?",
+    "signupLink": "Sign up",
+    "loginPrompt": "Already have an account?",
+    "loginLink": "Log in",
+    "socialLoginTitle": "Log in with a social account",
+    "socialSignupTitle": "Sign up with a social account",
+    "googleLogin": "Log in with Google",
+    "kakaoLogin": "Log in with Kakao",
+    "googleSignup": "Sign up with Google",
+    "kakaoSignup": "Sign up with Kakao",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "showPasswordConfirm": "Show password confirmation",
+    "hidePasswordConfirm": "Hide password confirmation",
+    "loginFailed": "Could not log in. Please try again later.",
+    "signupFailed": "Could not sign up. Please try again later.",
+    "errors": {
+      "emailRequired": "Enter your email.",
+      "emailInvalid": "Enter a valid email address.",
+      "passwordRequired": "Enter your password.",
+      "invalidCredentials": "The email or password is incorrect.",
+      "nameRequired": "Enter your name.",
+      "emailTaken": "This email is already in use.",
+      "passwordTooShort": "Use at least 8 characters for your password.",
+      "passwordTooLong": "Use 72 characters or fewer for your password.",
+      "passwordMismatch": "The passwords do not match."
+    }
+  },
+  "Landing": {
+    "sessionCheckError": "Unable to check your session. Please try again shortly.",
+    "checkingSession": "Checking your session"
   }
 }
