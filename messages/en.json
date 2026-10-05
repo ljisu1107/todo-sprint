@@ -135,5 +135,9 @@
       "passwordTooLong": "Use 72 characters or fewer for your password.",
       "passwordMismatch": "The passwords do not match."
     }
+  },
+  "Landing": {
+    "sessionCheckError": "Unable to check your session. Please try again shortly.",
+    "checkingSession": "Checking your session"
   }
 }
