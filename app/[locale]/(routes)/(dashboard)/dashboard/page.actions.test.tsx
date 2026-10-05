@@ -27,6 +27,10 @@ import { toast } from '@/components/ui/toast/Toaster';
 import type { TodoCreateModalProps } from '@/components/todo/todo-create/TodoCreateModal';
 import Dashboard from './page';
 
+vi.mock('@/lib/api/user', () => ({
+  getMe: vi.fn().mockResolvedValue({ name: '상환', email: 'test@example.com' }),
+}));
+
 vi.mock('@/lib/api/goals', () => ({ getGoals: vi.fn() }));
 vi.mock('@/lib/api/todos', () => ({
   getGoalTodos: vi.fn(),
@@ -252,4 +256,16 @@ describe('대시보드 공용 기능 연결', () => {
     );
     expect(getTodoProgress).toHaveBeenCalledTimes(2);
   });
+});
+
+it('실제 사용자명을 PC 제목과 진행률 카드에 표시한다', async () => {
+  render(
+    <TestProviders>
+      <Dashboard />
+    </TestProviders>,
+  );
+  expect(
+    await screen.findByRole('heading', { name: '상환님의 대시보드' }),
+  ).toBeInTheDocument();
+  expect(await screen.findByText('상환님의 진행도는')).toBeInTheDocument();
 });

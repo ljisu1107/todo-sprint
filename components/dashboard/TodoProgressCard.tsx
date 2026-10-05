@@ -48,7 +48,7 @@ export default function TodoProgressCard({
 
             <div className="min-w-0 text-white">
               <p className="text-sm font-semibold lg:text-xl">
-                {userName}님의 진행도는
+                {userName ? `${userName}님의 진행도는` : '내 진행 상황'}
               </p>
               <p className="flex items-baseline">
                 <span className="text-display-lg leading-none font-bold lg:text-display-xl">

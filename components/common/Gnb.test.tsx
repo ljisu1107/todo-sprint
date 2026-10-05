@@ -40,63 +40,65 @@ afterEach(() => {
 const menu = () => within(screen.getByRole('navigation', { name: '주 메뉴' }));
 
 describe('주 메뉴 활성 상태', () => {
-  it('목표를 기본 선택하고 목록을 펼친다', () => {
+  it('선택 메뉴를 전달하지 않으면 활성 표시가 없고 목표 목록은 닫힌다', () => {
     render(<Gnb />, { wrapper });
-    expect(menu().getByRole('link', { name: '목표' })).toHaveAttribute(
+    expect(
+      screen.getByRole('navigation').querySelector('[aria-current]'),
+    ).toBeNull();
+    expect(
+      menu().getByRole('button', { name: '목표 목록 펼치기' }),
+    ).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('링크 이동을 차단하지 않고 활성 표시는 전달받은 경로 상태를 따른다', () => {
+    render(<Gnb activeMenu="dashboard" />, { wrapper });
+    for (const title of [
+      '대시보드',
+      '캘린더',
+      '소통 게시판',
+      '찜한 할 일',
+      '목표',
+    ]) {
+      const link = menu().getByRole('link', { name: title });
+      const event = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+      });
+      // 링크 기본 동작은 테스트 환경에서만 막고, 컴포넌트의 차단 여부를 먼저 확인합니다.
+      document.addEventListener(
+        'click',
+        (event) => {
+          expect(event.defaultPrevented).toBe(false);
+          event.preventDefault();
+        },
+        { once: true },
+      );
+      fireEvent(link, event);
+    }
+    expect(menu().getByRole('link', { name: '대시보드' })).toHaveAttribute(
       'aria-current',
       'page',
     );
-    expect(
-      menu().getByRole('button', { name: '목표 목록 접기' }),
-    ).toHaveAttribute('aria-expanded', 'true');
+    expect(menu().getByRole('link', { name: '목표' })).not.toHaveAttribute(
+      'aria-current',
+    );
   });
 
-  it('이동을 차단하고 클릭한 주 메뉴 하나와 아이콘만 활성화한다', () => {
-    render(<Gnb />, { wrapper });
-    const titles = ['대시보드', '캘린더', '소통 게시판', '찜한 할 일', '목표'];
-    for (const title of titles) {
-      const link = menu().getByRole('link', { name: title });
-      expect(fireEvent.click(link)).toBe(false);
-      for (const candidate of titles) {
-        const item = menu().getByRole('link', { name: candidate });
-        expect(item).toHaveAttribute(
-          'data-active',
-          String(candidate === title),
-        );
-        expect(item.querySelector('[data-active]')).toHaveAttribute(
-          'data-active',
-          String(candidate === title),
-        );
-        if (candidate === title)
-          expect(item).toHaveAttribute('aria-current', 'page');
-        else expect(item).not.toHaveAttribute('aria-current');
-      }
-    }
-  });
-
-  it('제목 링크 선택과 화살표 펼침 동작이 서로 영향을 주지 않는다', () => {
-    render(<Gnb />, { wrapper });
-    const calendar = menu().getByRole('link', { name: '캘린더' });
-    fireEvent.click(calendar);
-    fireEvent.click(menu().getByRole('button', { name: '목표 목록 접기' }));
-    expect(calendar).toHaveAttribute('data-active', 'true');
+  it('목표 목록을 열고 닫아도 현재 메뉴의 활성 표시는 유지한다', () => {
+    render(<Gnb activeMenu="dashboard" />, { wrapper });
     const toggle = menu().getByRole('button', { name: '목표 목록 펼치기' });
     const panel = document.getElementById(
       toggle.getAttribute('aria-controls')!,
     );
     expect(panel).toHaveAttribute('inert');
-    expect(panel).toHaveAttribute('aria-hidden', 'true');
-    fireEvent.click(menu().getByRole('link', { name: '목표' }));
-    expect(toggle).toHaveAttribute('aria-expanded', 'false');
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(panel).not.toHaveAttribute('inert');
-    expect(menu().getByRole('link', { name: '목표' })).toHaveAttribute(
-      'data-active',
-      'true',
-    );
-    expect(menu().getByRole('link', { name: '목표' }).contains(toggle)).toBe(
-      false,
+    fireEvent.click(toggle);
+    expect(panel).toHaveAttribute('inert');
+    expect(menu().getByRole('link', { name: '대시보드' })).toHaveAttribute(
+      'aria-current',
+      'page',
     );
   });
 });

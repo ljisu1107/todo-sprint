@@ -4,25 +4,24 @@ import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import ActionButton from '@/components/ui/button/ActionButton';
 import NotificationButton from '@/components/common/NotificationButton';
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type MouseEventHandler,
-  type ReactNode,
-} from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 
-type MenuId = 'dashboard' | 'goal' | 'calendar' | 'board' | 'favorites';
+export type MenuId = 'dashboard' | 'goal' | 'calendar' | 'board' | 'favorites';
 
 type GnbProps = {
+  activeMenu?: MenuId | null;
   pageTitle?: string;
+  userName?: string;
+  userEmail?: string;
   hasNotification?: boolean;
   onOpenNotifications?: () => void;
 };
 
 export default function Gnb({
-  pageTitle = '체다치즈님의 대시보드',
+  activeMenu = null,
+  pageTitle = '대시보드',
+  userName = '사용자',
+  userEmail = '',
   hasNotification = false,
   onOpenNotifications,
 }: GnbProps = {}) {
@@ -45,18 +44,7 @@ export default function Gnb({
   // 현재는 UI 연결 구조만 마련된 상태로, 배지는 기본 false이며 조회·열기·읽음 기능은 미구현입니다.
   const notificationProps = { hasNotification, onOpen: onOpenNotifications };
   const [isOpen, setIsOpen] = useState(false);
-  // TODO(페이지 연동): 현재는 시안 확인용으로 클릭한 메뉴를 activeMenu 하나로 관리합니다.
-  // 실제 개발 시 아래 임시 상태와 handleMenuClick의 이동 차단을 제거하고,
-  // 각 href를 실제 주소로 연결한 뒤 현재 pathname에서 activeMenu를 계산해주세요.
-  // 새로고침·직접 접속·뒤로 가기·하위 경로에서도 동일하게 선택되도록 연결합니다.
-  // 현재 초기 선택은 목표이며, 새로고침하면 이 임시 기본값으로 돌아옵니다.
-  const [activeMenu, setActiveMenu] = useState<MenuId>('goal');
-  const handleMenuClick =
-    (menu: MenuId): MouseEventHandler<HTMLAnchorElement> =>
-    (event) => {
-      event.preventDefault(); // 임시: 페이지 이동 없이 활성 디자인만 확인합니다.
-      setActiveMenu(menu);
-    };
+  // 선택 표시는 ConnectedGnb가 현재 경로로 결정합니다. 링크는 href로 이동합니다.
   const toggleRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -216,14 +204,12 @@ export default function Gnb({
                     title="대시보드"
                     icon="dashboard"
                     active={activeMenu === 'dashboard'}
-                    onClick={handleMenuClick('dashboard')}
                   />
                 </li>
                 <li>
                   <SideMenuAccordion
                     title="목표"
                     href="/"
-                    defaultOpen
                     icon={
                       <SideMenuIcon
                         name="flag"
@@ -231,7 +217,6 @@ export default function Gnb({
                       />
                     }
                     active={activeMenu === 'goal'}
-                    onClick={handleMenuClick('goal')}
                   >
                     {/* 임시 목표 목록입니다. 실제 목표 데이터와 주소로 교체합니다.
                         개발 연동: 아래 Link의 data-active를 선택한 목표 여부에 연결해주세요.
@@ -239,12 +224,12 @@ export default function Gnb({
                         true이면 글자색만 orange-700(#DC5203)으로 표시합니다.
                         false이면 기본 스타일을 표시합니다.
                         data-active는 li가 아닌 Link에 지정하며, 선택한 항목만 true로 유지해주세요.
-                        현재는 스타일 확인용으로 첫 번째 항목만 true로 하드코딩했습니다.
+                        현재 임시 항목은 활성화하지 않습니다.
                     */}
                     <li>
                       <Link
                         href="#"
-                        data-active="true"
+                        data-active="false"
                         className="block truncate px-6 py-2 focus-visible:outline-2 focus-visible:outline-orange-500 data-[active=false]:hover:text-orange-700 data-[active=true]:text-orange-700"
                       >
                         자바스크립트로 웹 서비스 만들기
@@ -268,7 +253,6 @@ export default function Gnb({
                     title="캘린더"
                     icon="calendar"
                     active={activeMenu === 'calendar'}
-                    onClick={handleMenuClick('calendar')}
                   />
                 </li>
                 <li>
@@ -277,7 +261,6 @@ export default function Gnb({
                     title="소통 게시판"
                     icon="message"
                     active={activeMenu === 'board'}
-                    onClick={handleMenuClick('board')}
                   />
                 </li>
                 <li>
@@ -286,7 +269,6 @@ export default function Gnb({
                     title="찜한 할 일"
                     icon="star"
                     active={activeMenu === 'favorites'}
-                    onClick={handleMenuClick('favorites')}
                   />
                 </li>
               </ul>
@@ -328,7 +310,7 @@ export default function Gnb({
             <div>
               <ul className="flex flex-col items-start gap-2 md:flex-row md:items-center">
                 <li className="w-full md:w-56 md:shrink-0">
-                  {/* 개발 연동: 실제 내 정보 관리 페이지 경로와 사용자 정보로 교체해주세요. */}
+                  {/* 사용자 정보는 연결 컴포넌트에서 전달합니다. 내 정보 관리 경로는 추후 연결합니다. */}
                   <Link
                     href="#"
                     aria-label="내 정보 관리"
@@ -343,7 +325,7 @@ export default function Gnb({
                     />
                     <span className="min-w-0">
                       <span className="flex items-center font-medium tracking-[-0.03em] text-foreground">
-                        <span className="truncate">체다치즈</span>
+                        <span className="truncate">{userName}</span>
                         <span
                           aria-hidden="true"
                           className="size-4 shrink-0 bg-grayscale-400"
@@ -356,7 +338,7 @@ export default function Gnb({
                         />
                       </span>
                       <span className="block truncate font-normal text-subtle">
-                        chedacheese@slid.kr
+                        {userEmail}
                       </span>
                     </span>
                   </Link>
@@ -374,24 +356,21 @@ export default function Gnb({
   );
 }
 
-// 활성 여부와 클릭 처리는 부모에서 전달합니다. 링크와 아이콘이 같은 active를 사용합니다.
+// 활성 여부는 부모에서 전달합니다. 링크와 아이콘이 같은 active를 사용합니다.
 function SideMenuLink({
   href,
   title,
   icon,
   active,
-  onClick,
 }: {
   href: string;
   title: string;
   icon: SideMenuIconName;
   active: boolean;
-  onClick: MouseEventHandler<HTMLAnchorElement>;
 }) {
   return (
     <Link
       href={href}
-      onClick={onClick}
       data-active={active}
       aria-current={active ? 'page' : undefined}
       className="group/menu-item flex h-11 w-full items-center gap-2 overflow-hidden rounded-[20px] px-4 py-0 font-semibold text-foreground hover:text-orange-menu-active focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-grayscale-500 data-[active=true]:bg-orange-menu-background data-[active=true]:font-bold data-[active=true]:text-orange-menu-active md:h-14 md:py-3.5 md:text-lg"
@@ -436,7 +415,6 @@ type SideMenuAccordionProps = {
   icon?: ReactNode;
   defaultOpen?: boolean;
   active?: boolean;
-  onClick: MouseEventHandler<HTMLAnchorElement>;
   children: ReactNode;
 };
 
@@ -446,7 +424,6 @@ function SideMenuAccordion({
   icon,
   defaultOpen = false,
   active = false,
-  onClick,
   children,
 }: SideMenuAccordionProps) {
   const [isExpanded, setIsExpanded] = useState(defaultOpen);
@@ -461,7 +438,6 @@ function SideMenuAccordion({
       >
         <Link
           href={href}
-          onClick={onClick}
           data-active={active}
           aria-current={active ? 'page' : undefined}
           className="flex min-w-0 flex-1 items-center gap-2 self-stretch focus-visible:outline-2 focus-visible:outline-grayscale-500"

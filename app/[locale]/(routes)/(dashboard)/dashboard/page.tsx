@@ -1,5 +1,7 @@
 'use client';
 
+import useCurrentUser from '@/hooks/useCurrentUser';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
@@ -50,6 +52,8 @@ type GoalTodosState = {
 };
 
 export default function Dashboard() {
+  // 헤더와 같은 쿼리 키를 사용하므로 사용자 데이터와 진행 중인 요청을 공유합니다.
+  const { userName } = useCurrentUser();
   const todoLabels = useTodoItemLabels();
   const t = useTranslations('Todo');
   const [createGoal, setCreateGoal] = useState<Pick<
@@ -482,7 +486,7 @@ export default function Dashboard() {
       {/* 컨텐츠 마크업은 여기서 부터 */}
       <div>
         <h1 className="mb-7.5 text-xl font-semibold text-heading max-md:hidden lg:mb-8.5 lg:text-2xl">
-          체다치즈님의 대시보드
+          {userName ? `${userName}님의 대시보드` : '대시보드'}
         </h1>
       </div>
 
@@ -501,7 +505,7 @@ export default function Dashboard() {
 
         {/* 내 진행 상황 */}
         <TodoProgressCard
-          userName="체다치즈"
+          userName={userName ?? ''}
           progress={displayProgress}
           isLoading={isLoadingProgress}
           error={progressError}
