@@ -63,10 +63,10 @@ const AuthTextField = ({
           className={cn(
             // 높이 모바일 44 · PC 56 (테두리 포함)
             'w-full rounded-xl border bg-white px-3 py-2.75 text-sm tracking-[-0.03em] text-grayscale-700 outline-none placeholder:text-grayscale-500 md:rounded-2xl md:px-4 md:py-3.75 md:text-base md:tracking-[-0.02em]',
-            // FN-AU-14: 포커스 시 테두리 색이 바뀌는 애니메이션
-            'transition-colors duration-200 motion-reduce:transition-none',
+            // FN-AU-14: 포커스 시 테두리 색이 바뀌는 애니메이션 (오류 상태에서는 테두리 바깥에 붉은 띠)
+            'transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none',
             hasError
-              ? 'border-danger'
+              ? 'border-danger focus:ring-2 focus:ring-danger/25'
               : 'border-grayscale-300 focus:border-orange-500',
             isPassword && 'pr-10 md:pr-12',
             className,
@@ -90,16 +90,19 @@ const AuthTextField = ({
         )}
       </div>
 
-      {error && (
-        <p
-          key={error}
-          id={errorId}
-          // FN-AU-13: 오류 메시지가 강조되며 나타나는 애니메이션
-          className="px-1 text-sm/5 font-medium tracking-[-0.03em] text-danger transition-[opacity,translate] duration-200 ease-out motion-reduce:transition-none starting:-translate-y-1 starting:opacity-0"
-        >
-          {error}
-        </p>
-      )}
+      {/* 오류 문구가 나타나거나 사라져도 화면이 밀리지 않도록 한 줄 자리를 항상 비워 둡니다. */}
+      <div className="min-h-5">
+        {error && (
+          <p
+            key={error}
+            id={errorId}
+            // FN-AU-13: 오류 메시지가 강조되며 나타나는 애니메이션
+            className="px-1 text-sm/5 font-medium tracking-[-0.03em] text-danger transition-[opacity,translate] duration-200 ease-out motion-reduce:transition-none starting:-translate-y-1 starting:opacity-0"
+          >
+            {error}
+          </p>
+        )}
+      </div>
     </div>
   );
 };
