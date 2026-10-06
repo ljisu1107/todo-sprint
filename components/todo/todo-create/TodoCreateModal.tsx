@@ -29,7 +29,10 @@ export interface TodoCreateModalProps {
   onOpenChange: (isOpen: boolean) => void;
   /** 미리 선택해 둘 목표. 사용자가 다른 목표로 바꿀 수 있습니다. */
   initialGoal?: Pick<GoalDto, 'id' | 'title'>;
-  /** 생성에 성공한 뒤 호출합니다. 목록 query 무효화는 모달이 이미 해 둡니다. */
+  /**
+   * 생성 성공 후 모달과 폼을 정리한 다음 호출합니다.
+   * 할 일 목록 query 무효화는 생성 mutation이 처리합니다.
+   */
   onCreated?: (todo: TodoDto) => void;
 }
 
@@ -107,8 +110,8 @@ const TodoCreateDialog = ({
       return;
     }
 
-    // 생성은 이미 끝났습니다. 호출부 콜백이 실패해도 생성 실패로 보이지 않게 따로 처리하고,
-    // 폼 정리와 닫기는 반드시 실행합니다. 확인창 없이 닫습니다.
+    // 생성은 이미 끝났으므로 확인창 없이 모달과 폼을 먼저 정리한 뒤 호출부에 알립니다.
+    close();
     try {
       onCreated?.(createdTodo);
     } catch (error) {
@@ -116,8 +119,6 @@ const TodoCreateDialog = ({
         '[TodoCreateModal] onCreated 실행 중 오류가 났습니다.',
         error,
       );
-    } finally {
-      close();
     }
   };
 
@@ -134,7 +135,8 @@ const TodoCreateDialog = ({
       >
         <form
           noValidate
-          onSubmit={handleSubmit(onSubmit)}
+          // 제출 시점에 handleSubmit을 호출해 onSubmit 내부의 ref 변경과 렌더를 분리합니다.
+          onSubmit={(event) => void handleSubmit(onSubmit)(event)}
           className="flex flex-col gap-6"
         >
           <ModalHeader>{t('createTodo')}</ModalHeader>

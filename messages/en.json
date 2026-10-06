@@ -130,7 +130,12 @@
         "linkInvalid": "Enter a valid link.",
         "imageExtensionInvalid": "Only jpg, jpeg, png, gif, webp, and svg files can be attached."
       }
-    }
+    },
+    "loadingGoals": "Loading goals…",
+    "fetchGoalsError": "Couldn't load goals.",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "dateWithTodoCount": "{date}, {count} to-dos"
   },
   "Auth": {
     "loginTitle": "Log in",

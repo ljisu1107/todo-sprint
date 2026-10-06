@@ -358,7 +358,7 @@ describe('TodoCreateModal', { timeout: 20_000 }, () => {
   });
 
   describe('생성 성공', () => {
-    it('생성 → 목록 무효화 → onCreated → 닫기 순서로 진행하고 재조회를 기다리지 않는다', async () => {
+    it('생성 → 목록 무효화 → 닫기 → onCreated 순서로 진행하고 재조회를 기다리지 않는다', async () => {
       const created = makeTodo(7);
       const order: string[] = [];
       mockedCreateTodo.mockImplementationOnce(async () => {
@@ -382,12 +382,15 @@ describe('TodoCreateModal', { timeout: 20_000 }, () => {
       await user.click(submitButton());
 
       await waitFor(() => expect(queryModal()).not.toBeInTheDocument());
-      expect(order).toEqual(['createTodo', 'invalidate', 'onCreated', 'close']);
+      // 모달과 폼을 먼저 정리한 뒤 호출부에 알립니다.
+      expect(order).toEqual(['createTodo', 'invalidate', 'close', 'onCreated']);
       expect(invalidateQueries).toHaveBeenCalledWith({
         queryKey: todoKeys.lists(),
       });
+      expect(onCreated).toHaveBeenCalledTimes(1);
       expect(onCreated).toHaveBeenCalledWith(created);
       expect(onOpenChange).toHaveBeenCalledWith(false);
+      expect(toast.error).not.toHaveBeenCalled();
     });
 
     it('작성한 내용이 있어도 닫기 확인창을 띄우지 않는다', async () => {
