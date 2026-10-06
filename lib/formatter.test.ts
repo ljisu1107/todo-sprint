@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { formatRelativeTime } from './formatRelativeTime';
+import { formatDateToRelativeTime } from './formatter';
 
 const now = new Date('2026-02-16T12:00:00.000Z');
 
-describe('formatRelativeTime', () => {
+describe('formatDateToRelativeTime', () => {
   it.each([
     ['2026-02-16T11:59:30.000Z', '방금'],
     ['2026-02-16T11:55:00.000Z', '5분'],
@@ -12,6 +12,6 @@ describe('formatRelativeTime', () => {
     ['2025-12-16T12:00:00.000Z', '2개월'],
     ['2025-02-16T12:00:00.000Z', '1년'],
   ])('%s → %s', (createdAt, expected) => {
-    expect(formatRelativeTime(createdAt, now)).toBe(expected);
+    expect(formatDateToRelativeTime(createdAt, now)).toBe(expected);
   });
 });
