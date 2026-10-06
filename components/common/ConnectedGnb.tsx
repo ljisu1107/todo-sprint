@@ -1,7 +1,11 @@
 'use client';
 
 import Gnb, { type MenuId } from '@/components/common/Gnb';
-import { usePathname } from '@/i18n/navigation';
+import { usePathname, useRouter } from '@/i18n/navigation';
+import { useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { logout } from '@/lib/api/auth';
+import { toast } from '@/components/ui/toast/Toaster';
 import useCurrentUser from '@/hooks/useCurrentUser';
 
 /**
@@ -18,6 +22,27 @@ import useCurrentUser from '@/hooks/useCurrentUser';
  */
 export default function ConnectedGnb() {
   const pathname = usePathname();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const loggingOut = useRef(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const handleLogout = async () => {
+    if (loggingOut.current) return;
+    loggingOut.current = true;
+    setIsLoggingOut(true);
+    try {
+      await queryClient.cancelQueries();
+      await logout();
+      // 이전 계정의 조회 캐시를 지우고 현재 언어의 로그인 화면으로 이동합니다.
+      queryClient.clear();
+      router.replace('/login');
+      router.refresh();
+    } catch {
+      toast.error('로그아웃하지 못했어요. 다시 시도해주세요.');
+      loggingOut.current = false;
+      setIsLoggingOut(false);
+    }
+  };
   const { userName, userEmail } = useCurrentUser();
   const page = pathname.split('/')[1];
   // 클릭 여부가 아닌 실제 경로로 선택하므로 직접 접속·새로고침·뒤로 가기에도 유지됩니다.
@@ -27,6 +52,7 @@ export default function ConnectedGnb() {
     calendar: 'calendar',
     posts: 'board',
     favorites: 'favorites',
+    notes: 'notes',
   };
   // URL 첫 경로(키)에 맞는 모바일 헤더 제목(값)을 선택합니다. 페이지를 생성하는 설정은 아닙니다.
   const titles: Record<string, string> = {
@@ -40,6 +66,8 @@ export default function ConnectedGnb() {
   };
   return (
     <Gnb
+      onLogout={() => void handleLogout()}
+      isLoggingOut={isLoggingOut}
       activeMenu={menus[page] ?? null}
       pageTitle={titles[page] ?? '슬리드 투두'}
       userName={userName || '사용자'}

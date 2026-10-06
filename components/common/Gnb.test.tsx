@@ -46,7 +46,7 @@ describe('주 메뉴 활성 상태', () => {
       screen.getByRole('navigation').querySelector('[aria-current]'),
     ).toBeNull();
     expect(
-      menu().getByRole('button', { name: '목표 목록 펼치기' }),
+      menu().getByRole('button', { name: '목표 목록 펼치기', hidden: true }),
     ).toHaveAttribute('aria-expanded', 'false');
   });
 
@@ -56,10 +56,10 @@ describe('주 메뉴 활성 상태', () => {
       '대시보드',
       '캘린더',
       '소통 게시판',
-      '찜한 할 일',
+      '노트 모아보기',
       '목표',
     ]) {
-      const link = menu().getByRole('link', { name: title });
+      const link = menu().getByRole('link', { name: title, hidden: true });
       const event = new MouseEvent('click', {
         bubbles: true,
         cancelable: true,
@@ -79,14 +79,17 @@ describe('주 메뉴 활성 상태', () => {
       'aria-current',
       'page',
     );
-    expect(menu().getByRole('link', { name: '목표' })).not.toHaveAttribute(
-      'aria-current',
-    );
+    expect(
+      menu().getByRole('link', { name: '목표', hidden: true }),
+    ).not.toHaveAttribute('aria-current');
   });
 
   it('목표 목록을 열고 닫아도 현재 메뉴의 활성 표시는 유지한다', () => {
     render(<Gnb activeMenu="dashboard" />, { wrapper });
-    const toggle = menu().getByRole('button', { name: '목표 목록 펼치기' });
+    const toggle = menu().getByRole('button', {
+      name: '목표 목록 펼치기',
+      hidden: true,
+    });
     const panel = document.getElementById(
       toggle.getAttribute('aria-controls')!,
     );

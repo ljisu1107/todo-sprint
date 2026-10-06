@@ -6,10 +6,13 @@ import ActionButton from '@/components/ui/button/ActionButton';
 import NotificationButton from '@/components/common/NotificationButton';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 
-export type MenuId = 'dashboard' | 'goal' | 'calendar' | 'board' | 'favorites';
+export type MenuId =
+  'dashboard' | 'goal' | 'calendar' | 'board' | 'favorites' | 'notes';
 
 type GnbProps = {
   activeMenu?: MenuId | null;
+  onLogout?: () => void;
+  isLoggingOut?: boolean;
   pageTitle?: string;
   userName?: string;
   userEmail?: string;
@@ -19,6 +22,8 @@ type GnbProps = {
 
 export default function Gnb({
   activeMenu = null,
+  onLogout,
+  isLoggingOut = false,
   pageTitle = '대시보드',
   userName = '사용자',
   userEmail = '',
@@ -206,7 +211,8 @@ export default function Gnb({
                     active={activeMenu === 'dashboard'}
                   />
                 </li>
-                <li>
+                {/* 시연에서는 목표 메뉴를 숨깁니다. 목표 목록 연동 후 복구합니다. */}
+                <li hidden>
                   <SideMenuAccordion
                     title="목표"
                     href="/"
@@ -249,7 +255,7 @@ export default function Gnb({
                 </li>
                 <li>
                   <SideMenuLink
-                    href="/"
+                    href="/calendar"
                     title="캘린더"
                     icon="calendar"
                     active={activeMenu === 'calendar'}
@@ -257,7 +263,7 @@ export default function Gnb({
                 </li>
                 <li>
                   <SideMenuLink
-                    href="/"
+                    href="/posts"
                     title="소통 게시판"
                     icon="message"
                     active={activeMenu === 'board'}
@@ -265,17 +271,17 @@ export default function Gnb({
                 </li>
                 <li>
                   <SideMenuLink
-                    href="/"
-                    title="찜한 할 일"
-                    icon="star"
-                    active={activeMenu === 'favorites'}
+                    href="/notes"
+                    title="노트 모아보기"
+                    icon="note"
+                    active={activeMenu === 'notes'}
                   />
                 </li>
               </ul>
             </nav>
             <div className="mt-3 md:mt-6">
               <ul>
-                <li>
+                <li hidden>
                   <Link
                     href="#"
                     className="flex h-11 w-full items-center gap-2 rounded-2xl px-4 py-0 font-normal text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-grayscale-500 md:h-14 md:text-lg"
@@ -285,13 +291,15 @@ export default function Gnb({
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="#"
-                    className="flex h-11 w-full items-center gap-2 rounded-2xl px-4 py-0 font-normal text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-grayscale-500 md:h-14 md:text-lg"
+                  <button
+                    type="button"
+                    onClick={onLogout}
+                    disabled={isLoggingOut || !onLogout}
+                    className="flex h-11 w-full cursor-pointer items-center gap-2 rounded-2xl px-4 py-0 font-normal text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-grayscale-500 disabled:cursor-not-allowed disabled:opacity-50 md:h-14 md:text-lg"
                   >
                     <SideMenuIcon name="logout" />
-                    <span>로그아웃</span>
-                  </Link>
+                    <span>{isLoggingOut ? '로그아웃 중…' : '로그아웃'}</span>
+                  </button>
                 </li>
               </ul>
             </div>
@@ -383,7 +391,14 @@ function SideMenuLink({
 
 // SVG를 마스크로 사용해 원본 모양을 유지하면서 상태별 색상을 적용합니다.
 type SideMenuIconName =
-  'dashboard' | 'flag' | 'calendar' | 'message' | 'star' | 'setting' | 'logout';
+  | 'dashboard'
+  | 'flag'
+  | 'calendar'
+  | 'message'
+  | 'star'
+  | 'setting'
+  | 'logout'
+  | 'note';
 
 function SideMenuIcon({
   name,
