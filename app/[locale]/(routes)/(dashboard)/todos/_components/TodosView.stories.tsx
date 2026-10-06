@@ -1,5 +1,4 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs';
-import { fn } from 'storybook/test';
 
 import Toaster from '@/components/ui/toast/Toaster';
 import TestProviders from '@/test/TestProviders';
@@ -21,7 +20,6 @@ const meta = {
   component: TodosView,
   parameters: { layout: 'fullscreen' },
   decorators: [withTodosPage],
-  args: { onAddTodo: fn() },
 } satisfies Meta<typeof TodosView>;
 
 export default meta;

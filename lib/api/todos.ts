@@ -1,4 +1,8 @@
-import type { TodoPageDto } from '@/types/api/todo';
+import type {
+  CreateTodoRequestDto,
+  TodoDto,
+  TodoPageDto,
+} from '@/types/api/todo';
 import { request } from './client-fetcher';
 
 export type TodoSortType = 'latest' | 'dueSoon';
@@ -18,3 +22,6 @@ export type GetTodosParams = {
 
 export const getTodos = (params: GetTodosParams, signal?: AbortSignal) =>
   request<TodoPageDto>({ url: '/todos', params, signal });
+
+export const createTodo = (body: CreateTodoRequestDto) =>
+  request<TodoDto>({ url: '/todos', method: 'POST', data: body });
