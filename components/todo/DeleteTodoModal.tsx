@@ -12,7 +12,7 @@ interface DeleteTodoModalProps {
   todo: Pick<TodoDto, 'id' | 'title'> | null;
   onClose: () => void;
   /**
-   * 삭제가 성공한 뒤 실행할 화면별 후처리 (통계·진행률 갱신 등).
+   * 삭제 성공 후 모달을 닫은 뒤 호출하는 알림용 콜백입니다 (통계·진행률 갱신 등). 예외를 던지지 않아야 합니다.
    * 목록 캐시에서 빼는 일은 useDeleteTodo가 이미 했으므로 여기서 하지 않습니다.
    */
   onDeleted?: (todoId: number) => void;
@@ -36,17 +36,9 @@ const DeleteTodoModal = ({
     }
     deleteTodo(todo.id, {
       onSuccess: (_data, todoId) => {
-        // 삭제는 이미 성공했으므로 onDeleted의 예외를 삭제 실패로 다루지 않고, 모달은 항상 닫습니다.
-        try {
-          onDeleted?.(todoId);
-        } catch (error) {
-          console.error(
-            '[DeleteTodoModal] onDeleted 실행 중 오류가 났습니다.',
-            error,
-          );
-        } finally {
-          onClose();
-        }
+        // 삭제는 이미 끝났으므로 모달을 먼저 닫고, 호출부에는 결과만 알립니다.
+        onClose();
+        onDeleted?.(todoId);
       },
       onError: () => toast.error(t('deleteTodoError')),
     });
