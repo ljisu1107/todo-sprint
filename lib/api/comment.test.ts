@@ -1,0 +1,34 @@
+import type { AxiosAdapter, InternalAxiosRequestConfig } from 'axios';
+import { afterEach, describe, expect, it } from 'vitest';
+import { api } from './client-fetcher';
+import { getComments } from './comment';
+
+const originalAdapter = api.defaults.adapter;
+afterEach(() => {
+  api.defaults.adapter = originalAdapter;
+});
+
+const replyWith = (data: unknown) => {
+  const sent: InternalAxiosRequestConfig[] = [];
+  const adapter: AxiosAdapter = async (config) => {
+    sent.push(config);
+    return { data, status: 200, statusText: '', headers: {}, config };
+  };
+  api.defaults.adapter = adapter;
+  return sent;
+};
+
+describe('getComments', () => {
+  it('/posts/{postId}/comments로 최상위 댓글만 개수·커서와 함께 요청한다', async () => {
+    const sent = replyWith({ comments: [], nextCursor: null, totalCount: 0 });
+
+    await getComments(5, { limit: 10, cursor: 'abc' });
+
+    expect(sent[0].url).toBe('/posts/5/comments');
+    expect(sent[0].params).toEqual({
+      parentId: 'null',
+      limit: 10,
+      cursor: 'abc',
+    });
+  });
+});
