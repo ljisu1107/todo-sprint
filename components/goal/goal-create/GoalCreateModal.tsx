@@ -91,7 +91,7 @@ const GoalCreateDialog = ({
             }}
             className="flex flex-col gap-6"
           >
-            <ModalHeader>{t('addGoal')}</ModalHeader>
+            <ModalHeader>{t('createGoal')}</ModalHeader>
             <FieldLayout
               label={g('title')}
               htmlFor={inputId}

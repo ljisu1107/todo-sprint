@@ -265,7 +265,7 @@ it('새 목표 버튼에서 실제 목표 폼을 열고 등록 성공 시 닫으
     );
     await screen.findByText('상환님의 대시보드');
     fireEvent.click(screen.getByRole('button', { name: '새 목표' }));
-    const dialog = screen.getByRole('dialog', { name: '목표 추가' });
+    const dialog = screen.getByRole('dialog', { name: '목표 생성' });
     const input = within(dialog).getByRole('textbox', { name: /목표명/ });
     expect(
       within(dialog).getByRole('button', { name: '등록하기' }),

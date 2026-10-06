@@ -12,7 +12,7 @@ const Preview = (props: GoalCreateModalProps) => {
   return (
     <>
       <Button className="w-auto" onClick={() => setIsOpen(true)}>
-        목표 추가 열기
+        목표 생성 열기
       </Button>
       <GoalCreateModal
         {...props}
