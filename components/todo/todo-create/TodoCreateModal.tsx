@@ -132,41 +132,45 @@ const TodoCreateDialog = ({
           }
         }}
         size="lg"
+        className="overflow-hidden"
       >
-        <form
-          noValidate
-          // 제출 시점에 handleSubmit을 호출해 onSubmit 내부의 ref 변경과 렌더를 분리합니다.
-          onSubmit={(event) => void handleSubmit(onSubmit)(event)}
-          className="flex flex-col gap-6"
-        >
-          <ModalHeader>{t('createTodo')}</ModalHeader>
-          <TodoFormFields
-            key={fieldsKey}
-            control={control}
-            initialGoal={initialGoal}
-            onTagDraftChange={(draft) => {
-              tagDraftRef.current = draft;
-            }}
-          />
-          {/* 공용 Button은 w-full shrink-0이라 나란히 두면 각자 한 줄을 다 차지합니다. 절반씩 나누도록 덮어씁니다. */}
-          <div className="mt-2 flex gap-3 md:mt-4">
-            <Button
-              variant="neutral"
-              className="min-w-0 flex-1 shrink"
-              disabled={isSubmitting}
-              onClick={requestClose}
-            >
-              {t('cancel')}
-            </Button>
-            <Button
-              type="submit"
-              className="min-w-0 flex-1 shrink"
-              disabled={!canSubmit || isSubmitting}
-            >
-              {t('confirm')}
-            </Button>
-          </div>
-        </form>
+        {/* 스크롤을 패딩 안쪽에 두어 둥근 모서리 밖으로 나오지 않게 합니다. */}
+        <div className="-m-1 min-h-0 scrollbar-thin overflow-y-auto overscroll-contain p-1 pr-2">
+          <form
+            noValidate
+            // 제출 시점에 handleSubmit을 호출해 onSubmit 내부의 ref 변경과 렌더를 분리합니다.
+            onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+            className="flex flex-col gap-6"
+          >
+            <ModalHeader>{t('createTodo')}</ModalHeader>
+            <TodoFormFields
+              key={fieldsKey}
+              control={control}
+              initialGoal={initialGoal}
+              onTagDraftChange={(draft) => {
+                tagDraftRef.current = draft;
+              }}
+            />
+            {/* 공용 Button은 w-full shrink-0이라 나란히 두면 각자 한 줄을 다 차지합니다. 절반씩 나누도록 덮어씁니다. */}
+            <div className="mt-2 flex gap-3 md:mt-4">
+              <Button
+                variant="neutral"
+                className="min-w-0 flex-1 shrink"
+                disabled={isSubmitting}
+                onClick={requestClose}
+              >
+                {t('cancel')}
+              </Button>
+              <Button
+                type="submit"
+                className="min-w-0 flex-1 shrink"
+                disabled={!canSubmit || isSubmitting}
+              >
+                {t('confirm')}
+              </Button>
+            </div>
+          </form>
+        </div>
       </Modal>
 
       <ConfirmModal

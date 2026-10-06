@@ -13,6 +13,8 @@ import { getMe } from '@/lib/api/user';
 import { userQueries } from '@/queries/user';
 import { logout } from '@/lib/api/auth';
 import ConnectedGnb from './ConnectedGnb';
+import type { TodoCreateModalProps } from '@/components/todo/todo-create/TodoCreateModal';
+import { makeTodo } from '@/test/todoMocks';
 
 const { replace, refresh, toastError } = vi.hoisted(() => ({
   replace: vi.fn(),
@@ -24,6 +26,29 @@ vi.mock('@/i18n/navigation', () => ({
   usePathname: () => pathname,
   useRouter: () => ({ replace, refresh }),
   Link: (props: AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props} />,
+}));
+// 모달 입력/API는 공용 모달 테스트에서 검증하고, 여기서는 진입·닫기·성공 알림을 검증합니다.
+vi.mock('@/components/todo/todo-create/TodoCreateModal', () => ({
+  default: ({
+    isOpen,
+    onOpenChange,
+    onCreated,
+    initialGoal,
+  }: TodoCreateModalProps) =>
+    isOpen ? (
+      <div role="dialog" aria-label="할 일 생성">
+        <span>{initialGoal?.title ?? '목표 선택'}</span>
+        <button onClick={() => onOpenChange(false)}>취소</button>
+        <button
+          onClick={() => {
+            onOpenChange(false);
+            onCreated?.(makeTodo(1));
+          }}
+        >
+          등록 성공
+        </button>
+      </div>
+    ) : null,
 }));
 vi.mock('@/lib/api/auth', () => ({ logout: vi.fn() }));
 vi.mock('@/components/ui/toast/Toaster', () => ({
@@ -191,4 +216,30 @@ it('로그아웃 실패 시 이동하지 않고 재시도할 수 있다', async 
   await waitFor(() => expect(toastError).toHaveBeenCalled());
   expect(replace).not.toHaveBeenCalled();
   expect(screen.getByRole('button', { name: '로그아웃' })).toBeEnabled();
+});
+
+it('GNB 새 할 일에서 목표 선택 모달을 열고 성공 시 갱신 알림을 보낸다', async () => {
+  const onCreated = vi.fn();
+  window.addEventListener('gnb:todo-created', onCreated);
+  try {
+    render(
+      <TestProviders>
+        <ConnectedGnb />
+      </TestProviders>,
+    );
+    await screen.findByText('상환님의 대시보드');
+    fireEvent.click(screen.getByRole('button', { name: '새 할일' }));
+    expect(
+      screen.getByRole('dialog', { name: '할 일 생성' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('목표 선택')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '취소' }));
+    expect(onCreated).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: '새 할일' }));
+    fireEvent.click(screen.getByRole('button', { name: '등록 성공' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(onCreated).toHaveBeenCalledTimes(1);
+  } finally {
+    window.removeEventListener('gnb:todo-created', onCreated);
+  }
 });

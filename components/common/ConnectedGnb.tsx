@@ -1,5 +1,6 @@
 'use client';
 
+import TodoCreateModal from '@/components/todo/todo-create/TodoCreateModal';
 import Gnb, { type MenuId } from '@/components/common/Gnb';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { useRef, useState } from 'react';
@@ -21,6 +22,7 @@ import useCurrentUser from '@/hooks/useCurrentUser';
  * 필요한 화면에서 useCurrentUser를 사용해 동일한 React Query 캐시를 공유합니다.
  */
 export default function ConnectedGnb() {
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -65,14 +67,23 @@ export default function ConnectedGnb() {
     favorites: '찜한 할 일',
   };
   return (
-    <Gnb
-      onLogout={() => void handleLogout()}
-      isLoggingOut={isLoggingOut}
-      activeMenu={menus[page] ?? null}
-      pageTitle={titles[page] ?? '슬리드 투두'}
-      userName={userName || '사용자'}
-      userEmail={userEmail}
-      hasNotification={false}
-    />
+    <>
+      <Gnb
+        onCreateTodo={() => setIsCreateOpen(true)}
+        onLogout={() => void handleLogout()}
+        isLoggingOut={isLoggingOut}
+        activeMenu={menus[page] ?? null}
+        pageTitle={titles[page] ?? '슬리드 투두'}
+        userName={userName || '사용자'}
+        userEmail={userEmail}
+        hasNotification={false}
+      />
+      <TodoCreateModal
+        isOpen={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        // Query 캐시 외에 자체 상태로 관리하는 대시보드 목록에도 생성 완료를 알립니다.
+        onCreated={() => window.dispatchEvent(new Event('gnb:todo-created'))}
+      />
+    </>
   );
 }

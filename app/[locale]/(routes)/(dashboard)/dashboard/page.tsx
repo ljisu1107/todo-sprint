@@ -400,7 +400,7 @@ export default function Dashboard() {
 
   // 공용 mutation은 Query 캐시를 갱신합니다. 대시보드의 자체 상태도 다시 조회합니다.
   // 검색어는 유지하고 각 할 일 목록은 첫 페이지로 갱신해 오래된 커서를 재사용하지 않습니다.
-  const refreshDashboard = () => {
+  const refreshDashboard = useCallback(() => {
     refreshingGoals.current = true;
     moreGoalsRequest.current?.abort();
     moreGoalsRequest.current = null;
@@ -411,7 +411,14 @@ export default function Dashboard() {
       const keyword = goalKeywords.current.get(goal.id);
       loadGoalFirstPage(goal.id, keyword);
     });
-  };
+  }, [goals, loadGoalFirstPage]);
+
+  // GNB 모달은 레이아웃에 있으므로 생성 완료 알림을 받아 자체 목록도 갱신합니다.
+  useEffect(() => {
+    window.addEventListener('gnb:todo-created', refreshDashboard);
+    return () =>
+      window.removeEventListener('gnb:todo-created', refreshDashboard);
+  }, [refreshDashboard]);
 
   // 같은 할 일이 최근 목록·목표 카드에 중복 표시되어도 두 위치를 함께 갱신합니다.
   const patchTodo = (id: number, patch: Partial<TodoItemData>) => {

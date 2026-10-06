@@ -269,3 +269,18 @@ it('실제 사용자명을 PC 제목과 진행률 카드에 표시한다', async
   ).toBeInTheDocument();
   expect(await screen.findByText('상환님의 진행도는')).toBeInTheDocument();
 });
+
+it('GNB에서 등록하면 대시보드 최근 목록·목표 목록·진행률을 다시 조회한다', async () => {
+  await setup();
+  vi.mocked(getRecentTodos).mockClear();
+  vi.mocked(getGoalTodos).mockClear();
+  vi.mocked(getTodoProgress).mockClear();
+  act(() => {
+    window.dispatchEvent(new Event('gnb:todo-created'));
+  });
+  await waitFor(() => {
+    expect(getRecentTodos).toHaveBeenCalled();
+    expect(getGoalTodos).toHaveBeenCalled();
+    expect(getTodoProgress).toHaveBeenCalled();
+  });
+});
