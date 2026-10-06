@@ -117,7 +117,7 @@ describe(
       expect(createRequestBody()).toEqual({
         title: '새로 만든 할 일',
         goalId: 2,
-        dueDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T23:59:59\+09:00$/),
+        dueDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T14:59:59\.000Z$/),
       });
       expect(toast.error).not.toHaveBeenCalled();
     });

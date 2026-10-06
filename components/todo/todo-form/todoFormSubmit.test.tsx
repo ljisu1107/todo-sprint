@@ -54,7 +54,7 @@ describe('폼 제출 흐름', () => {
     expect(onValid).toHaveReturnedWith({
       title: '할 일',
       goalId: 1,
-      dueDate: '2026-10-10T23:59:59+09:00',
+      dueDate: '2026-10-10T14:59:59.000Z',
       linkUrl: 'https://example.com',
     });
   });

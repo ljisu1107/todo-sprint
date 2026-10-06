@@ -293,7 +293,7 @@ describe('TodoCreateModal', { timeout: 20_000 }, () => {
         expect(mockedCreateTodo).toHaveBeenCalledWith({
           title: '보고서 작성',
           goalId: 2,
-          dueDate: `${date}T23:59:59+09:00`,
+          dueDate: `${date}T14:59:59.000Z`,
         }),
       );
       expect(mockedUploadImage).not.toHaveBeenCalled();
@@ -428,6 +428,32 @@ describe('TodoCreateModal', { timeout: 20_000 }, () => {
 
       await waitFor(() => expect(queryModal()).not.toBeInTheDocument());
       expect(onOpenChange).toHaveBeenCalledTimes(1);
+    });
+
+    it('onCreated가 예외를 던져도 폼을 정리하고 닫으며, 생성 실패로 알리지 않는다', async () => {
+      mockedCreateTodo.mockResolvedValueOnce(makeTodo(7));
+      const callbackError = new Error('호출부 오류');
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const { user, onOpenChange } = setup({
+        keepOpen: true,
+        onCreated: () => {
+          throw callbackError;
+        },
+      });
+      await fillRequired(user);
+
+      await user.click(submitButton());
+
+      await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+      await waitFor(() => expect(titleInput()).toHaveValue(''));
+      expect(toast.error).not.toHaveBeenCalled();
+      // 조용히 버리지 않고 개발 오류로 남깁니다.
+      expect(consoleError).toHaveBeenCalledWith(
+        expect.stringContaining('onCreated'),
+        callbackError,
+      );
     });
   });
 

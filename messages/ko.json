@@ -46,8 +46,6 @@
     "cancelPostConfirm": "게시물 작성을 취소하시겠어요?",
     "cancelPostWarning": "작성하신 모든 내용이 사라집니다",
     "allGoals": "전체 목표",
-    "loadingGoals": "목표를 불러오는 중이에요",
-    "fetchGoalsError": "목표를 불러오지 못했어요",
     "all": "ALL",
     "toDo": "TO DO",
     "done": "DONE",
@@ -133,6 +131,8 @@
         "imageExtensionInvalid": "jpg, jpeg, png, gif, webp, svg 파일만 첨부할 수 있습니다"
       }
     },
+    "loadingGoals": "목표를 불러오는 중이에요",
+    "fetchGoalsError": "목표를 불러오지 못했어요",
     "previousMonth": "이전 달",
     "nextMonth": "다음 달",
     "dateWithTodoCount": "{date}, 할 일 {count}개"
