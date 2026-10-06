@@ -5,6 +5,7 @@ import { fn } from 'storybook/test';
 import { api } from '@/lib/api/client-fetcher';
 import TestProviders from '@/test/TestProviders';
 import { makeTodo } from '@/test/todoMocks';
+import type { GoalPageDto } from '@/types/api/goal';
 import type { TodoDto, TodoPageDto } from '@/types/api/todo';
 import { toKstDateKey, type DateKey } from '../_lib/calendarDates';
 import MonthCalendar from './MonthCalendar';
@@ -19,6 +20,24 @@ const withCalendarPage: Decorator = (Story) => (
 );
 
 const dueOn = (dateKey: DateKey) => `${dateKey}T00:00:00.000Z`;
+
+const GOALS = ['자바스크립트로 웹서비스 만들기', '디자인 시스템 정복하기'].map(
+  (title, index) => ({
+    id: index + 1,
+    teamId: 'team',
+    userId: 1,
+    title,
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
+    todoCount: 0,
+    completedCount: 0,
+  }),
+);
+const GOAL_PAGE: GoalPageDto = {
+  goals: GOALS,
+  nextCursor: null,
+  totalCount: GOALS.length,
+};
 
 // Figma 2025년 1월 시안과 같은 배치: [마감일, 제목, 완료]
 const FIGMA_TODOS = (
@@ -44,7 +63,12 @@ const FIGMA_TODOS = (
     ['2025-02-02', '오류/로딩 상태 처리하기', true],
   ] as const
 ).map(([dateKey, title, done], index) =>
-  makeTodo(index + 1, { title, done, dueDate: dueOn(dateKey) }),
+  makeTodo(index + 1, {
+    title,
+    done,
+    dueDate: dueOn(dateKey),
+    goalId: GOALS[index % GOALS.length].id,
+  }),
 );
 
 const JANUARY_DAY_COUNT = 31;
@@ -64,7 +88,8 @@ interface MockCalendarTodosApiOptions {
 }
 
 /**
- * axios adapter를 바꿔 GET /todos를 흉내 냅니다. from·to(KST)로 거르고, cursor는 다음에 줄 할 일의 순번입니다.
+ * axios adapter를 바꿔 GET /todos를 흉내 냅니다. from·to(KST)와 goalId로 거르고, cursor는 다음에 줄 할 일의 순번입니다.
+ * GET /goals는 목표 필터용으로 항상 같은 목록을 줍니다.
  * 되돌리는 함수를 반환합니다.
  */
 const mockCalendarTodosApi = ({
@@ -77,6 +102,11 @@ const mockCalendarTodosApi = ({
   let requestCount = 0;
 
   const adapter: AxiosAdapter = async (config) => {
+    if (config.url === '/goals') {
+      const response = { status: 200, statusText: '', headers: {}, config };
+      return { ...response, data: GOAL_PAGE };
+    }
+
     const requestIndex = requestCount;
     requestCount += 1;
 
@@ -88,9 +118,12 @@ const mockCalendarTodosApi = ({
       return Promise.reject(new Error('mock network error'));
     }
 
-    const { from, to, limit, cursor = 0 } = config.params;
+    const { from, to, goalId, limit, cursor = 0 } = config.params;
     const todosInRange = todos.filter((todo) => {
       if (todo.dueDate === null) {
+        return false;
+      }
+      if (goalId !== undefined && todo.goalId !== goalId) {
         return false;
       }
       const dateKey = toKstDateKey(todo.dueDate);

@@ -2,14 +2,17 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { getGoals, type GetGoalsParams } from '@/lib/api/goals';
 import { getTodos, type GetTodosParams } from '@/lib/api/todos';
 import TestProviders from '@/test/TestProviders';
 import { makeTodo } from '@/test/todoMocks';
 import CalendarView from './CalendarView';
 
 vi.mock('@/lib/api/todos', () => ({ getTodos: vi.fn() }));
+vi.mock('@/lib/api/goals', () => ({ getGoals: vi.fn() }));
 
 const mockedGetTodos = vi.mocked(getTodos);
+const mockedGetGoals = vi.mocked(getGoals);
 
 const JAN_8 = '2025-01-08T00:00:00.000Z';
 const JAN_8_TODOS = [1, 2, 3, 4].map((id) =>
@@ -28,6 +31,25 @@ const respond = ({ from, cursor }: GetTodosParams) => {
   );
 };
 
+const makeGoal = (id: number, title: string) => ({
+  id,
+  teamId: 'team',
+  userId: 1,
+  title,
+  createdAt: '2025-01-01T00:00:00.000Z',
+  updatedAt: '2025-01-01T00:00:00.000Z',
+  todoCount: 0,
+  completedCount: 0,
+});
+
+// 목표는 두 페이지로 나눠 줍니다.
+const respondGoals = ({ cursor }: GetGoalsParams) =>
+  Promise.resolve(
+    cursor
+      ? { goals: [makeGoal(2, '목표 2')], nextCursor: null, totalCount: 2 }
+      : { goals: [makeGoal(1, '목표 1')], nextCursor: 2, totalCount: 2 },
+  );
+
 const renderCalendar = () =>
   render(
     <TestProviders>
@@ -40,6 +62,7 @@ beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date('2025-01-09T15:30:00.000Z'));
   mockedGetTodos.mockImplementation(respond);
+  mockedGetGoals.mockImplementation(respondGoals);
 });
 
 afterEach(() => {
@@ -144,5 +167,68 @@ describe('CalendarView', () => {
     await user.click(within(modal).getByRole('button', { name: '닫기' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(january8).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('목표를 nextCursor가 null이 될 때까지 요청하고 목표 필터에서 전체 목표를 맨 위에 둔다', async () => {
+    const user = userEvent.setup();
+    renderCalendar();
+
+    await user.click(screen.getByRole('button', { name: '전체 목표' }));
+
+    await screen.findByRole('menuitemradio', { name: '목표 2' });
+    expect(
+      screen.getAllByRole('menuitemradio').map((item) => item.textContent),
+    ).toEqual(['전체 목표', '목표 1', '목표 2']);
+    expect(mockedGetGoals.mock.calls.map(([params]) => params)).toEqual([
+      { limit: 100, cursor: undefined },
+      { limit: 100, cursor: 2 },
+    ]);
+  });
+
+  it('목표를 고르면 goalId로 재조회하고 버튼에 제목을 표시하며, 전체 목표를 고르면 goalId를 보내지 않는다', async () => {
+    const user = userEvent.setup();
+    renderCalendar();
+
+    await user.click(screen.getByRole('button', { name: '전체 목표' }));
+    await user.click(
+      await screen.findByRole('menuitemradio', { name: '목표 2' }),
+    );
+
+    const filterButton = screen.getByRole('button', { name: '목표 2' });
+    expect(mockedGetTodos.mock.lastCall?.[0]).toMatchObject({
+      from: '2024-12-30',
+      goalId: 2,
+    });
+
+    await user.click(filterButton);
+    await user.click(screen.getByRole('menuitemradio', { name: '전체 목표' }));
+
+    expect(
+      screen.getByRole('button', { name: '전체 목표' }),
+    ).toBeInTheDocument();
+    await screen.findAllByText('할 일 1');
+    expect(mockedGetTodos.mock.lastCall?.[0].goalId).toBeUndefined();
+  });
+
+  it('목표를 불러오지 못하면 에러를 표시하고 다시 열면 재요청한다', async () => {
+    const user = userEvent.setup();
+    mockedGetGoals.mockRejectedValue(new Error('mock network error'));
+    renderCalendar();
+
+    await user.click(screen.getByRole('button', { name: '전체 목표' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      '목표를 불러오지 못했어요',
+    );
+    expect(
+      screen.getByRole('menuitemradio', { name: '전체 목표' }),
+    ).toBeInTheDocument();
+
+    mockedGetGoals.mockImplementation(respondGoals);
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('button', { name: '전체 목표' }));
+
+    expect(
+      await screen.findByRole('menuitemradio', { name: '목표 2' }),
+    ).toBeInTheDocument();
   });
 });
