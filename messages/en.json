@@ -46,6 +46,8 @@
     "cancelPostConfirm": "Would you like to cancel writing this post?",
     "cancelPostWarning": "All the content you have written will be lost.",
     "allGoals": "All Goals",
+    "loadingGoals": "Loading goals…",
+    "fetchGoalsError": "Couldn't load goals.",
     "all": "ALL",
     "toDo": "TO DO",
     "done": "DONE",
@@ -92,7 +94,10 @@
     "favorite": "Favorite",
     "viewNote": "View Note",
     "copyLink": "Copy Link",
-    "moreActions": "More"
+    "moreActions": "More",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "dateWithTodoCount": "{date}, {count} to-dos"
   },
   "Auth": {
     "loginTitle": "Log in",

@@ -46,6 +46,8 @@
     "cancelPostConfirm": "게시물 작성을 취소하시겠어요?",
     "cancelPostWarning": "작성하신 모든 내용이 사라집니다",
     "allGoals": "전체 목표",
+    "loadingGoals": "목표를 불러오는 중이에요",
+    "fetchGoalsError": "목표를 불러오지 못했어요",
     "all": "ALL",
     "toDo": "TO DO",
     "done": "DONE",
@@ -92,7 +94,10 @@
     "favorite": "찜",
     "viewNote": "노트 보기",
     "copyLink": "링크 복사",
-    "moreActions": "더보기"
+    "moreActions": "더보기",
+    "previousMonth": "이전 달",
+    "nextMonth": "다음 달",
+    "dateWithTodoCount": "{date}, 할 일 {count}개"
   },
   "Auth": {
     "loginTitle": "로그인",
