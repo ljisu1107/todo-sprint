@@ -15,3 +15,10 @@ export interface GoalPageDto {
   nextCursor: number | null;
   totalCount: number;
 }
+
+/** POST /goals 요청과 응답. 생성 응답에는 할 일 집계가 없습니다. */
+export interface CreateGoalRequest {
+  title: string;
+}
+
+export type CreatedGoalDto = Omit<GoalDto, 'todoCount' | 'completedCount'>;
