@@ -92,7 +92,10 @@
     "favorite": "찜",
     "viewNote": "노트 보기",
     "copyLink": "링크 복사",
-    "moreActions": "더보기"
+    "moreActions": "더보기",
+    "previousMonth": "이전 달",
+    "nextMonth": "다음 달",
+    "dateWithTodoCount": "{date}, 할 일 {count}개"
   },
   "Auth": {
     "loginTitle": "로그인",

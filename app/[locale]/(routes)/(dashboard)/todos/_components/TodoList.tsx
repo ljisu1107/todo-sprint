@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 
 import TodoItem from '@/components/todo/TodoItem';
 import type { TodoNoteActions } from '@/components/todo/todoNoteActions';
+import useTodoItemActions from '@/hooks/todo/useTodoItemActions';
 import useTodoItemLabels from '@/hooks/todo/useTodoItemLabels';
 import Button from '@/components/ui/button/Button';
 import { toast } from '@/components/ui/toast/Toaster';
@@ -13,7 +14,6 @@ import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { todoQueries, type TodoListParams } from '@/queries/todo';
 import TodoListEmpty from './TodoListEmpty';
-import useTodoItemActions from './useTodoItemActions';
 
 // globals.css의 --breakpoint-md(744px)와 같은 값입니다.
 const TABLET_QUERY = '(min-width: 46.5rem)';
