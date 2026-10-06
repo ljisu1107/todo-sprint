@@ -95,6 +95,12 @@
     "viewNote": "노트 보기",
     "copyLink": "링크 복사",
     "moreActions": "더보기",
+    "toggleTodoDoneError": "완료 상태를 바꾸지 못했어요",
+    "toggleFavoriteError": "찜 상태를 바꾸지 못했어요",
+    "linkCopied": "링크를 복사했어요",
+    "copyLinkError": "링크를 복사하지 못했어요",
+    "deleteTodoConfirm": "{title} 할 일을 삭제하시겠습니까?",
+    "deleteTodoError": "할 일을 삭제하지 못했어요",
     "form": {
       "titlePlaceholder": "할 일의 제목을 적어주세요",
       "goalPlaceholder": "목표를 선택해주세요",

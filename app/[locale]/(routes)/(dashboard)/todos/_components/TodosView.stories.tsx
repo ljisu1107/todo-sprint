@@ -55,3 +55,8 @@ export const NextPageError: Story = {
   name: '다음 페이지 실패',
   beforeEach: () => mockTodosApi({ totalCount: 90, failAt: 1 }),
 };
+
+export const MutationError: Story = {
+  name: '수정·삭제·찜 요청 실패',
+  beforeEach: () => mockTodosApi({ totalCount: 12, failMutations: true }),
+};
