@@ -61,7 +61,7 @@ describe('useCreateTodo', () => {
     expect(mockedCreateTodo).toHaveBeenCalledWith({
       title: '보고서 작성',
       goalId: 3,
-      dueDate: '2026-10-10T23:59:59+09:00',
+      dueDate: '2026-10-10T14:59:59.000Z',
     });
     expect(todo).toBe(created);
   });

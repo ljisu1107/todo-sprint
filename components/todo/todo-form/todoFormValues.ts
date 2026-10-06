@@ -16,10 +16,11 @@ export const formatDueDateForDisplay = (date: string) => {
 /**
  * FN-TD-23: 사용자는 날짜만 선택하고, 전송은 ISO 8601입니다.
  * 서버의 할 일 날짜 필터가 KST 날짜를 기준으로 하므로,
- * 현재 생성 기능은 선택한 날짜의 KST 23:59:59를 마감 시각으로 전송합니다.
+ * 선택한 날짜의 KST 23:59:59를 유지하되, 서버 검증에 맞춰 UTC(Z)로 전송합니다.
  * 캘린더 연동 전에 다시 검토할 임시 계약입니다. 바꿀 때는 이 함수만 수정합니다.
  */
-export const toDueDateIso = (date: string) => `${date}T23:59:59+09:00`;
+export const toDueDateIso = (date: string) =>
+  new Date(`${date}T23:59:59+09:00`).toISOString();
 
 /**
  * 검증을 통과한 폼 값으로 POST /todos 본문을 만듭니다.
