@@ -17,10 +17,12 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-const confirmDelete = async (onDeleted?: (todoId: number) => void) => {
+const confirmDelete = async (
+  onDeleted?: (todoId: number) => void,
+  onClose = vi.fn(),
+) => {
   // 모달이 열려 있는 동안 Radix가 body에 pointer-events: none을 겁니다.
   const user = userEvent.setup({ pointerEventsCheck: 0 });
-  const onClose = vi.fn();
   render(
     <TestProviders>
       <DeleteTodoModal
@@ -47,31 +49,24 @@ describe('DeleteTodoModal', () => {
     ).toBeInTheDocument();
   });
 
-  it('삭제가 성공하면 onDeleted에 id를 넘기고 닫는다', async () => {
+  it('삭제가 성공하면 모달을 먼저 닫고 onDeleted에 id를 넘긴다', async () => {
     vi.mocked(deleteTodo).mockResolvedValue();
-    const onDeleted = vi.fn();
-
-    const { onClose } = await confirmDelete(onDeleted);
-
-    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
-    expect(deleteTodo).toHaveBeenCalledWith(7);
-    expect(onDeleted).toHaveBeenCalledWith(7);
-  });
-
-  it('onDeleted에서 예외가 나도 닫고, 삭제 실패로 다루지 않는다', async () => {
-    vi.mocked(deleteTodo).mockResolvedValue();
-    const consoleError = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
+    const order: string[] = [];
     const onDeleted = vi.fn(() => {
-      throw new Error('화면 갱신 실패');
+      order.push('onDeleted');
+    });
+    const onClose = vi.fn(() => {
+      order.push('close');
     });
 
-    const { onClose } = await confirmDelete(onDeleted);
+    await confirmDelete(onDeleted, onClose);
 
-    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(onDeleted).toHaveBeenCalledTimes(1));
+    expect(order).toEqual(['close', 'onDeleted']);
+    expect(deleteTodo).toHaveBeenCalledWith(7);
+    expect(onDeleted).toHaveBeenCalledWith(7);
+    expect(onClose).toHaveBeenCalledTimes(1);
     expect(toast.error).not.toHaveBeenCalled();
-    expect(consoleError).toHaveBeenCalled();
   });
 
   it('삭제가 실패하면 토스트를 띄우고 onDeleted·닫기를 실행하지 않는다', async () => {

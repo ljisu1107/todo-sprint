@@ -132,3 +132,37 @@ it('배치 위치가 달라도 같은 알림 상태와 열기 함수를 사용�
   ).not.toBeInTheDocument();
   expect(screen.getAllByRole('button', { name: '알림 열기' })).toHaveLength(3);
 });
+
+it.each([false, true])(
+  '메뉴 이동 시 태블릿 이상(%s)은 유지하고 모바일은 즉시 닫는다',
+  (wideScreen) => {
+    vi.stubGlobal('matchMedia', () => ({
+      matches: wideScreen,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    const { container } = render(<Gnb activeMenu="dashboard" />, { wrapper });
+    const toggle = screen.getByRole('button', { name: '메뉴 열기·닫기' });
+    fireEvent.click(toggle);
+    const link = menu().getByRole('link', { name: '캘린더' });
+    // Next Link가 브라우저 기본 이동을 막고 클라이언트 이동을 수행하는 상황입니다.
+    link.addEventListener('click', (event) => event.preventDefault(), {
+      once: true,
+    });
+    fireEvent.click(link);
+    expect(container.querySelector('aside')).toHaveAttribute(
+      'data-open',
+      String(wideScreen),
+    );
+    const panel = container.querySelector<HTMLElement>('#gnb-menu')!;
+    expect(panel.style.transitionDuration).toBe(wideScreen ? '' : '0s');
+    if (!wideScreen) {
+      fireEvent.click(toggle);
+      expect(panel.style.transitionDuration).toBe('');
+      expect(container.querySelector('aside')).toHaveAttribute(
+        'data-open',
+        'true',
+      );
+    }
+  },
+);

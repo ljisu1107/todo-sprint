@@ -51,6 +51,7 @@ export default function Gnb({
   // 현재는 UI 연결 구조만 마련된 상태로, 배지는 기본 false이며 조회·열기·읽음 기능은 미구현입니다.
   const notificationProps = { hasNotification, onOpen: onOpenNotifications };
   const [isOpen, setIsOpen] = useState(false);
+  const [closeImmediately, setCloseImmediately] = useState(false);
   // 선택 표시는 ConnectedGnb가 현재 경로로 결정합니다. 링크는 href로 이동합니다.
   const toggleRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -91,6 +92,27 @@ export default function Gnb({
       className="group/gnb peer/gnb sticky top-0 z-50 w-full bg-white-section text-foreground after:pointer-events-none after:fixed after:inset-0 after:z-10 after:hidden after:bg-black/40 after:opacity-0 after:transition-opacity after:duration-400 after:ease-out after:content-[''] motion-reduce:transition-none motion-reduce:after:transition-none md:fixed md:left-0 md:flex md:h-dvh md:w-15 md:flex-col md:overflow-hidden md:rounded-r-[40px] md:shadow-lg md:transition-[width] md:duration-400 md:ease-out md:after:block md:data-[open=true]:w-90.5 md:data-[open=true]:after:pointer-events-auto md:data-[open=true]:after:opacity-100 lg:w-90.5 lg:rounded-r-[48px] lg:after:hidden lg:data-[open=true]:w-24"
       onClick={(event) => {
         if (event.target === event.currentTarget) closeMenu();
+        // 모바일 페이지 이동은 메뉴를 즉시 닫습니다. Link의 기본 이동은 유지합니다.
+        const link = (event.target as Element).closest('a[href]');
+        if (
+          !link ||
+          link.getAttribute('href')?.startsWith('#') ||
+          link.getAttribute('target') === '_blank' ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey
+        )
+          return;
+        const breakpoint =
+          getComputedStyle(document.documentElement)
+            .getPropertyValue('--breakpoint-md')
+            .trim() || '46.5rem';
+        // Next Link도 정상 이동 시 preventDefault를 사용하므로 그 여부로 제외하지 않습니다.
+        if (!window.matchMedia(`(min-width: ${breakpoint})`).matches) {
+          setCloseImmediately(true);
+          closeMenu();
+        }
       }}
     >
       {/* 기본 헤더: 모바일의 닫힌 상단 바 / 태블릿·PC의 로고와 토글 버튼 */}
@@ -124,7 +146,10 @@ export default function Gnb({
           aria-controls="gnb-menu"
           onClick={() => {
             if (isOpen) closeMenu();
-            else setIsOpen(true);
+            else {
+              setCloseImmediately(false);
+              setIsOpen(true);
+            }
           }}
         >
           <span
@@ -167,7 +192,8 @@ export default function Gnb({
       <div
         ref={menuRef}
         id="gnb-menu"
-        className="absolute top-[-100dvh] left-0 z-30 flex h-dvh min-h-0 w-full flex-col gap-6 overflow-hidden bg-white-section pt-4 pb-14 transition-[top,visibility] duration-300 ease-out group-data-[open=false]/gnb:pointer-events-none group-data-[open=false]/gnb:invisible group-data-[open=true]/gnb:top-0 motion-reduce:transition-none md:relative md:top-auto md:h-auto md:flex-1 md:pb-9 md:group-data-[open=false]/gnb:pointer-events-auto md:group-data-[open=false]/gnb:visible md:group-data-[open=true]/gnb:top-auto"
+        style={closeImmediately ? { transitionDuration: '0s' } : undefined}
+        className="absolute top-[-100dvh] left-0 z-30 flex h-dvh min-h-0 w-full flex-col gap-6 overflow-hidden bg-white-section pt-4 pb-14 transition-[top,visibility] duration-500 ease-out group-data-[open=false]/gnb:pointer-events-none group-data-[open=false]/gnb:invisible group-data-[open=true]/gnb:top-0 motion-reduce:transition-none md:relative md:top-auto md:h-auto md:flex-1 md:pb-9 md:group-data-[open=false]/gnb:pointer-events-auto md:group-data-[open=false]/gnb:visible md:group-data-[open=true]/gnb:top-auto"
       >
         <div className="flex min-h-0 w-full flex-1 flex-col motion-reduce:transition-none md:px-8 md:transition-[opacity,visibility] md:duration-400 md:ease-out md:group-data-[open=false]/gnb:pointer-events-none md:group-data-[open=false]/gnb:invisible md:group-data-[open=false]/gnb:opacity-0 md:max-lg:group-data-[open=false]/gnb:duration-150 lg:group-data-[open=false]/gnb:pointer-events-auto lg:group-data-[open=false]/gnb:visible lg:group-data-[open=false]/gnb:opacity-100 lg:group-data-[open=true]/gnb:pointer-events-none lg:group-data-[open=true]/gnb:invisible lg:group-data-[open=true]/gnb:opacity-0 lg:group-data-[open=true]/gnb:duration-150">
           {/* 모바일에서 메뉴를 펼쳤을 때 표시하는 로고·닫기 버튼 */}

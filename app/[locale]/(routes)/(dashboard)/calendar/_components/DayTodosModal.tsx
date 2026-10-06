@@ -13,7 +13,7 @@ interface DayTodosModalProps {
   onOpenTodo: (todoId: number) => void;
 }
 
-// 노트 보기·작성은 노트 화면 연결 전까지 동작을 보류합니다.
+// 노트 연결 방식이 정해지기 전까지 비워 둡니다.
 const noteNotConnected = () => {};
 
 const DayTodosModal = ({
@@ -23,7 +23,8 @@ const DayTodosModal = ({
   onOpenTodo,
 }: DayTodosModalProps) => {
   const labels = useTodoItemLabels();
-  // 완료·찜·링크 복사는 공통 훅으로 연결합니다. 노트·더보기는 후속 연동입니다.
+  // 완료·찜·링크 복사는 공용 액션으로 동작합니다.
+  // TODO: [2026.10.01] 노트·더보기(kebabSlot)는 아직 동작하지 않음. 노트 연결 방식 확정 후 연동
   const actions = useTodoItemActions();
 
   const handleOpenChange = (isOpen: boolean) => {
