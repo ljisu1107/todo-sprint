@@ -5,6 +5,7 @@ import Image from 'next/image';
 import ActionButton from '@/components/ui/button/ActionButton';
 import NotificationButton from '@/components/common/NotificationButton';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { DEFAULT_PROFILE_IMAGE } from '@/lib/user/profileImage';
 
 export type MenuId =
   'dashboard' | 'goal' | 'calendar' | 'board' | 'favorites' | 'notes';
@@ -17,6 +18,7 @@ type GnbProps = {
   pageTitle?: string;
   userName?: string;
   userEmail?: string;
+  userImage?: string | null;
   hasNotification?: boolean;
   onOpenNotifications?: () => void;
 };
@@ -29,6 +31,7 @@ export default function Gnb({
   pageTitle = '대시보드',
   userName = '사용자',
   userEmail = '',
+  userImage,
   hasNotification = false,
   onOpenNotifications,
 }: GnbProps = {}) {
@@ -354,17 +357,19 @@ export default function Gnb({
             <div>
               <ul className="flex flex-col items-start gap-2 md:flex-row md:items-center">
                 <li className="w-full md:w-56 md:shrink-0">
-                  {/* 사용자 정보는 연결 컴포넌트에서 전달합니다. 내 정보 관리 경로는 추후 연결합니다. */}
+                  {/* 사용자 정보는 연결 컴포넌트에서 전달합니다. */}
                   <Link
-                    href="#"
+                    href="/mypage"
                     aria-label="내 정보 관리"
                     className="flex h-16 w-full items-center gap-2 rounded-full border border-solid border-subtle p-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500"
                   >
                     <Image
-                      src="/images/gnb/img_profile.jpg"
+                      src={userImage ?? DEFAULT_PROFILE_IMAGE}
                       alt=""
                       width={38}
                       height={38}
+                      // 소셜 로그인 프로필처럼 next.config의 remotePatterns에 없는 호스트의 이미지도 올 수 있습니다.
+                      unoptimized
                       className="size-9.5 shrink-0 rounded-full object-cover"
                     />
                     <span className="min-w-0">
