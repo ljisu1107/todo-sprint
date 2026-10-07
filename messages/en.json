@@ -3,7 +3,7 @@
     "dashboard": "Dashboard",
     "goal": "Goal",
     "list": "List",
-    "addGoal": "Add Goal",
+    "createGoal": "Create Goal",
     "calendar": "Calendar",
     "community": "Community",
     "favoriteTodos": "Favorite To-dos",
@@ -214,5 +214,12 @@
       "passwordTooLong": "Use 72 characters or fewer for your password.",
       "passwordMismatch": "The passwords do not match."
     }
+  },
+  "GoalCreate": {
+    "title": "Goal title",
+    "placeholder": "Enter the title of your goal",
+    "required": "Enter a goal title",
+    "tooLong": "Use no more than 100 characters",
+    "createError": "Could not create the goal. Please try again."
   }
 }

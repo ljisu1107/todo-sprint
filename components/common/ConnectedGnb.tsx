@@ -1,5 +1,7 @@
 'use client';
 
+import GoalCreateModal from '@/components/goal/goal-create/GoalCreateModal';
+import useCreateGoal from '@/hooks/goal/useCreateGoal';
 import TodoCreateModal from '@/components/todo/todo-create/TodoCreateModal';
 import Gnb, { type MenuId } from '@/components/common/Gnb';
 import { usePathname, useRouter } from '@/i18n/navigation';
@@ -23,6 +25,8 @@ import useCurrentUser from '@/hooks/useCurrentUser';
  */
 export default function ConnectedGnb() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isGoalCreateOpen, setIsGoalCreateOpen] = useState(false);
+  const createGoal = useCreateGoal();
   const pathname = usePathname();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -71,6 +75,7 @@ export default function ConnectedGnb() {
     <>
       <Gnb
         onCreateTodo={() => setIsCreateOpen(true)}
+        onCreateGoal={() => setIsGoalCreateOpen(true)}
         onLogout={() => void handleLogout()}
         isLoggingOut={isLoggingOut}
         activeMenu={menus[page] ?? null}
@@ -79,6 +84,14 @@ export default function ConnectedGnb() {
         userEmail={userEmail}
         userImage={userImage}
         hasNotification={false}
+      />
+      <GoalCreateModal
+        isOpen={isGoalCreateOpen}
+        onOpenChange={setIsGoalCreateOpen}
+        onSubmit={async (title) => {
+          await createGoal.mutateAsync({ title });
+          window.dispatchEvent(new Event('gnb:goal-created'));
+        }}
       />
       <TodoCreateModal
         isOpen={isCreateOpen}
