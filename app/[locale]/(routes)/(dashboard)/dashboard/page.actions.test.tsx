@@ -284,3 +284,12 @@ it('GNB에서 등록하면 대시보드 최근 목록·목표 목록·진행률�
     expect(getTodoProgress).toHaveBeenCalled();
   });
 });
+
+it('목표 생성 알림을 받으면 목표 목록을 다시 조회한다', async () => {
+  await setup();
+  vi.mocked(getGoals).mockClear();
+  act(() => {
+    window.dispatchEvent(new Event('gnb:goal-created'));
+  });
+  await waitFor(() => expect(getGoals).toHaveBeenCalled());
+});

@@ -2,7 +2,7 @@ import type { AxiosAdapter, InternalAxiosRequestConfig } from 'axios';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { api } from './client-fetcher';
-import { getGoals } from './goals';
+import { createGoal, getGoals } from './goals';
 
 const originalAdapter = api.defaults.adapter;
 afterEach(() => {
@@ -30,4 +30,24 @@ describe('getGoals', () => {
     expect(sent[0].params).toEqual({ limit: 20, cursor: 1 });
     expect(page.nextCursor).toBe(21);
   });
+});
+
+it('목표 생성은 POST /goals에 제목을 보내고 집계 없는 생성 응답을 반환한다', async () => {
+  const created = {
+    id: 3,
+    teamId: 'team-abc',
+    userId: 1,
+    title: '프로젝트 완성',
+    createdAt: '',
+    updatedAt: '',
+  };
+  let sent: InternalAxiosRequestConfig | undefined;
+  api.defaults.adapter = async (config) => {
+    sent = config;
+    return { data: created, status: 201, statusText: '', headers: {}, config };
+  };
+  expect(await createGoal({ title: created.title })).toEqual(created);
+  expect(sent?.url).toBe('/goals');
+  expect(sent?.method).toBe('post');
+  expect(JSON.parse(sent!.data)).toEqual({ title: created.title });
 });

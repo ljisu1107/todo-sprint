@@ -12,6 +12,7 @@ export type MenuId =
 type GnbProps = {
   activeMenu?: MenuId | null;
   onCreateTodo?: () => void;
+  onCreateGoal?: () => void;
   onLogout?: () => void;
   isLoggingOut?: boolean;
   pageTitle?: string;
@@ -24,6 +25,7 @@ type GnbProps = {
 export default function Gnb({
   activeMenu = null,
   onCreateTodo,
+  onCreateGoal,
   onLogout,
   isLoggingOut = false,
   pageTitle = '대시보드',
@@ -335,7 +337,15 @@ export default function Gnb({
             <div className="mt-6 mb-4 md:mt-25 md:mb-8">
               <ul className="grid grid-cols-2 gap-2">
                 <li className="flex min-w-0 justify-center">
-                  <ActionButton variant="goal" />
+                  <ActionButton
+                    variant="goal"
+                    className="cursor-pointer"
+                    disabled={!onCreateGoal}
+                    onClick={() => {
+                      closeMenu();
+                      onCreateGoal?.();
+                    }}
+                  />
                 </li>
                 <li className="flex min-w-0 justify-center">
                   <ActionButton

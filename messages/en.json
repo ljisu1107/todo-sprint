@@ -3,7 +3,7 @@
     "dashboard": "Dashboard",
     "goal": "Goal",
     "list": "List",
-    "addGoal": "Add Goal",
+    "createGoal": "Create Goal",
     "calendar": "Calendar",
     "community": "Community",
     "favoriteTodos": "Favorite To-dos",
@@ -183,5 +183,12 @@
   "Landing": {
     "sessionCheckError": "Unable to check your session. Please try again shortly.",
     "checkingSession": "Checking your session"
+  },
+  "GoalCreate": {
+    "title": "Goal title",
+    "placeholder": "Enter the title of your goal",
+    "required": "Enter a goal title",
+    "tooLong": "Use no more than 100 characters",
+    "createError": "Could not create the goal. Please try again."
   }
 }

@@ -55,6 +55,7 @@ export default function NoteForm({
   });
 
   const title = useWatch({ control, name: 'title' });
+  const titleLength = title.length;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -84,8 +85,8 @@ export default function NoteForm({
                 icon={
                   <Image
                     src="/icons/note_icon.svg"
-                    alt=""
                     width={40}
+                    alt="note"
                     height={40}
                   />
                 }
