@@ -45,7 +45,8 @@ const useProfileForm = (user: UserDto) => {
   const isNameChanged = name !== user.name.trim();
   // 검사한 뒤 이름을 다시 고치면 그 결과는 더 이상 쓰지 않습니다.
   const nameCheck = lastNameCheck?.name === name ? lastNameCheck : undefined;
-  const isNameReady = !isNameChanged || nameCheck?.isAvailable === true;
+  const isNameAvailable = isNameChanged && nameCheck?.isAvailable === true;
+  const isNameReady = !isNameChanged || isNameAvailable;
 
   const checkName = () =>
     checkNickname(name, {
@@ -80,7 +81,7 @@ const useProfileForm = (user: UserDto) => {
     formProps: { onSubmit: handleSubmit(submit), ...idleValidation },
     nameField: register('name'),
     nameError: nameError ? t(`errors.${nameError}`) : undefined,
-    isNameAvailable: isNameChanged && nameCheck?.isAvailable === true,
+    isNameAvailable,
     checkName,
     canCheckName:
       isNameChanged && name !== '' && !nameCheck && !isChecking && !isUpdating,
