@@ -79,6 +79,7 @@ const ProfileForm = () => {
             {/* 버튼과 입력의 아래쪽을 맞추려고 안내 문구를 TextField 밖에 둡니다. */}
             <p
               id={nameMessageId}
+              role="status"
               className={
                 nameError
                   ? 'min-h-5 text-sm text-danger'
