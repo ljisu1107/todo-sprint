@@ -7,8 +7,12 @@ import { z } from 'zod';
 import { useTranslations } from 'next-intl';
 import type { JSONContent } from '@tiptap/react';
 import Button from '@/components/ui/button/Button';
-import NoteEditor from '@/components/ui/editor/Editor';
 import Image from 'next/image';
+import EditorPageLayout from '@/components/note/EditorPageLayout';
+import NoteEditor from '@/components/ui/editor/Editor';
+import EditorTitleInput from './EditorTitleInput';
+
+const TITLE_MAX_LENGTH = 30;
 
 const schema = z.object({
   title: z.string().trim().min(1).max(30),
@@ -49,16 +53,14 @@ export default function NoteForm({
     resolver: zodResolver(schema),
     defaultValues: defaultValues ?? { title: '', content: undefined },
   });
+
   const title = useWatch({ control, name: 'title' });
-  const titleLength = title.length;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className={'mx-auto my-0 max-w-3xl items-center bg-grayscale-100'}>
-        <div
-          className={'mb-[1.4rem] flex flex-row items-center justify-between'}
-        >
-          <h2 className={'text-2xl font-semibold'}>{heading}</h2>
+      <EditorPageLayout
+        heading={heading}
+        actions={
           <Button
             type="submit"
             className="w-auto"
@@ -66,47 +68,35 @@ export default function NoteForm({
           >
             {submitLabel}
           </Button>
-        </div>
-        <div className={'gap-2.5 rounded-4xl bg-white px-8.5 py-8'}>
-          <Controller
-            control={control}
-            name="content"
-            render={({ field }) => (
-              <NoteEditor value={field.value} onChange={field.onChange}>
-                <div
-                  className={
-                    'mt-[1.4rem] flex flex-row flex-nowrap items-center'
-                  }
-                >
+        }
+      >
+        <Controller
+          control={control}
+          name="content"
+          render={({ field }) => (
+            <NoteEditor value={field.value} onChange={field.onChange}>
+              <EditorTitleInput
+                {...register('title')}
+                length={title.length}
+                maxLength={TITLE_MAX_LENGTH}
+                placeholder={t('noteTitlePlaceholder')}
+                aria-label={t('title')}
+                icon={
                   <Image
                     src="/icons/note_icon.svg"
-                    alt="note"
-                    height={40}
+                    alt=""
                     width={40}
+                    height={40}
                   />
-                  <input
-                    {...register('title')}
-                    maxLength={30}
-                    placeholder={t('noteTitlePlaceholder')}
-                    className={
-                      'w-full pl-3 text-2xl font-semibold outline-none placeholder:text-[#BBBBBB]'
-                    }
-                  />
-                  <span className={'ml-auto text-xs'}>
-                    {titleLength}/<span className={'text-orange-600'}>30</span>
-                  </span>
-                </div>
-
-                <div>
-                  <dl className="mt-7.5 grid grid-cols-2 gap-y-3 text-sm">
-                    {meta}
-                  </dl>
-                </div>
-              </NoteEditor>
-            )}
-          />
-        </div>
-      </div>
+                }
+              />
+              <dl className="mt-7.5 grid grid-cols-2 gap-y-3 text-sm">
+                {meta}
+              </dl>
+            </NoteEditor>
+          )}
+        />
+      </EditorPageLayout>
     </form>
   );
 }
