@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import NotesView from '@/components/note/NotesView';
+import NotesView from '@/app/[locale]/(routes)/(dashboard)/notes/_components/NotesView';
 import { Suspense } from 'react';
 
 export default function Page() {

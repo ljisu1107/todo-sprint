@@ -3,8 +3,8 @@
 import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import SearchInput from '@/components/ui/SearchInput';
-import NoteList from '@/components/note/NoteList';
-import NoteSortMenu from '@/components/note/NoteSortMenu';
+import NoteList from '@/app/[locale]/(routes)/(dashboard)/notes/_components/NoteList';
+import NoteSortMenu from '@/app/[locale]/(routes)/(dashboard)/notes/_components/NoteSortMenu';
 import { useSearchParams } from 'next/navigation';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import type { NoteSort } from '@/types/api/note';

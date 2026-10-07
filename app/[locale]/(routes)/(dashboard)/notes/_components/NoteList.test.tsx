@@ -7,7 +7,7 @@ import messages from '@/messages/ko.json';
 import { deleteNote, getNotes } from '@/lib/api/notes';
 import { toast } from '@/components/ui/toast/Toaster';
 import type { Note, NoteList as NoteListResponse } from '@/types/api/note';
-import NoteList from '@/components/note/NoteList';
+import NoteList from '@/app/[locale]/(routes)/(dashboard)/notes/_components/NoteList';
 
 vi.mock('@/lib/api/notes', () => ({ getNotes: vi.fn(), deleteNote: vi.fn() }));
 vi.mock('@/components/ui/toast/Toaster', () => ({ toast: { error: vi.fn() } }));

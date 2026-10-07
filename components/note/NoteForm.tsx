@@ -8,9 +8,9 @@ import { useTranslations } from 'next-intl';
 import type { JSONContent } from '@tiptap/react';
 import Button from '@/components/ui/button/Button';
 import Image from 'next/image';
-import EditorPageLayout from '@/components/note/EditorPageLayout';
+import EditorPageLayout from '@/components/ui/editor/EditorPageLayout';
 import NoteEditor from '@/components/ui/editor/Editor';
-import EditorTitleInput from './EditorTitleInput';
+import EditorTitleInput from '../ui/editor/EditorTitleInput';
 
 const TITLE_MAX_LENGTH = 30;
 
