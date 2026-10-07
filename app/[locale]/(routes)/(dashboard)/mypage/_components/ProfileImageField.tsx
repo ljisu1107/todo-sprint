@@ -10,7 +10,7 @@ import {
 } from '@/components/todo/todo-form/imageFile';
 import { toast } from '@/components/ui/toast/Toaster';
 import useImagePreview from '@/hooks/useImagePreview';
-import { DEFAULT_PROFILE_IMAGE } from '@/lib/user/profileImage';
+import { getProfileImageProps } from '@/lib/user/profileImage';
 
 interface ProfileImageFieldProps {
   imageUrl: string | null;
@@ -56,12 +56,10 @@ const ProfileImageField = ({
         />
       ) : (
         <Image
-          src={imageUrl ?? DEFAULT_PROFILE_IMAGE}
+          {...getProfileImageProps(imageUrl)}
           alt={t('profileImage')}
           width={132}
           height={132}
-          // 소셜 로그인 프로필처럼 next.config의 remotePatterns에 없는 호스트의 이미지도 올 수 있습니다.
-          unoptimized
           className="size-full rounded-full object-cover"
         />
       )}

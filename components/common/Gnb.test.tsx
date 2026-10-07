@@ -176,5 +176,5 @@ it('프로필 링크에 사용자 이미지를 보여주고, 없으면 기본 �
   expect(avatar()).toHaveAttribute('src', 'https://example.com/me.png');
 
   rerender(<Gnb userImage={null} />);
-  expect(avatar()).toHaveAttribute('src', '/images/gnb/img_profile.jpg');
+  expect(avatar()?.getAttribute('src')).toContain('img_profile.jpg');
 });

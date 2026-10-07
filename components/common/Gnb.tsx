@@ -5,7 +5,7 @@ import Image from 'next/image';
 import ActionButton from '@/components/ui/button/ActionButton';
 import NotificationButton from '@/components/common/NotificationButton';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import { DEFAULT_PROFILE_IMAGE } from '@/lib/user/profileImage';
+import { getProfileImageProps } from '@/lib/user/profileImage';
 
 export type MenuId =
   'dashboard' | 'goal' | 'calendar' | 'board' | 'favorites' | 'notes';
@@ -364,12 +364,10 @@ export default function Gnb({
                     className="flex h-16 w-full items-center gap-2 rounded-full border border-solid border-subtle p-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500"
                   >
                     <Image
-                      src={userImage ?? DEFAULT_PROFILE_IMAGE}
+                      {...getProfileImageProps(userImage)}
                       alt=""
                       width={38}
                       height={38}
-                      // 소셜 로그인 프로필처럼 next.config의 remotePatterns에 없는 호스트의 이미지도 올 수 있습니다.
-                      unoptimized
                       className="size-9.5 shrink-0 rounded-full object-cover"
                     />
                     <span className="min-w-0">
