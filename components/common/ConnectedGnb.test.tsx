@@ -11,6 +11,7 @@ import type { AnchorHTMLAttributes } from 'react';
 import TestProviders from '@/test/TestProviders';
 import { getMe } from '@/lib/api/user';
 import { userQueries } from '@/queries/user';
+import { createGoal } from '@/lib/api/goals';
 import { logout } from '@/lib/api/auth';
 import ConnectedGnb from './ConnectedGnb';
 import type { TodoCreateModalProps } from '@/components/todo/todo-create/TodoCreateModal';
@@ -50,6 +51,7 @@ vi.mock('@/components/todo/todo-create/TodoCreateModal', () => ({
       </div>
     ) : null,
 }));
+vi.mock('@/lib/api/goals', () => ({ createGoal: vi.fn() }));
 vi.mock('@/lib/api/auth', () => ({ logout: vi.fn() }));
 vi.mock('@/components/ui/toast/Toaster', () => ({
   toast: { error: toastError },
@@ -242,4 +244,69 @@ it('GNB 새 할 일에서 목표 선택 모달을 열고 성공 시 갱신 알�
   } finally {
     window.removeEventListener('gnb:todo-created', onCreated);
   }
+});
+
+it('새 목표 버튼에서 실제 목표 폼을 열고 등록 성공 시 닫으며 갱신 알림을 보낸다', async () => {
+  vi.mocked(createGoal).mockResolvedValue({
+    id: 3,
+    teamId: 'team',
+    userId: 1,
+    title: '새 목표 테스트',
+    createdAt: '',
+    updatedAt: '',
+  });
+  const onCreated = vi.fn();
+  window.addEventListener('gnb:goal-created', onCreated);
+  try {
+    render(
+      <TestProviders>
+        <ConnectedGnb />
+      </TestProviders>,
+    );
+    await screen.findByText('상환님의 대시보드');
+    fireEvent.click(screen.getByRole('button', { name: '새 목표' }));
+    const dialog = screen.getByRole('dialog', { name: '목표 생성' });
+    const input = within(dialog).getByRole('textbox', { name: /목표명/ });
+    expect(
+      within(dialog).getByRole('button', { name: '등록하기' }),
+    ).toBeDisabled();
+    fireEvent.change(input, { target: { value: '   ' } });
+    expect(
+      within(dialog).getByRole('button', { name: '등록하기' }),
+    ).toBeDisabled();
+    fireEvent.change(input, { target: { value: '가'.repeat(101) } });
+    expect(
+      within(dialog).getByRole('button', { name: '등록하기' }),
+    ).toBeDisabled();
+    fireEvent.change(input, { target: { value: '  새 목표 테스트  ' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: '등록하기' }));
+    await waitFor(() =>
+      expect(vi.mocked(createGoal).mock.calls[0]?.[0]).toEqual({
+        title: '새 목표 테스트',
+      }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+    );
+    expect(onCreated).toHaveBeenCalledTimes(1);
+  } finally {
+    window.removeEventListener('gnb:goal-created', onCreated);
+  }
+});
+
+it('목표 생성 실패 시 팝업과 입력값을 유지하고 재시도할 수 있다', async () => {
+  vi.mocked(createGoal).mockRejectedValue(new Error('Offline'));
+  render(
+    <TestProviders>
+      <ConnectedGnb />
+    </TestProviders>,
+  );
+  await screen.findByText('상환님의 대시보드');
+  fireEvent.click(screen.getByRole('button', { name: '새 목표' }));
+  const input = screen.getByRole('textbox', { name: /목표명/ });
+  fireEvent.change(input, { target: { value: '프로젝트 완성' } });
+  fireEvent.click(screen.getByRole('button', { name: '등록하기' }));
+  await waitFor(() => expect(toastError).toHaveBeenCalled());
+  expect(input).toHaveValue('프로젝트 완성');
+  expect(screen.getByRole('button', { name: '등록하기' })).toBeEnabled();
 });
