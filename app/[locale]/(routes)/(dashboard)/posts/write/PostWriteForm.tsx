@@ -24,7 +24,7 @@ export default function PostWriteForm() {
       });
       router.push(`/posts/${post.id}`);
     } catch {
-      toast.error('게시글을 등록하지 못했어요. 잠시 후 다시 시도해주세요');
+      toast.error(t('createPostError'));
     }
   };
   return (

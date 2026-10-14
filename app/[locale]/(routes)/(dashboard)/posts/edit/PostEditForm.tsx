@@ -37,7 +37,7 @@ export default function PostEditForm({ postId }: PostEditFormProps) {
       await updatePost({ title, content, image: imageUrl });
       router.push(`/posts/${postId}`);
     } catch {
-      toast.error('게시글을 수정하지 못했어요');
+      toast.error(t('updatePostError'));
     }
   };
 
