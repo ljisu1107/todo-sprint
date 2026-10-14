@@ -1,7 +1,7 @@
 import type { Editor } from '@tiptap/react';
 import { useEditorState } from '@tiptap/react';
 
-export default function Toolbar({ editor }: { editor: Editor }) {
+export default function NoteToolbar({ editor }: { editor: Editor }) {
   const s = useEditorState({
     editor,
     selector: ({ editor }) => ({
@@ -13,7 +13,6 @@ export default function Toolbar({ editor }: { editor: Editor }) {
       right: editor.isActive({ textAlign: 'right' }),
       list: editor.isActive('bulletList'),
       link: editor.isActive('link'),
-      image: editor.isActive('image'),
     }),
   });
 
