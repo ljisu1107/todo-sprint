@@ -48,6 +48,8 @@
     "postContentPlaceholder": "이 곳을 통해 내용을 작성해주세요",
     "cancelPostConfirm": "게시물 작성을 취소하시겠어요?",
     "cancelPostWarning": "작성하신 모든 내용이 사라집니다",
+    "updatePostError": "게시글을 수정하지 못했어요. 잠시 후 다시 시도해주세요",
+    "createPostError": "게시글을 등록하지 못했어요. 잠시 후 다시 시도해주세요",
     "allGoals": "전체 목표",
     "goalFilter": "목표 필터",
     "all": "ALL",
