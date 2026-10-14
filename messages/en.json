@@ -49,6 +49,7 @@
     "cancelPostConfirm": "Would you like to cancel writing this post?",
     "cancelPostWarning": "All the content you have written will be lost.",
     "allGoals": "All Goals",
+    "goalFilter": "Goal filter",
     "all": "ALL",
     "toDo": "TO DO",
     "done": "DONE",
@@ -73,6 +74,8 @@
     "goalProgress": "Goal Progress",
     "createTodo": "Create To-do",
     "editTodo": "Edit To-do",
+    "attachments": "Attachments",
+    "attachedImage": "Attached image",
     "title": "Title",
     "dueDate": "Due Date",
     "link": "Link",
@@ -186,7 +189,7 @@
   },
   "Landing": {
     "sessionCheckError": "Unable to check your session. Please try again shortly.",
-    "checkingSession": "Checking your session"
+    "checkingSession": "Checking login…"
   },
   "MyInfo": {
     "title": "My account",
