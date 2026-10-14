@@ -25,6 +25,8 @@
     "noNotes": "There are no notes yet.",
     "deleteNoteError": "Failed to delete the note",
     "writeNote": "Write a Note",
+    "editNote": "Edit Note",
+    "editPost": "Edit Post",
     "register": "Register",
     "noteTitlePlaceholder": "Enter the title of your note",
     "noteContentPlaceholder": "Start writing your note here",
