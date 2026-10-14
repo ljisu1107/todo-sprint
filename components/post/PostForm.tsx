@@ -10,7 +10,6 @@ import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslations } from 'next-intl';
-import type { JSONContent } from '@tiptap/react';
 import Button from '@/components/ui/button/Button';
 import PostEditor from '@/components/ui/editor/PostEditor';
 import { toast } from '@/components/ui/toast/Toaster';
@@ -131,12 +130,14 @@ export default function PostForm({
                 {image && (
                   <div className="relative mt-4 w-40">
                     {image instanceof File ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
                       <img
                         ref={previewRef}
                         alt="첨부 이미지 미리보기"
                         className="rounded-xl"
                       />
                     ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
                       <img
                         src={image}
                         alt="첨부 이미지"

@@ -6,7 +6,6 @@ import { useRouter } from '@/i18n/navigation';
 import { postMutations } from '@/queries/post';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from '@/components/ui/toast/Toaster';
-import { uploadImage } from '@/lib/api/images';
 
 export default function PostWriteForm() {
   const t = useTranslations('Todo');

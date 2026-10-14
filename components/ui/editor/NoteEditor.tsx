@@ -9,7 +9,6 @@ import {
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
 import { Placeholder } from '@tiptap/extensions';
-import PostToolbar from '@/components/ui/editor/PostToolbar';
 import { useTranslations } from 'next-intl';
 import NoteToolbar from '@/components/ui/editor/NoteToolbar';
 
