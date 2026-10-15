@@ -11,6 +11,8 @@ import MetaRow from '@/components/note/MetaRow';
 import { formatUtcDateToYmd } from '@/lib/formatter';
 import { todoQueries } from '@/queries/todo';
 import { useQuery } from '@tanstack/react-query';
+import TagChip from '@/components/todo/todo-form/fields/TagChip';
+import { getTagColor } from '@/components/todo/todo-form/tagColors';
 
 interface NoteWriteFormProps {
   /** 노트를 연결할 할 일 ID (page.tsx에서 검사를 마친 값) */
@@ -55,7 +57,13 @@ export default function NoteWriteForm({ todoId }: NoteWriteFormProps) {
             <TodoStatusChip isTodo={todo?.done} className="ml-1 shrink-0" />
           </MetaRow>
           <MetaRow icon="tag" label={t('tag')}>
-            태그들
+            {todo?.tags?.map((tag, index) => (
+              <TagChip
+                key={tag.id}
+                label={tag.name}
+                color={getTagColor(index)}
+              />
+            )) || '-'}
           </MetaRow>
         </>
       }

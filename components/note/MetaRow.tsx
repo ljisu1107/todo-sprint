@@ -13,7 +13,9 @@ export default function MetaRow({ icon, label, children }: Props) {
         </span>
         {label}
       </dt>
-      <dd className="flex min-w-0 flex-1 items-center">{children}</dd>
+      <dd className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+        {children}
+      </dd>
     </div>
   );
 }
