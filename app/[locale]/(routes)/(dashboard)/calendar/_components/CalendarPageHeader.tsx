@@ -21,7 +21,7 @@ const CalendarPageHeader = ({ onAddTodo }: CalendarPageHeaderProps) => {
       <Button
         variant="outline"
         size="sm"
-        className="w-30 gap-1"
+        className="w-auto min-w-30 gap-1 whitespace-nowrap"
         onClick={onAddTodo}
       >
         <IcPlus className="size-5 shrink-0" />
