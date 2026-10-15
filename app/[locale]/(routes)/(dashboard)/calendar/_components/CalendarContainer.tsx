@@ -3,7 +3,6 @@
 import { useSyncExternalStore } from 'react';
 
 import useGoalFilter from '../_hooks/useGoalFilter';
-import useOpenedTodo from '../_hooks/useOpenedTodo';
 import { toKstDateKey } from '../_lib/calendarDates';
 import MonthCalendar from './MonthCalendar';
 
@@ -20,7 +19,6 @@ const CalendarContainer = () => {
     getServerToday,
   );
   const { selectedGoalId, selectGoal } = useGoalFilter();
-  const { openedTodoId, openTodo, closeTodo } = useOpenedTodo();
 
   if (today === null) {
     return null;
@@ -31,9 +29,6 @@ const CalendarContainer = () => {
       today={today}
       selectedGoalId={selectedGoalId}
       onSelectGoal={selectGoal}
-      openedTodoId={openedTodoId}
-      onOpenTodo={openTodo}
-      onCloseTodo={closeTodo}
     />
   );
 };

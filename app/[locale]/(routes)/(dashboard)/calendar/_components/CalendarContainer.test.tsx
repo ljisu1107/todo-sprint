@@ -26,27 +26,16 @@ vi.mock('@/lib/api/notes', () => ({ getNote: vi.fn() }));
 
 const routerPush = vi.hoisted(() => vi.fn());
 
-// router.push·replace가 바꾼 쿼리를 useSearchParams가 다시 읽도록 URL을 흉내 냅니다.
+// router.replace가 바꾼 쿼리를 useSearchParams가 다시 읽도록 URL을 흉내 냅니다.
 const url = vi.hoisted(() => {
   let search = '';
-  let history: string[] = [];
   const listeners = new Set<() => void>();
-  const setSearch = (nextSearch: string) => {
-    search = nextSearch;
-    listeners.forEach((listener) => listener());
-  };
   return {
     getSearch: () => search,
     setSearch: (nextSearch: string) => {
-      history = [];
-      setSearch(nextSearch);
+      search = nextSearch;
+      listeners.forEach((listener) => listener());
     },
-    replace: setSearch,
-    push: (nextSearch: string) => {
-      history.push(search);
-      setSearch(nextSearch);
-    },
-    back: () => setSearch(history.pop() ?? search),
     subscribe: (listener: () => void) => {
       listeners.add(listener);
       return () => {
@@ -65,14 +54,8 @@ vi.mock('next/navigation', async () => {
 });
 vi.mock('@/i18n/navigation', () => ({
   useRouter: () => ({
-    push: (href: string) => {
-      routerPush(href);
-      if (href.startsWith('/calendar')) {
-        url.push(href.split('?')[1] ?? '');
-      }
-    },
-    replace: (href: string) => url.replace(href.split('?')[1] ?? ''),
-    back: url.back,
+    push: routerPush,
+    replace: (href: string) => url.setSearch(href.split('?')[1] ?? ''),
   }),
   usePathname: () => '/calendar',
 }));
@@ -133,6 +116,20 @@ const renderCalendar = () =>
       <CalendarContainer />
     </TestProviders>,
   );
+
+/** 1월 8일 날짜 모달을 열고 그 안의 할 일을 눌러 상세 모달을 엽니다. */
+const openTodoDetail = async (
+  user: ReturnType<typeof userEvent.setup>,
+  title: string,
+) => {
+  await user.click(
+    await screen.findByRole('button', { name: '2025년 1월 8일, 할 일 4개' }),
+  );
+  await user.click(
+    within(screen.getByRole('dialog')).getByRole('button', { name: title }),
+  );
+  return screen.findByRole('dialog', { name: new RegExp(title) });
+};
 
 beforeEach(() => {
   // KST로는 2025-01-10 00:30
@@ -262,28 +259,16 @@ describe('CalendarContainer', () => {
     expect(january8).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('날짜 모달에서 할 일을 누르면 URL에 todoId를 넣고 상세를 열며, 닫으면 날짜 모달로 돌아온다', async () => {
+  it('날짜 모달에서 할 일을 누르면 상세를 열고, 닫으면 날짜 모달로 돌아온다', async () => {
     const user = userEvent.setup();
-    url.setSearch('goalId=1');
     renderCalendar();
 
-    await user.click(
-      await screen.findByRole('button', { name: '2025년 1월 8일, 할 일 4개' }),
-    );
-    await user.click(
-      within(screen.getByRole('dialog')).getByRole('button', {
-        name: '할 일 4',
-      }),
-    );
-
-    expect(url.getSearch()).toBe('goalId=1&todoId=4');
-    const detail = await screen.findByRole('dialog', { name: /할 일 4/ });
+    const detail = await openTodoDetail(user, '할 일 4');
     expect(mockedGetTodo).toHaveBeenCalledWith(4, expect.anything());
     expect(screen.getAllByRole('dialog')).toHaveLength(1);
 
     await user.click(within(detail).getByRole('button', { name: '닫기' }));
 
-    expect(url.getSearch()).toBe('goalId=1');
     expect(
       within(screen.getByRole('dialog')).getByText('2025. 01. 08'),
     ).toBeInTheDocument();
@@ -333,15 +318,13 @@ describe('CalendarContainer', () => {
 
   it('할 일 상세의 작성된 노트를 누르면 상세를 닫고 노트 상세만 연다', async () => {
     const user = userEvent.setup();
-    url.setSearch('todoId=1');
     renderCalendar();
 
-    const detail = await screen.findByRole('dialog', { name: /할 일 1/ });
+    const detail = await openTodoDetail(user, '할 일 1');
     await user.click(
       await within(detail).findByRole('button', { name: '할 일 1 정리' }),
     );
 
-    expect(url.getSearch()).toBe('');
     await screen.findByRole('dialog', { name: '할 일 1 정리' });
     // 뒤에 깔린 모달도 세기 위해 숨겨진 dialog까지 셉니다.
     expect(screen.getAllByRole('dialog', { hidden: true })).toHaveLength(1);
@@ -349,14 +332,12 @@ describe('CalendarContainer', () => {
 
   it('할 일 상세의 케밥에서 수정하기를 누르면 상세를 닫고 수정 모달을 연다', async () => {
     const user = userEvent.setup();
-    url.setSearch('todoId=1');
     renderCalendar();
 
-    const detail = await screen.findByRole('dialog', { name: /할 일 1/ });
+    const detail = await openTodoDetail(user, '할 일 1');
     await user.click(within(detail).getByRole('button', { name: '더보기' }));
     await user.click(await screen.findByRole('menuitem', { name: '수정하기' }));
 
-    expect(url.getSearch()).toBe('');
     expect(
       await screen.findByRole('dialog', { name: '할 일 수정' }),
     ).toBeInTheDocument();
@@ -374,15 +355,7 @@ describe('CalendarContainer', () => {
     });
     renderCalendar();
 
-    await user.click(
-      await screen.findByRole('button', { name: '2025년 1월 8일, 할 일 4개' }),
-    );
-    await user.click(
-      within(screen.getByRole('dialog')).getByRole('button', {
-        name: '할 일 1',
-      }),
-    );
-    const detail = await screen.findByRole('dialog', { name: /할 일 1/ });
+    const detail = await openTodoDetail(user, '할 일 1');
     await user.click(within(detail).getByRole('button', { name: '더보기' }));
     await user.click(await screen.findByRole('menuitem', { name: '삭제하기' }));
     await user.click(
@@ -454,17 +427,6 @@ describe('CalendarContainer', () => {
     expect(
       within(dayModal).queryByRole('button', { name: '할 일 2' }),
     ).not.toBeInTheDocument();
-  });
-
-  it('URL에 todoId가 있으면 진입하자마자 상세를 열고, 닫으면 URL에서 todoId만 뺀다', async () => {
-    const user = userEvent.setup();
-    url.setSearch('goalId=1&todoId=2');
-    renderCalendar();
-
-    const detail = await screen.findByRole('dialog', { name: /할 일 2/ });
-    await user.click(within(detail).getByRole('button', { name: '닫기' }));
-
-    expect(url.getSearch()).toBe('goalId=1');
   });
 
   it('할 일 추가를 누르면 선택한 날짜와 목표 필터를 채운 생성 모달을 연다', async () => {

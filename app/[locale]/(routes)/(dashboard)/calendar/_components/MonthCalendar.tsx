@@ -31,25 +31,19 @@ interface MonthCalendarProps {
   /** null이면 전체 목표 */
   selectedGoalId: number | null;
   onSelectGoal: (goalId: number | null) => void;
-  /** 상세 모달로 연 할 일. null이면 닫힌 상태입니다. */
-  openedTodoId: number | null;
-  onOpenTodo: (todoId: number) => void;
-  onCloseTodo: () => void;
 }
 
 const MonthCalendar = ({
   today,
   selectedGoalId,
   onSelectGoal,
-  openedTodoId,
-  onOpenTodo,
-  onCloseTodo,
 }: MonthCalendarProps) => {
   const t = useTranslations('Todo');
   const [month, setMonth] = useState(() => getMonthKey(today));
   const [selectedDate, setSelectedDate] = useState(today);
   const [openedDate, setOpenedDate] = useState<DateKey | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [openedTodoId, setOpenedTodoId] = useState<number | null>(null);
   const [openedNoteId, setOpenedNoteId] = useState<number | null>(null);
   const [editTodoId, setEditTodoId] = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Pick<
@@ -77,6 +71,7 @@ const MonthCalendar = ({
     }
   };
   const handleCloseDay = () => setOpenedDate(null);
+  const handleCloseTodo = () => setOpenedTodoId(null);
   const handleAddTodo = () => setIsCreateOpen(true);
   const handleCreateNote = (todoId: number) =>
     router.push(`/notes/write?todoId=${todoId}`);
@@ -144,7 +139,7 @@ const MonthCalendar = ({
           dateKey={openedDate}
           todos={todosByDate.get(openedDate) ?? []}
           onClose={handleCloseDay}
-          onOpenTodo={onOpenTodo}
+          onOpenTodo={setOpenedTodoId}
           onViewNote={setOpenedNoteId}
           onCreateNote={handleCreateNote}
           onEditTodo={setEditTodoId}
@@ -154,17 +149,17 @@ const MonthCalendar = ({
       {/* 상세의 케밥·작성된 노트는 상세를 닫고 다음 레이어를 엽니다. */}
       <TodoDetailModal
         todoId={openedTodoId}
-        onClose={onCloseTodo}
+        onClose={handleCloseTodo}
         onEdit={(todoId) => {
-          onCloseTodo();
+          handleCloseTodo();
           setEditTodoId(todoId);
         }}
         onDelete={(todo) => {
-          onCloseTodo();
+          handleCloseTodo();
           setDeleteTarget(todo);
         }}
         onOpenNote={(noteId) => {
-          onCloseTodo();
+          handleCloseTodo();
           setOpenedNoteId(noteId);
         }}
       />

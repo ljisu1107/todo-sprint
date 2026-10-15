@@ -2,7 +2,7 @@ import { useSearchParams } from 'next/navigation';
 
 import useAllGoals from '@/hooks/goal/useAllGoals';
 import { usePathname, useRouter } from '@/i18n/navigation';
-import { parseIdParam } from '../_lib/parseIdParam';
+import { parseGoalId } from '../_lib/parseGoalId';
 
 const GOAL_ID_PARAM = 'goalId';
 
@@ -16,7 +16,7 @@ const useGoalFilter = () => {
   const pathname = usePathname();
   const { goals } = useAllGoals();
 
-  const requestedGoalId = parseIdParam(searchParams.get(GOAL_ID_PARAM));
+  const requestedGoalId = parseGoalId(searchParams.get(GOAL_ID_PARAM));
   // 목표를 다 받기 전에는 URL의 goalId를 그대로 쓰고, 받은 뒤 목록에 없으면 전체 목표로 봅니다.
   const isUnknownGoal =
     goals !== undefined && !goals.some(({ id }) => id === requestedGoalId);
