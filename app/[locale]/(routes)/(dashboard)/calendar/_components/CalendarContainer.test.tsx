@@ -4,12 +4,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getGoals, type GetGoalsParams } from '@/lib/api/goals';
 import { getTodos, type GetTodosParams } from '@/lib/api/todos';
+import { getMe } from '@/lib/api/user';
 import TestProviders from '@/test/TestProviders';
 import { makeTodo } from '@/test/todoMocks';
 import CalendarContainer from './CalendarContainer';
 
 vi.mock('@/lib/api/todos', () => ({ getTodos: vi.fn() }));
 vi.mock('@/lib/api/goals', () => ({ getGoals: vi.fn() }));
+vi.mock('@/lib/api/user', () => ({ getMe: vi.fn() }));
 
 // router.replace가 바꾼 쿼리를 useSearchParams가 다시 읽도록 URL을 흉내 냅니다.
 const url = vi.hoisted(() => {
@@ -46,6 +48,7 @@ vi.mock('@/i18n/navigation', () => ({
 
 const mockedGetTodos = vi.mocked(getTodos);
 const mockedGetGoals = vi.mocked(getGoals);
+const mockedGetMe = vi.mocked(getMe);
 
 const JAN_8 = '2025-01-08T00:00:00.000Z';
 const JAN_8_TODOS = [1, 2, 3, 4].map((id) =>
@@ -97,6 +100,15 @@ beforeEach(() => {
   url.setSearch('');
   mockedGetTodos.mockImplementation(respond);
   mockedGetGoals.mockImplementation(respondGoals);
+  mockedGetMe.mockResolvedValue({
+    id: 1,
+    teamId: 'team',
+    email: 'cheese@example.com',
+    name: '체다치즈',
+    image: null,
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
+  });
 });
 
 afterEach(() => {
@@ -177,6 +189,14 @@ describe('CalendarContainer', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  it('닉네임을 붙인 페이지 제목을 보여준다', async () => {
+    renderCalendar();
+
+    expect(
+      await screen.findByRole('heading', { name: '체다치즈님의 캘린더' }),
+    ).toBeInTheDocument();
+  });
+
   it('할 일이 있는 날짜를 누르면 선택되고 그날의 할 일 전체를 모달로 보여준다', async () => {
     const user = userEvent.setup();
     const onOpenTodo = vi.fn();
@@ -201,6 +221,22 @@ describe('CalendarContainer', () => {
     await user.click(within(modal).getByRole('button', { name: '닫기' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(january8).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('할 일 추가를 누르면 선택한 날짜와 목표 필터를 채운 생성 모달을 연다', async () => {
+    const user = userEvent.setup();
+    url.setSearch('goalId=2');
+    renderCalendar();
+    await screen.findByRole('button', { name: '목표 2' });
+
+    await user.click(screen.getByRole('button', { name: '2025년 1월 9일' }));
+    await user.click(screen.getAllByRole('button', { name: '할 일 추가' })[0]);
+
+    const modal = await screen.findByRole('dialog', { name: '할 일 생성' });
+    expect(
+      within(modal).getByRole('button', { name: /^마감기한/ }),
+    ).toHaveTextContent('2025. 01. 09');
+    expect(within(modal).getByRole('combobox')).toHaveTextContent('목표 2');
   });
 
   it('목표를 nextCursor가 null이 될 때까지 요청하고 목표 필터에서 전체 목표를 맨 위에 둔다', async () => {

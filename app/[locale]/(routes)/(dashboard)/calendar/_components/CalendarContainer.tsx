@@ -12,15 +12,11 @@ const getToday = () => toKstDateKey(new Date());
 const getServerToday = () => null;
 
 interface CalendarContainerProps {
-  // TODO: [2026.10.01] onAddTodo, onOpenTodo 콜백 주입하기
-  /** 할 일 생성 모달 열기 (FN-CL-12). 생성 모달이 생기면 연결합니다. */
-  onAddTodo?: () => void;
   /** 할 일 상세 모달 열기 (FN-CL-11). 상세 모달이 생기면 연결합니다. */
   onOpenTodo?: (todoId: number) => void;
 }
 
 const CalendarContainer = ({
-  onAddTodo = notConnected,
   onOpenTodo = notConnected,
 }: CalendarContainerProps) => {
   // 정적으로 프리렌더되는 페이지라 서버에서 오늘을 구하면 빌드 날짜가 HTML에 남습니다.
@@ -41,7 +37,6 @@ const CalendarContainer = ({
       today={today}
       selectedGoalId={selectedGoalId}
       onSelectGoal={selectGoal}
-      onAddTodo={onAddTodo}
       onOpenTodo={onOpenTodo}
     />
   );

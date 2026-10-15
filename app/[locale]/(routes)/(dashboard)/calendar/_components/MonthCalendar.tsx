@@ -3,8 +3,10 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import TodoCreateModal from '@/components/todo/todo-create/TodoCreateModal';
 import Button from '@/components/ui/button/Button';
 import IcPlus from '@/components/ui/icons/IcPlus';
+import useAllGoals from '@/hooks/goal/useAllGoals';
 import useCalendarTodos from '@/hooks/todo/useCalendarTodos';
 import {
   addMonths,
@@ -15,6 +17,7 @@ import {
 } from '../_lib/calendarDates';
 import CalendarGrid from './CalendarGrid';
 import CalendarHeader from './CalendarHeader';
+import CalendarPageHeader from './CalendarPageHeader';
 import DayTodosModal from './DayTodosModal';
 
 interface MonthCalendarProps {
@@ -22,7 +25,6 @@ interface MonthCalendarProps {
   /** null이면 전체 목표 */
   selectedGoalId: number | null;
   onSelectGoal: (goalId: number | null) => void;
-  onAddTodo: () => void;
   onOpenTodo: (todoId: number) => void;
 }
 
@@ -30,13 +32,15 @@ const MonthCalendar = ({
   today,
   selectedGoalId,
   onSelectGoal,
-  onAddTodo,
   onOpenTodo,
 }: MonthCalendarProps) => {
   const t = useTranslations('Todo');
   const [month, setMonth] = useState(() => getMonthKey(today));
   const [selectedDate, setSelectedDate] = useState(today);
   const [openedDate, setOpenedDate] = useState<DateKey | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const { goals } = useAllGoals();
+  const selectedGoal = goals?.find(({ id }) => id === selectedGoalId);
 
   const days = getCalendarDays(month);
   const { todos, isLoading, isError, retry } = useCalendarTodos({
@@ -55,9 +59,11 @@ const MonthCalendar = ({
     }
   };
   const handleCloseDay = () => setOpenedDate(null);
+  const handleAddTodo = () => setIsCreateOpen(true);
 
   return (
     <div className="mx-auto w-full max-w-7xl pb-16 md:pb-0">
+      <CalendarPageHeader onAddTodo={handleAddTodo} />
       <section className="-mx-4 overflow-hidden bg-white-section shadow-lg md:mx-0 md:rounded-3xl lg:rounded-4xl">
         <CalendarHeader
           month={month}
@@ -106,13 +112,20 @@ const MonthCalendar = ({
           onOpenTodo={onOpenTodo}
         />
       )}
+      {/* 생성에 성공하면 생성 mutation이 할 일 목록 query를 무효화해서 달력도 다시 조회합니다. */}
+      <TodoCreateModal
+        isOpen={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        initialGoal={selectedGoal}
+        initialDueDate={selectedDate}
+      />
 
       <div className="fixed inset-x-0 bottom-0 z-10 border-t border-subtle bg-white-section px-4 py-3 shadow-lg md:hidden">
         <Button
           variant="outline"
           size="sm"
           className="gap-1"
-          onClick={onAddTodo}
+          onClick={handleAddTodo}
         >
           <IcPlus className="size-5 shrink-0" />
           {t('addTodo')}
