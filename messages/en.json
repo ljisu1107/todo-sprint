@@ -81,6 +81,7 @@
     "title": "Title",
     "dueDate": "Due Date",
     "link": "Link",
+    "linkUpload": "Upload link",
     "image": "Image",
     "maxOneImage": "You can attach up to one image.",
     "status": "Status",
