@@ -401,6 +401,61 @@ describe('CalendarContainer', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('날짜 모달의 할 일 케밥에서 수정하기를 누르면 날짜 모달을 숨기고 수정 모달을 연다', async () => {
+    const user = userEvent.setup();
+    renderCalendar();
+
+    await user.click(
+      await screen.findByRole('button', { name: '2025년 1월 8일, 할 일 4개' }),
+    );
+    const dayItem = within(screen.getByRole('dialog'))
+      .getByRole('button', { name: '할 일 2' })
+      .closest('li')!;
+    await user.click(within(dayItem).getByRole('button', { name: '더보기' }));
+    await user.click(await screen.findByRole('menuitem', { name: '수정하기' }));
+
+    expect(
+      await screen.findByRole('dialog', { name: '할 일 수정' }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('dialog')).toHaveLength(1);
+  });
+
+  it('날짜 모달의 할 일 케밥에서 삭제하면 날짜 모달로 돌아와 그 할 일을 뺀다', async () => {
+    const user = userEvent.setup();
+    // 삭제가 끝나면 재조회 응답에서도 빠지도록 합니다.
+    mockedDeleteTodo.mockImplementation(() => {
+      mockedGetTodos.mockImplementation(async (params) => {
+        const page = await respond(params);
+        return { ...page, todos: page.todos.filter(({ id }) => id !== 2) };
+      });
+      return Promise.resolve();
+    });
+    renderCalendar();
+
+    await user.click(
+      await screen.findByRole('button', { name: '2025년 1월 8일, 할 일 4개' }),
+    );
+    const dayItem = within(screen.getByRole('dialog'))
+      .getByRole('button', { name: '할 일 2' })
+      .closest('li')!;
+    await user.click(within(dayItem).getByRole('button', { name: '더보기' }));
+    await user.click(await screen.findByRole('menuitem', { name: '삭제하기' }));
+    await user.click(
+      within(
+        await screen.findByRole('dialog', {
+          name: '할 일 2 할 일을 삭제하시겠습니까?',
+        }),
+      ).getByRole('button', { name: '확인' }),
+    );
+
+    expect(mockedDeleteTodo).toHaveBeenCalledWith(2);
+    const dayModal = await screen.findByRole('dialog');
+    expect(within(dayModal).getByText('2025. 01. 08')).toBeInTheDocument();
+    expect(
+      within(dayModal).queryByRole('button', { name: '할 일 2' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('URL에 todoId가 있으면 진입하자마자 상세를 열고, 닫으면 URL에서 todoId만 뺀다', async () => {
     const user = userEvent.setup();
     url.setSearch('goalId=1&todoId=2');

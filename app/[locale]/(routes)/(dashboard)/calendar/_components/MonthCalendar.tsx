@@ -147,6 +147,8 @@ const MonthCalendar = ({
           onOpenTodo={onOpenTodo}
           onViewNote={setOpenedNoteId}
           onCreateNote={handleCreateNote}
+          onEditTodo={setEditTodoId}
+          onDeleteTodo={setDeleteTarget}
         />
       )}
       {/* 상세의 케밥·작성된 노트는 상세를 닫고 다음 레이어를 엽니다. */}
