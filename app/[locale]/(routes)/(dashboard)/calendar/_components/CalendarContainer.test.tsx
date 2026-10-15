@@ -4,13 +4,22 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getGoals, type GetGoalsParams } from '@/lib/api/goals';
 import { getNote } from '@/lib/api/notes';
-import { getTodo, getTodos, type GetTodosParams } from '@/lib/api/todos';
+import {
+  deleteTodo,
+  getTodo,
+  getTodos,
+  type GetTodosParams,
+} from '@/lib/api/todos';
 import { getMe } from '@/lib/api/user';
 import TestProviders from '@/test/TestProviders';
 import { makeNote, makeTodo } from '@/test/todoMocks';
 import CalendarContainer from './CalendarContainer';
 
-vi.mock('@/lib/api/todos', () => ({ getTodos: vi.fn(), getTodo: vi.fn() }));
+vi.mock('@/lib/api/todos', () => ({
+  getTodos: vi.fn(),
+  getTodo: vi.fn(),
+  deleteTodo: vi.fn(),
+}));
 vi.mock('@/lib/api/goals', () => ({ getGoals: vi.fn() }));
 vi.mock('@/lib/api/user', () => ({ getMe: vi.fn() }));
 vi.mock('@/lib/api/notes', () => ({ getNote: vi.fn() }));
@@ -70,6 +79,7 @@ vi.mock('@/i18n/navigation', () => ({
 
 const mockedGetTodos = vi.mocked(getTodos);
 const mockedGetTodo = vi.mocked(getTodo);
+const mockedDeleteTodo = vi.mocked(deleteTodo);
 const mockedGetGoals = vi.mocked(getGoals);
 const mockedGetMe = vi.mocked(getMe);
 const mockedGetNote = vi.mocked(getNote);
@@ -335,6 +345,60 @@ describe('CalendarContainer', () => {
     await screen.findByRole('dialog', { name: '할 일 1 정리' });
     // 뒤에 깔린 모달도 세기 위해 숨겨진 dialog까지 셉니다.
     expect(screen.getAllByRole('dialog', { hidden: true })).toHaveLength(1);
+  });
+
+  it('할 일 상세의 케밥에서 수정하기를 누르면 상세를 닫고 수정 모달을 연다', async () => {
+    const user = userEvent.setup();
+    url.setSearch('todoId=1');
+    renderCalendar();
+
+    const detail = await screen.findByRole('dialog', { name: /할 일 1/ });
+    await user.click(within(detail).getByRole('button', { name: '더보기' }));
+    await user.click(await screen.findByRole('menuitem', { name: '수정하기' }));
+
+    expect(url.getSearch()).toBe('');
+    expect(
+      await screen.findByRole('dialog', { name: '할 일 수정' }),
+    ).toBeInTheDocument();
+  });
+
+  it('할 일 상세의 케밥에서 삭제하면 달력에서 빼고 날짜 모달로 돌아온다', async () => {
+    const user = userEvent.setup();
+    // 삭제가 끝나면 재조회 응답에서도 빠지도록 합니다.
+    mockedDeleteTodo.mockImplementation(() => {
+      mockedGetTodos.mockImplementation(async (params) => {
+        const page = await respond(params);
+        return { ...page, todos: page.todos.filter(({ id }) => id !== 1) };
+      });
+      return Promise.resolve();
+    });
+    renderCalendar();
+
+    await user.click(
+      await screen.findByRole('button', { name: '2025년 1월 8일, 할 일 4개' }),
+    );
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: '할 일 1',
+      }),
+    );
+    const detail = await screen.findByRole('dialog', { name: /할 일 1/ });
+    await user.click(within(detail).getByRole('button', { name: '더보기' }));
+    await user.click(await screen.findByRole('menuitem', { name: '삭제하기' }));
+    await user.click(
+      within(
+        await screen.findByRole('dialog', {
+          name: '할 일 1 할 일을 삭제하시겠습니까?',
+        }),
+      ).getByRole('button', { name: '확인' }),
+    );
+
+    expect(mockedDeleteTodo).toHaveBeenCalledWith(1);
+    const dayModal = await screen.findByRole('dialog');
+    expect(within(dayModal).getByText('2025. 01. 08')).toBeInTheDocument();
+    expect(
+      within(dayModal).queryByRole('button', { name: '할 일 1' }),
+    ).not.toBeInTheDocument();
   });
 
   it('URL에 todoId가 있으면 진입하자마자 상세를 열고, 닫으면 URL에서 todoId만 뺀다', async () => {
