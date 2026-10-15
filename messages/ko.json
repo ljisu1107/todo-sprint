@@ -101,6 +101,8 @@
     "completed": "완료",
     "favorite": "찜",
     "viewNote": "노트 보기",
+    "loadingNote": "노트를 불러오는 중이에요",
+    "fetchNoteError": "노트를 불러오지 못했어요",
     "copyLink": "링크 복사",
     "moreActions": "더보기",
     "toggleTodoDoneError": "완료 상태를 바꾸지 못했어요",

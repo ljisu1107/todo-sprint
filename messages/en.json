@@ -101,6 +101,8 @@
     "completed": "Completed",
     "favorite": "Favorite",
     "viewNote": "View Note",
+    "loadingNote": "Loading the note…",
+    "fetchNoteError": "Couldn't load the note.",
     "copyLink": "Copy Link",
     "moreActions": "More",
     "toggleTodoDoneError": "Couldn't update the to-do.",
