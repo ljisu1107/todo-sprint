@@ -169,7 +169,9 @@ const meta = {
     today: '2025-01-10',
     selectedGoalId: null,
     onSelectGoal: fn(),
+    openedTodoId: null,
     onOpenTodo: fn(),
+    onCloseTodo: fn(),
   },
   // 목표 필터를 고르면 반영되도록 선택한 목표를 스토리에서 들고 있습니다.
   render: function Render(args) {

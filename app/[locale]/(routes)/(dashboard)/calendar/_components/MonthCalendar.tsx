@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import TodoCreateModal from '@/components/todo/todo-create/TodoCreateModal';
+import TodoDetailModal from '@/components/todo/todo-detail/TodoDetailModal';
 import Button from '@/components/ui/button/Button';
 import IcPlus from '@/components/ui/icons/IcPlus';
 import useAllGoals from '@/hooks/goal/useAllGoals';
@@ -25,14 +26,19 @@ interface MonthCalendarProps {
   /** null이면 전체 목표 */
   selectedGoalId: number | null;
   onSelectGoal: (goalId: number | null) => void;
+  /** 상세 모달로 연 할 일. null이면 닫힌 상태입니다. */
+  openedTodoId: number | null;
   onOpenTodo: (todoId: number) => void;
+  onCloseTodo: () => void;
 }
 
 const MonthCalendar = ({
   today,
   selectedGoalId,
   onSelectGoal,
+  openedTodoId,
   onOpenTodo,
+  onCloseTodo,
 }: MonthCalendarProps) => {
   const t = useTranslations('Todo');
   const [month, setMonth] = useState(() => getMonthKey(today));
@@ -104,7 +110,8 @@ const MonthCalendar = ({
         />
       </section>
 
-      {openedDate !== null && (
+      {/* 상세가 열린 동안 날짜 모달을 숨겼다가, 상세를 닫으면 다시 보여 줍니다. */}
+      {openedDate !== null && openedTodoId === null && (
         <DayTodosModal
           dateKey={openedDate}
           todos={todosByDate.get(openedDate) ?? []}
@@ -112,6 +119,7 @@ const MonthCalendar = ({
           onOpenTodo={onOpenTodo}
         />
       )}
+      <TodoDetailModal todoId={openedTodoId} onClose={onCloseTodo} />
       {/* 생성에 성공하면 생성 mutation이 할 일 목록 query를 무효화해서 달력도 다시 조회합니다. */}
       <TodoCreateModal
         isOpen={isCreateOpen}

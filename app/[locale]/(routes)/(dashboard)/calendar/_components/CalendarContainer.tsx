@@ -3,22 +3,15 @@
 import { useSyncExternalStore } from 'react';
 
 import useGoalFilter from '../_hooks/useGoalFilter';
+import useOpenedTodo from '../_hooks/useOpenedTodo';
 import { toKstDateKey } from '../_lib/calendarDates';
 import MonthCalendar from './MonthCalendar';
 
-const notConnected = () => {};
 const subscribeToNothing = () => () => {};
 const getToday = () => toKstDateKey(new Date());
 const getServerToday = () => null;
 
-interface CalendarContainerProps {
-  /** 할 일 상세 모달 열기 (FN-CL-11). 상세 모달이 생기면 연결합니다. */
-  onOpenTodo?: (todoId: number) => void;
-}
-
-const CalendarContainer = ({
-  onOpenTodo = notConnected,
-}: CalendarContainerProps) => {
+const CalendarContainer = () => {
   // 정적으로 프리렌더되는 페이지라 서버에서 오늘을 구하면 빌드 날짜가 HTML에 남습니다.
   // 오늘(KST)은 브라우저에서만 구하고, 그 전에는 달력을 그리지 않습니다.
   const today = useSyncExternalStore(
@@ -27,6 +20,7 @@ const CalendarContainer = ({
     getServerToday,
   );
   const { selectedGoalId, selectGoal } = useGoalFilter();
+  const { openedTodoId, openTodo, closeTodo } = useOpenedTodo();
 
   if (today === null) {
     return null;
@@ -37,7 +31,9 @@ const CalendarContainer = ({
       today={today}
       selectedGoalId={selectedGoalId}
       onSelectGoal={selectGoal}
-      onOpenTodo={onOpenTodo}
+      openedTodoId={openedTodoId}
+      onOpenTodo={openTodo}
+      onCloseTodo={closeTodo}
     />
   );
 };
