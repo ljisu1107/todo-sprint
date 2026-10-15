@@ -1,38 +1,44 @@
 'use client';
 
-import {
-  useEditor,
-  EditorContent,
-  useEditorState,
-  JSONContent,
-} from '@tiptap/react';
+import { useEditor, EditorContent, useEditorState } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
 import { Placeholder } from '@tiptap/extensions';
-import Toolbar from '@/components/ui/editor/Toolbar';
 import { useTranslations } from 'next-intl';
+import PostToolbar from '@/components/ui/editor/PostToolbar';
 
 type Props = {
-  value?: JSONContent; // Tiptap 문서 JSON
-  onChange: (json: JSONContent | undefined) => void;
-  children: React.ReactNode; // 제목, 목표, 할일, 작성일, 태그 등 추가 데이터 컴포넌트
+  value?: string;
+  placeholder: string;
+  onChange: (html: string) => void;
+  onImageClick: () => void;
+  children: React.ReactNode;
 };
 
-export default function NoteEditor({ value, onChange, children }: Props) {
+export const postEditorExtensions = [
+  StarterKit,
+  TextAlign.configure({ types: ['paragraph', 'heading'] }),
+];
+
+export default function PostEditor({
+  value,
+  placeholder,
+  onChange,
+  onImageClick,
+  children,
+}: Props) {
   const t = useTranslations('Todo');
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ link: { openOnClick: false } }),
-      TextAlign.configure({ types: ['paragraph', 'heading'] }),
+      ...postEditorExtensions,
       Placeholder.configure({
-        placeholder: `${t('noteContentPlaceholder')}`,
+        placeholder: `${placeholder}`,
       }),
     ],
     content: value,
     immediatelyRender: false, // Next.js SSR hydration 에러 방지 (중요)
-    onUpdate: ({ editor }) =>
-      onChange(editor.isEmpty ? undefined : editor.getJSON()),
+    onUpdate: ({ editor }) => onChange(editor.isEmpty ? '' : editor.getHTML()),
     editorProps: {
       attributes: { class: 'min-h-[400px] outline-none' },
     },
@@ -54,7 +60,7 @@ export default function NoteEditor({ value, onChange, children }: Props) {
 
   return (
     <div>
-      <Toolbar editor={editor} />
+      <PostToolbar editor={editor} onImageClick={onImageClick} />
       {children}
       <EditorContent
         editor={editor}

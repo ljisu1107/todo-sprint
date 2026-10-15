@@ -152,7 +152,7 @@ it('할 일 제목은 해당 ID의 상세를 열고 연필은 새 노트 작성 
   ).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: '상세 닫기' }));
   await user.click(screen.getByRole('button', { name: '노트 작성하기' }));
-  expect(push).toHaveBeenCalledWith('/note/write?todoId=7');
+  expect(push).toHaveBeenCalledWith('/notes/write?todoId=7');
 });
 
 it('영문 목표 상세에서 빈 목록·노트·캘린더 링크 문구를 번역한다', async () => {
