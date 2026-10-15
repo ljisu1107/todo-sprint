@@ -11,20 +11,21 @@ interface DayTodosModalProps {
   todos: TodoDto[];
   onClose: () => void;
   onOpenTodo: (todoId: number) => void;
+  onViewNote: (noteId: number) => void;
+  onCreateNote: (todoId: number) => void;
 }
-
-// 노트 연결 방식이 정해지기 전까지 비워 둡니다.
-const noteNotConnected = () => {};
 
 const DayTodosModal = ({
   dateKey,
   todos,
   onClose,
   onOpenTodo,
+  onViewNote,
+  onCreateNote,
 }: DayTodosModalProps) => {
   const labels = useTodoItemLabels();
   // 완료·찜·링크 복사는 공용 액션으로 동작합니다.
-  // TODO: [2026.10.01] 노트·더보기(kebabSlot)는 아직 동작하지 않음. 노트 연결 방식 확정 후 연동
+  // TODO: [2026.10.01] 더보기(kebabSlot)는 아직 동작하지 않음
   const actions = useTodoItemActions();
 
   const handleOpenChange = (isOpen: boolean) => {
@@ -53,8 +54,8 @@ const DayTodosModal = ({
             size="small"
             {...actions}
             onOpenDetail={onOpenTodo}
-            onViewNote={noteNotConnected}
-            onCreateNote={noteNotConnected}
+            onViewNote={onViewNote}
+            onCreateNote={onCreateNote}
           />
         ))}
       </ul>

@@ -3,12 +3,14 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import NoteDetailDrawer from '@/components/note/note-detail/NoteDetailDrawer';
 import TodoCreateModal from '@/components/todo/todo-create/TodoCreateModal';
 import TodoDetailModal from '@/components/todo/todo-detail/TodoDetailModal';
 import Button from '@/components/ui/button/Button';
 import IcPlus from '@/components/ui/icons/IcPlus';
 import useAllGoals from '@/hooks/goal/useAllGoals';
 import useCalendarTodos from '@/hooks/todo/useCalendarTodos';
+import { useRouter } from '@/i18n/navigation';
 import {
   addMonths,
   getCalendarDays,
@@ -45,6 +47,8 @@ const MonthCalendar = ({
   const [selectedDate, setSelectedDate] = useState(today);
   const [openedDate, setOpenedDate] = useState<DateKey | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [openedNoteId, setOpenedNoteId] = useState<number | null>(null);
+  const router = useRouter();
   const { goals } = useAllGoals();
   const selectedGoal = goals?.find(({ id }) => id === selectedGoalId);
 
@@ -66,6 +70,8 @@ const MonthCalendar = ({
   };
   const handleCloseDay = () => setOpenedDate(null);
   const handleAddTodo = () => setIsCreateOpen(true);
+  const handleCreateNote = (todoId: number) =>
+    router.push(`/notes/write?todoId=${todoId}`);
 
   return (
     <div className="mx-auto w-full max-w-7xl pb-16 md:pb-0">
@@ -110,16 +116,32 @@ const MonthCalendar = ({
         />
       </section>
 
-      {/* 상세가 열린 동안 날짜 모달을 숨겼다가, 상세를 닫으면 다시 보여 줍니다. */}
-      {openedDate !== null && openedTodoId === null && (
-        <DayTodosModal
-          dateKey={openedDate}
-          todos={todosByDate.get(openedDate) ?? []}
-          onClose={handleCloseDay}
-          onOpenTodo={onOpenTodo}
-        />
-      )}
-      <TodoDetailModal todoId={openedTodoId} onClose={onCloseTodo} />
+      {/* 할 일 상세·노트 상세가 열린 동안 날짜 모달을 숨겼다가, 닫으면 다시 보여 줍니다. */}
+      {openedDate !== null &&
+        openedTodoId === null &&
+        openedNoteId === null && (
+          <DayTodosModal
+            dateKey={openedDate}
+            todos={todosByDate.get(openedDate) ?? []}
+            onClose={handleCloseDay}
+            onOpenTodo={onOpenTodo}
+            onViewNote={setOpenedNoteId}
+            onCreateNote={handleCreateNote}
+          />
+        )}
+      <TodoDetailModal
+        todoId={openedTodoId}
+        onClose={onCloseTodo}
+        // 상세를 닫고 노트 상세를 엽니다.
+        onOpenNote={(noteId) => {
+          onCloseTodo();
+          setOpenedNoteId(noteId);
+        }}
+      />
+      <NoteDetailDrawer
+        noteId={openedNoteId}
+        onClose={() => setOpenedNoteId(null)}
+      />
       {/* 생성에 성공하면 생성 mutation이 할 일 목록 query를 무효화해서 달력도 다시 조회합니다. */}
       <TodoCreateModal
         isOpen={isCreateOpen}

@@ -3,15 +3,19 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getGoals, type GetGoalsParams } from '@/lib/api/goals';
+import { getNote } from '@/lib/api/notes';
 import { getTodo, getTodos, type GetTodosParams } from '@/lib/api/todos';
 import { getMe } from '@/lib/api/user';
 import TestProviders from '@/test/TestProviders';
-import { makeTodo } from '@/test/todoMocks';
+import { makeNote, makeTodo } from '@/test/todoMocks';
 import CalendarContainer from './CalendarContainer';
 
 vi.mock('@/lib/api/todos', () => ({ getTodos: vi.fn(), getTodo: vi.fn() }));
 vi.mock('@/lib/api/goals', () => ({ getGoals: vi.fn() }));
 vi.mock('@/lib/api/user', () => ({ getMe: vi.fn() }));
+vi.mock('@/lib/api/notes', () => ({ getNote: vi.fn() }));
+
+const routerPush = vi.hoisted(() => vi.fn());
 
 // router.push·replace가 바꾼 쿼리를 useSearchParams가 다시 읽도록 URL을 흉내 냅니다.
 const url = vi.hoisted(() => {
@@ -52,7 +56,12 @@ vi.mock('next/navigation', async () => {
 });
 vi.mock('@/i18n/navigation', () => ({
   useRouter: () => ({
-    push: (href: string) => url.push(href.split('?')[1] ?? ''),
+    push: (href: string) => {
+      routerPush(href);
+      if (href.startsWith('/calendar')) {
+        url.push(href.split('?')[1] ?? '');
+      }
+    },
     replace: (href: string) => url.replace(href.split('?')[1] ?? ''),
     back: url.back,
   }),
@@ -63,10 +72,18 @@ const mockedGetTodos = vi.mocked(getTodos);
 const mockedGetTodo = vi.mocked(getTodo);
 const mockedGetGoals = vi.mocked(getGoals);
 const mockedGetMe = vi.mocked(getMe);
+const mockedGetNote = vi.mocked(getNote);
 
 const JAN_8 = '2025-01-08T00:00:00.000Z';
+const NOTE_ID = 7;
 const JAN_8_TODOS = [1, 2, 3, 4].map((id) =>
-  makeTodo(id, { title: `할 일 ${id}`, dueDate: JAN_8, done: false }),
+  makeTodo(id, {
+    title: `할 일 ${id}`,
+    dueDate: JAN_8,
+    done: false,
+    // 1번 할 일에만 노트가 있습니다.
+    noteIds: id === 1 ? [NOTE_ID] : [],
+  }),
 );
 
 // 1월 범위는 두 페이지로 나눠 주고, 다른 달은 비어 있습니다.
@@ -114,6 +131,9 @@ beforeEach(() => {
   url.setSearch('');
   mockedGetTodos.mockImplementation(respond);
   mockedGetGoals.mockImplementation(respondGoals);
+  mockedGetNote.mockImplementation(() =>
+    Promise.resolve(makeNote(JAN_8_TODOS[0])),
+  );
   mockedGetTodo.mockImplementation((todoId) =>
     Promise.resolve(JAN_8_TODOS[todoId - 1]),
   );
@@ -257,6 +277,64 @@ describe('CalendarContainer', () => {
     expect(
       within(screen.getByRole('dialog')).getByText('2025. 01. 08'),
     ).toBeInTheDocument();
+  });
+
+  it('날짜 모달에서 노트 보기를 누르면 노트 상세를 열고, 닫으면 날짜 모달로 돌아온다', async () => {
+    const user = userEvent.setup();
+    renderCalendar();
+
+    await user.click(
+      await screen.findByRole('button', { name: '2025년 1월 8일, 할 일 4개' }),
+    );
+    const dayItem = within(screen.getByRole('dialog'))
+      .getByRole('button', { name: '할 일 1' })
+      .closest('li')!;
+    await user.click(
+      within(dayItem).getByRole('button', { name: '노트 보기' }),
+    );
+
+    const drawer = await screen.findByRole('dialog', { name: '할 일 1 정리' });
+    expect(mockedGetNote).toHaveBeenCalledWith(NOTE_ID, expect.anything());
+    expect(screen.getAllByRole('dialog')).toHaveLength(1);
+
+    await user.click(within(drawer).getByRole('button', { name: '닫기' }));
+
+    expect(
+      within(screen.getByRole('dialog')).getByText('2025. 01. 08'),
+    ).toBeInTheDocument();
+  });
+
+  it('날짜 모달에서 노트 작성을 누르면 할 일 id를 넘겨 노트 작성 화면으로 이동한다', async () => {
+    const user = userEvent.setup();
+    renderCalendar();
+
+    await user.click(
+      await screen.findByRole('button', { name: '2025년 1월 8일, 할 일 4개' }),
+    );
+    const dayItem = within(screen.getByRole('dialog'))
+      .getByRole('button', { name: '할 일 2' })
+      .closest('li')!;
+    await user.click(
+      within(dayItem).getByRole('button', { name: '노트 작성하기' }),
+    );
+
+    expect(routerPush).toHaveBeenCalledWith('/notes/write?todoId=2');
+  });
+
+  it('할 일 상세의 작성된 노트를 누르면 상세를 닫고 노트 상세만 연다', async () => {
+    const user = userEvent.setup();
+    url.setSearch('todoId=1');
+    renderCalendar();
+
+    const detail = await screen.findByRole('dialog', { name: /할 일 1/ });
+    await user.click(
+      await within(detail).findByRole('button', { name: '할 일 1 정리' }),
+    );
+
+    expect(url.getSearch()).toBe('');
+    await screen.findByRole('dialog', { name: '할 일 1 정리' });
+    // 뒤에 깔린 모달도 세기 위해 숨겨진 dialog까지 셉니다.
+    expect(screen.getAllByRole('dialog', { hidden: true })).toHaveLength(1);
   });
 
   it('URL에 todoId가 있으면 진입하자마자 상세를 열고, 닫으면 URL에서 todoId만 뺀다', async () => {
