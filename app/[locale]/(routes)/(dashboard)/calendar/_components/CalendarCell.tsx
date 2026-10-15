@@ -61,7 +61,7 @@ const CalendarCell = ({
     <div
       className={cn(
         'relative isolate flex min-h-22 flex-col gap-1.5 border-r border-b border-subtle p-1.5 nth-[7n]:border-r-0 md:min-h-25 lg:min-h-38 lg:gap-1 lg:p-2',
-        isOutsideMonth ? 'bg-background' : 'bg-white-section',
+        isOutsideMonth ? 'bg-muted-section' : 'bg-white-section',
       )}
     >
       {/* after로 셀 전체를 클릭 영역으로 넓힙니다. 칩·점은 표시 전용이라 그 아래에 둡니다. */}
