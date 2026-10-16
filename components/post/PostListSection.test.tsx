@@ -1,12 +1,18 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import type { ComponentProps } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getPosts } from '@/lib/api/post';
+import { createMockPosts } from '@/lib/test/fixtures/post';
 import { postQueries } from '@/queries/post';
 import PostListSection from './PostListSection';
 
 vi.mock('@/lib/api/post', () => ({
   getPosts: vi.fn(async () => ({ posts: [], nextCursor: null, totalCount: 0 })),
+}));
+
+vi.mock('@/i18n/navigation', () => ({
+  Link: (props: ComponentProps<'a'>) => <a {...props} />,
 }));
 
 afterEach(cleanup);
@@ -38,6 +44,76 @@ describe('게시글 정렬', () => {
       ),
     );
     expect(screen.getByRole('button', { name: /인기순/ })).toBeInTheDocument();
+  });
+});
+
+describe('조건 변경 시 에러 초기화', () => {
+  it('목록 조회가 실패한 뒤 정렬을 바꾸면 에러를 지우고 새 목록을 보여 준다', async () => {
+    const [post] = createMockPosts(1);
+    vi.mocked(getPosts).mockImplementation(({ type }) =>
+      type === 'best'
+        ? Promise.resolve({ posts: [post], nextCursor: null, totalCount: 1 })
+        : Promise.reject(new Error('목록 조회 실패')),
+    );
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    render(
+      <QueryClientProvider
+        client={
+          new QueryClient({ defaultOptions: { queries: { retry: false } } })
+        }
+      >
+        <PostListSection />
+      </QueryClientProvider>,
+    );
+    await screen.findByText('게시글을 불러오지 못했어요.');
+
+    fireEvent.keyDown(screen.getByRole('button', { name: /최신순/ }), {
+      key: 'Enter',
+    });
+    fireEvent.click(
+      await screen.findByRole('menuitemradio', { name: '인기순' }),
+    );
+
+    await screen.findByText(post.title);
+    expect(
+      screen.queryByText('게시글을 불러오지 못했어요.'),
+    ).not.toBeInTheDocument();
+    vi.mocked(console.error).mockRestore();
+  });
+});
+
+describe('조건 변경 중 이전 목록 유지', () => {
+  it('새 정렬 목록을 받는 동안 이전 목록을 흐리게 유지한다', async () => {
+    const [post] = createMockPosts(1);
+    vi.mocked(getPosts).mockImplementation(({ type }) =>
+      type === 'best'
+        ? new Promise(() => {})
+        : Promise.resolve({ posts: [post], nextCursor: null, totalCount: 1 }),
+    );
+    const { container } = render(
+      <QueryClientProvider client={new QueryClient()}>
+        <PostListSection />
+      </QueryClientProvider>,
+    );
+    await screen.findByText(post.title);
+
+    fireEvent.keyDown(screen.getByRole('button', { name: /최신순/ }), {
+      key: 'Enter',
+    });
+    fireEvent.click(
+      await screen.findByRole('menuitemradio', { name: '인기순' }),
+    );
+    await vi.waitFor(() =>
+      expect(getPosts).toHaveBeenLastCalledWith(
+        expect.objectContaining({ type: 'best' }),
+        expect.anything(),
+      ),
+    );
+
+    expect(screen.getByRole('button', { name: /인기순/ })).toBeInTheDocument();
+    expect(screen.getByText(post.title)).toBeInTheDocument();
+    expect(container.querySelector('[aria-busy="true"]')).toBeInTheDocument();
+    expect(container.querySelector('.animate-pulse')).not.toBeInTheDocument();
   });
 });
 
@@ -90,15 +166,16 @@ describe('정렬 커서 초기화', () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(Date.now() + STALE_TIME + 1);
 
+    const allSortCalls = () =>
+      vi
+        .mocked(getPosts)
+        .mock.calls.filter(([params]) => params.type === 'all');
     await selectSort(/인기순/, '최신순');
-    await vi.waitFor(() => expect(getPosts).toHaveBeenCalled());
+    await vi.waitFor(() => expect(allSortCalls().length).toBeGreaterThan(0));
     await vi.waitFor(() => expect(queryClient.isFetching()).toBe(0));
 
     vi.useRealTimers();
-    const allSortCalls = vi
-      .mocked(getPosts)
-      .mock.calls.filter(([params]) => params.type === 'all');
-    expect(allSortCalls).toHaveLength(1);
+    expect(allSortCalls()).toHaveLength(1);
   });
 });
 
