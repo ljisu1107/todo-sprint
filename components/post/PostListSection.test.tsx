@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getPosts } from '@/lib/api/post';
+import { postQueries } from '@/queries/post';
 import PostListSection from './PostListSection';
 
 vi.mock('@/lib/api/post', () => ({
@@ -37,6 +38,67 @@ describe('게시글 정렬', () => {
       ),
     );
     expect(screen.getByRole('button', { name: /인기순/ })).toBeInTheDocument();
+  });
+});
+
+describe('정렬 커서 초기화', () => {
+  const selectSort = async (current: RegExp, next: string) => {
+    fireEvent.keyDown(screen.getByRole('button', { name: current }), {
+      key: 'Enter',
+    });
+    fireEvent.click(await screen.findByRole('menuitemradio', { name: next }));
+  };
+
+  it('봤던 정렬로 돌아오면 1페이지만 다시 조회한다', async () => {
+    const nextCursorOf: Record<string, string | null> = {
+      start: 'c1',
+      c1: 'c2',
+      c2: null,
+    };
+    vi.mocked(getPosts).mockImplementation(async ({ cursor }) => ({
+      posts: [],
+      nextCursor: nextCursorOf[cursor ?? 'start'],
+      totalCount: 0,
+    }));
+    // 앱과 같은 staleTime. 돌아올 때는 시간을 넘겨 stale 상태로 만듭니다.
+    const STALE_TIME = 60 * 1000;
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { staleTime: STALE_TIME } },
+    });
+    queryClient.setQueryData(
+      postQueries.list({ type: 'all', limit: 10 }).queryKey,
+      {
+        pages: ['c1', 'c2', null].map((nextCursor) => ({
+          posts: [],
+          nextCursor,
+          totalCount: 0,
+        })),
+        pageParams: [undefined, 'c1', 'c2'],
+      },
+    );
+    render(
+      <QueryClientProvider client={queryClient}>
+        <PostListSection />
+      </QueryClientProvider>,
+    );
+    await screen.findByText('아직 등록된 게시물이 없어요.');
+
+    await selectSort(/최신순/, '인기순');
+    await screen.findByRole('button', { name: /인기순/ });
+    await vi.waitFor(() => expect(queryClient.isFetching()).toBe(0));
+    vi.mocked(getPosts).mockClear();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(Date.now() + STALE_TIME + 1);
+
+    await selectSort(/인기순/, '최신순');
+    await vi.waitFor(() => expect(getPosts).toHaveBeenCalled());
+    await vi.waitFor(() => expect(queryClient.isFetching()).toBe(0));
+
+    vi.useRealTimers();
+    const allSortCalls = vi
+      .mocked(getPosts)
+      .mock.calls.filter(([params]) => params.type === 'all');
+    expect(allSortCalls).toHaveLength(1);
   });
 });
 
