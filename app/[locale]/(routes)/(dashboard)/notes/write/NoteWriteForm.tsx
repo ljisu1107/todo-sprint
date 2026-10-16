@@ -57,13 +57,19 @@ export default function NoteWriteForm({ todoId }: NoteWriteFormProps) {
             <TodoStatusChip isTodo={todo?.done} className="ml-1 shrink-0" />
           </MetaRow>
           <MetaRow icon="tag" label={t('tag')}>
-            {todo?.tags?.map((tag, index) => (
-              <TagChip
-                key={tag.id}
-                label={tag.name}
-                color={getTagColor(index)}
-              />
-            )) || '-'}
+            {todo?.tags && todo.tags.length > 0 ? (
+              <ul className="flex flex-wrap gap-1">
+                {todo.tags.map((tag, index) => (
+                  <TagChip
+                    key={tag.id}
+                    label={tag.name}
+                    color={getTagColor(index)}
+                  />
+                ))}
+              </ul>
+            ) : (
+              '-'
+            )}
           </MetaRow>
         </>
       }

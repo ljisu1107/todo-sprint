@@ -59,13 +59,19 @@ export default function NoteEditForm({ noteId }: NoteEditFormProps) {
             <TodoStatusChip isTodo={note.todo.done} className="ml-1 shrink-0" />
           </MetaRow>
           <MetaRow icon="tag" label={t('tag')}>
-            {note.todo.tags?.map((tag, index) => (
-              <TagChip
-                key={tag.id}
-                label={tag.name}
-                color={getTagColor(index)}
-              />
-            )) || '-'}
+            {note.todo.tags && note.todo.tags.length > 0 ? (
+              <ul className="flex flex-wrap gap-1">
+                {note.todo.tags.map((tag, index) => (
+                  <TagChip
+                    key={tag.id}
+                    label={tag.name}
+                    color={getTagColor(index)}
+                  />
+                ))}
+              </ul>
+            ) : (
+              '-'
+            )}
           </MetaRow>
         </>
       }
