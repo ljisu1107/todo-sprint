@@ -299,5 +299,13 @@
     "deleteError": "목표를 삭제하지 못했어요. 다시 시도해주세요.",
     "deleteConfirm": "정말 삭제하시겠어요?",
     "deleteWarning": "삭제된 목표는 복구할 수 없습니다."
+  },
+  "Setting": {
+    "title": "설정",
+    "language": "언어",
+    "theme": "테마",
+    "light": "라이트",
+    "dark": "다크",
+    "system": "시스템 설정"
   }
 }
