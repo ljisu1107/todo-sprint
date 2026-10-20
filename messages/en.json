@@ -302,9 +302,10 @@
   "Setting": {
     "title": "Settings",
     "language": "Language",
-    "theme": "Theme",
-    "light": "Light",
-    "dark": "Dark",
-    "system": "System"
+    "darkMode": "Dark mode",
+    "light": "Light mode",
+    "dark": "Dark mode",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   }
 }

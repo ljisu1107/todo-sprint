@@ -302,9 +302,10 @@
   "Setting": {
     "title": "설정",
     "language": "언어",
-    "theme": "테마",
-    "light": "라이트",
-    "dark": "다크",
-    "system": "시스템 설정"
+    "darkMode": "다크모드",
+    "light": "라이트 모드",
+    "dark": "다크 모드",
+    "cancel": "취소",
+    "confirm": "확인"
   }
 }

@@ -77,9 +77,9 @@ export default function Gnb({
   const notificationProps = { hasNotification, onOpen: onOpenNotifications };
   const [isOpen, setIsOpen] = useState(false);
   const [closeImmediately, setCloseImmediately] = useState(false);
-  // 선택 표시는 ConnectedGnb가 현재 경로로 결정합니다. 링크는 href로 이동합니다.
-  const [isSettingOpen, setIsSettingOpen] = useState(false);
   // 설정 팝업 오픈 여부
+  const [isSettingOpen, setIsSettingOpen] = useState(false);
+  // 선택 표시는 ConnectedGnb가 현재 경로로 결정합니다. 링크는 href로 이동합니다.
   const toggleRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
