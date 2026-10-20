@@ -10,8 +10,10 @@ import useDeleteComment from '@/hooks/post/useDeleteComment';
 import type { ApiHttpCategory } from '@/lib/api/errors';
 
 const DELETE_ERROR_MESSAGES: Record<ApiHttpCategory, string> = {
+  unauthorized: '댓글을 삭제하지 못했어요.',
   forbidden: '댓글을 삭제할 권한이 없어요.',
   notFound: '이미 삭제된 댓글이에요.',
+  conflict: '댓글을 삭제하지 못했어요.',
   other: '댓글을 삭제하지 못했어요.',
 };
 

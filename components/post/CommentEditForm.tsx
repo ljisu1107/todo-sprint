@@ -10,8 +10,10 @@ import type { CommentDto } from '@/types/api/comment';
 import CommentInput from './CommentInput';
 
 const UPDATE_ERROR_MESSAGES: Record<ApiHttpCategory, string> = {
+  unauthorized: '댓글을 수정하지 못했어요.',
   forbidden: '댓글을 수정할 권한이 없어요.',
   notFound: '이미 삭제된 댓글이에요.',
+  conflict: '댓글을 수정하지 못했어요.',
   other: '댓글을 수정하지 못했어요.',
 };
 

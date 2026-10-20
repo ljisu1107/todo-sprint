@@ -12,8 +12,10 @@ import { useRouter } from '@/i18n/navigation';
 import type { ApiHttpCategory } from '@/lib/api/errors';
 
 const DELETE_ERROR_MESSAGES: Record<ApiHttpCategory, string> = {
+  unauthorized: '게시글을 삭제하지 못했어요.',
   forbidden: '게시글을 삭제할 권한이 없어요.',
   notFound: '이미 삭제된 게시글이에요.',
+  conflict: '게시글을 삭제하지 못했어요.',
   other: '게시글을 삭제하지 못했어요.',
 };
 
