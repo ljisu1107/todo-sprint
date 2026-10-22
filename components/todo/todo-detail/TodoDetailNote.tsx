@@ -27,7 +27,7 @@ const TodoDetailNote = ({ noteId, onOpen }: TodoDetailNoteProps) => {
 
   return (
     <section className="flex flex-col gap-2">
-      <h3 className="text-sm/5 font-semibold tracking-[-0.03em] text-grayscale-700 md:text-base/6">
+      <h3 className="text-sm/5 font-semibold tracking-[-0.03em] text-foreground md:text-base/6">
         {t('writtenNotes')}
       </h3>
       <button
@@ -42,7 +42,7 @@ const TodoDetailNote = ({ noteId, onOpen }: TodoDetailNoteProps) => {
           height={32}
           className="size-8 shrink-0"
         />
-        <span className="min-w-0 flex-1 truncate text-base/6 font-medium text-grayscale-700">
+        <span className="min-w-0 flex-1 truncate text-base/6 font-medium text-foreground">
           {note?.title ?? t('viewNote')}
         </span>
         <span

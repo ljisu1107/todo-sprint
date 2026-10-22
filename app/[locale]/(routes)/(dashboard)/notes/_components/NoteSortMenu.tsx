@@ -39,13 +39,13 @@ export default function NoteSortMenu({ value, onChange }: NoteSortMenuProps) {
           >
             <DropdownMenu.RadioItem
               value="latest"
-              className="cursor-pointer rounded-lg px-4 py-2 text-sm outline-none data-highlighted:bg-grayscale-100 data-[state=checked]:font-semibold"
+              className="cursor-pointer rounded-lg px-4 py-2 text-sm outline-none data-highlighted:bg-grayscale-100 data-[state=checked]:font-semibold dark:data-highlighted:bg-grayscale-800"
             >
               {t('latest')}
             </DropdownMenu.RadioItem>
             <DropdownMenu.RadioItem
               value="oldest"
-              className="cursor-pointer rounded-lg px-4 py-2 text-sm outline-none data-highlighted:bg-grayscale-100 data-[state=checked]:font-semibold"
+              className="cursor-pointer rounded-lg px-4 py-2 text-sm outline-none data-highlighted:bg-grayscale-100 data-[state=checked]:font-semibold dark:data-highlighted:bg-grayscale-800"
             >
               {t('oldest')}
             </DropdownMenu.RadioItem>

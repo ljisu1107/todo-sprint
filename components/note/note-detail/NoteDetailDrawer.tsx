@@ -137,9 +137,7 @@ const NoteDetailDialog = ({
 
           {!note && isError && (
             <div className="flex flex-col items-center gap-4 py-10">
-              <p className="text-sm text-grayscale-500">
-                {t('fetchNoteError')}
-              </p>
+              <p className="text-sm text-muted">{t('fetchNoteError')}</p>
               <Button
                 variant="neutral"
                 size="sm"
