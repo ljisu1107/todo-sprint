@@ -1,4 +1,10 @@
 {
+  "Common": {
+    "retry": "다시 시도",
+    "cancel": "취소",
+    "confirm": "확인",
+    "more": "더보기"
+  },
   "Todo": {
     "dashboard": "작업대",
     "goal": "프로젝트",

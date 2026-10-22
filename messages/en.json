@@ -1,4 +1,10 @@
 {
+  "Common": {
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "more": "More"
+  },
   "Todo": {
     "dashboard": "Workspace",
     "goal": "Project",
