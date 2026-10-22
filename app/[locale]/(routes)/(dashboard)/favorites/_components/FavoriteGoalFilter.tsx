@@ -92,7 +92,7 @@ const FavoriteGoalFilter = ({ value, onChange }: FavoriteGoalFilterProps) => {
         <Select.Content
           position="popper"
           sideOffset={4}
-          className="z-50 max-h-65 w-(--radix-select-trigger-width) overflow-hidden rounded-2xl bg-white shadow-md"
+          className="z-50 max-h-65 w-(--radix-select-trigger-width) overflow-hidden rounded-2xl bg-white-section shadow-md"
         >
           <Select.Viewport>
             <Select.Item value={ALL_VALUE} className={ITEM_CLASS}>

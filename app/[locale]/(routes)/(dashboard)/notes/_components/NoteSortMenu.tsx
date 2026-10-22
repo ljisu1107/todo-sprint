@@ -31,7 +31,7 @@ export default function NoteSortMenu({ value, onChange }: NoteSortMenuProps) {
         <DropdownMenu.Content
           align="end"
           sideOffset={8}
-          className="rounded-xl bg-white p-1 shadow-md"
+          className="rounded-xl bg-white-section p-1 shadow-md"
         >
           <DropdownMenu.RadioGroup
             value={value}
