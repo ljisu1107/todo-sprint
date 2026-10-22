@@ -8,7 +8,7 @@ import { cva } from 'class-variance-authority';
  * aria-invalid·aria-describedby·label 연결은 여기서 다루지 않고 각 필드가 직접 지정합니다.
  */
 export const fieldBoxVariants = cva(
-  'flex min-h-11 w-full items-center gap-2 rounded-xl border px-3 text-sm/5 transition-colors outline-none placeholder:text-grayscale-500 motion-reduce:transition-none md:min-h-14 md:rounded-2xl md:px-4 md:text-base/6',
+  'flex min-h-11 w-full items-center gap-2 rounded-xl border bg-white-section px-3 text-sm/5 transition-colors outline-none placeholder:text-grayscale-500 motion-reduce:transition-none md:min-h-14 md:rounded-2xl md:px-4 md:text-base/6',
   {
     variants: {
       /** plain: 흰 배경 실선, upload: 회색 배경 점선(링크) */

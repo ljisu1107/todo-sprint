@@ -117,7 +117,7 @@ const ImageField = ({ value, onChange, error }: ImageFieldProps) => {
             onClick={() => inputRef.current?.click()}
             aria-describedby={cn(helpId, shownError && errorId)}
             className={cn(
-              'flex h-25.25 w-full flex-col items-center justify-center gap-0.5 rounded-2xl border bg-muted-section p-3 text-base/6 font-medium text-muted outline-none focus-visible:border-orange-500',
+              'flex h-25.25 w-full flex-col items-center justify-center gap-0.5 rounded-2xl border bg-white-section p-3 text-base/6 font-medium text-muted outline-none focus-visible:border-orange-500',
               shownError ? 'border-danger' : 'border-grayscale-300',
             )}
           >

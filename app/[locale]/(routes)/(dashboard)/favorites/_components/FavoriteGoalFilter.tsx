@@ -12,9 +12,9 @@ import type { FavoriteGoalFilterValue } from './filterFavoriteTodos';
 
 const ALL_VALUE = 'all';
 const STATUS_ROW_CLASS = 'px-3.5 py-3.5 text-sm/5 text-muted';
-const ITEM_CLASS = 'group cursor-pointer p-1.5 outline-none';
+const ITEM_CLASS = 'group cursor-pointer p-1.5 outline-none ';
 const ITEM_TEXT_CLASS =
-  'block truncate rounded-xl p-2 text-base/6 font-medium text-foreground group-data-highlighted:bg-orange-200';
+  'block truncate rounded-xl p-2 text-base/6 font-medium text-foreground group-data-highlighted:bg-orange-200 group-data-highlighted:text-orange-600';
 
 interface FavoriteGoalFilterProps {
   value: FavoriteGoalFilterValue;
