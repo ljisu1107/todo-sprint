@@ -16,9 +16,8 @@ const textfieldVariants = cva(
     variants: {
       isError: {
         true: 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100',
-
         false:
-          'border-grayscale-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100',
+          'border-input-border focus:border-blue-500 focus:ring-2 focus:ring-blue-100',
       },
       isPassword: {
         true: 'pr-10',
