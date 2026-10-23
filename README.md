@@ -8,8 +8,7 @@
 
 [🔗 서비스 바로가기](https://todo-sprint-4cus.vercel.app)
 
-<!-- 대표 스크린샷을 넣어 주세요 -->
-<!-- <img src="docs/images/main.png" alt="BrickByBrick 작업대 화면" width="800" /> -->
+<img src=".github/images/main.png" alt="BrickByBrick 작업대 화면" width="800" />
 
 </div>
 
